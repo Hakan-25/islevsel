@@ -2,19 +2,19 @@
 <html lang="tr">
 <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-MXHVBZBVZJ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-MXHVBZBVZJ');
-</script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-MXHVBZBVZJ');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Ücretsiz online JPG'den PDF'e çevirici. Dosyalarınız sunucuya yüklenmez, tarayıcıda işlenir.">
-    <title>PDF Dönüştürücü</title>
+    <title>PDF Dönüştürücü & Oyun</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        /* --- GENEL STİLLER --- */
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             background-color: #f8f9fa; 
@@ -23,114 +23,91 @@
             padding: 0; 
             display: flex;
             flex-direction: column;
+            align-items: center; /* Merkeze hizala */
             min-height: 100vh;
-        }
-        .main-content {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         .container { 
             background: white; 
-            width: 100%;
+            width: 90%;
             max-width: 480px; 
-            padding: 40px; 
+            padding: 30px; 
             border-radius: 16px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
             text-align: center; 
+            margin-top: 30px;
         }
-        h1 { 
-            font-size: 24px; 
-            margin-bottom: 30px; 
-            color: #222; 
-        }
+        h1 { font-size: 22px; margin-bottom: 20px; color: #222; }
         .btn { 
-            background-color: #007bff; 
-            color: white; 
-            padding: 15px 40px; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 16px; 
-            font-weight: 600; 
-            transition: background 0.2s; 
-            width: 100%;
-            margin-top: 20px;
+            background-color: #007bff; color: white; padding: 12px 30px; border: none; border-radius: 8px; 
+            cursor: pointer; font-size: 16px; font-weight: 600; transition: background 0.2s; width: 100%; margin-top: 20px;
         }
         .btn:hover { background-color: #0056b3; }
         .btn:disabled { background: #ccc; cursor: not-allowed; }
-        
-        /* Dosya yükleme alanı tasarımı */
         .file-upload-wrapper {
-            position: relative;
-            width: 100%;
-            height: 150px;
-            border: 2px dashed #ddd;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #fafafa;
-            transition: border 0.3s;
+            position: relative; width: 100%; height: 120px; border: 2px dashed #ddd; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; background: #fafafa; transition: border 0.3s;
         }
         .file-upload-wrapper:hover { border-color: #007bff; background: #f0f7ff; }
-        .file-upload-wrapper input {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-        .upload-text { pointer-events: none; color: #666; }
-        
-        /* Durum mesajı */
+        .file-upload-wrapper input { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .upload-text { pointer-events: none; color: #666; font-size: 14px; padding: 10px; }
         #status { margin-top: 20px; font-weight: 500; min-height: 24px; }
-        
-        /* Alt kısımdaki SEO yazıları (Göz yormasın diye gri yaptık) */
-        .seo-footer {
-            background-color: #fff;
-            padding: 40px 20px;
-            margin-top: 40px;
-            border-top: 1px solid #eee;
-            color: #666;
-            font-size: 14px;
-            line-height: 1.6;
+
+        /* --- OYUN STİLLERİ --- */
+        .game-container {
+            margin-top: 50px;
+            margin-bottom: 50px;
+            text-align: center;
         }
-        .seo-content { max-width: 800px; margin: 0 auto; }
+        #gameCanvas {
+            border: 4px solid #333;
+            border-radius: 8px;
+            background-color: #70c5ce; /* Gökyüzü rengi */
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .game-info {
+            color: #555; font-size: 14px; margin-top: 10px;
+        }
+
+        /* ALT BİLGİ */
+        .seo-footer {
+            background-color: #fff; padding: 30px 20px; margin-top: auto; border-top: 1px solid #eee; color: #666; font-size: 14px; line-height: 1.6; width: 100%; text-align: center;
+        }
     </style>
 </head>
 <body>
 
-<div class="main-content">
-    <div class="container">
-        <h1>JPG ➔ PDF Dönüştürücü</h1>
-        
-        <div class="file-upload-wrapper">
-            <span class="upload-text">📂 Resimleri seçmek için tıklayın veya sürükleyin</span>
-            <input type="file" id="imageInput" accept="image/*" multiple onchange="updateFileCount()">
-        </div>
-        
-        <p id="file-count" style="font-size: 14px; color: #007bff; display: none;"></p>
-
-        <button id="convertBtn" class="btn" onclick="convertToPDF()">Dönüştür ve İndir</button>
-        <p id="status"></p>
-
-        <div style="margin-top: 20px; font-size: 12px; color: #ccc;">
-            (Reklam Alanı)
-        </div>
+<div class="container">
+    <h1>JPG ➔ PDF Dönüştürücü</h1>
+    
+    <div class="file-upload-wrapper">
+        <span class="upload-text">📂 Resimleri seçmek için tıklayın veya sürükleyin</span>
+        <input type="file" id="imageInput" accept="image/*" multiple onchange="updateFileCount()">
     </div>
+    
+    <p id="file-count" style="font-size: 14px; color: #007bff; display: none;"></p>
+
+    <button id="convertBtn" class="btn" onclick="convertToPDF()">Dönüştür ve İndir</button>
+    <p id="status"></p>
 </div>
 
+<div class="game-container">
+    <h2>Canın mı sıkıldı? Oyna! 🐦</h2>
+    <canvas id="gameCanvas" width="320" height="480"></canvas>
+    <p class="game-info">Başlamak ve zıplamak için ekrana tıkla veya boşluk tuşuna bas.</p>
+    <h3 id="scoreDisplay">Skor: 0</h3>
+</div>
+
+
 <div class="seo-footer">
-    <div class="seo-content">
-        <h3>Hakkında</h3>
-        <p>Bu araç ile resim dosyalarınızı (JPG, PNG) hızlıca PDF formatına çevirebilirsiniz. İşlemler tamamen tarayıcınızda gerçekleşir, bu nedenle dosyalarınız sunucuya yüklenmez ve güvendedir.</p>
-        <p>&copy; 2025 Güvenli PDF Araçları.</p>
-    </div>
+    <p>Bu araç ile resim dosyalarınızı hızlıca PDF formatına çevirebilirsiniz. Dosyalarınız sunucuya yüklenmez.</p>
+    <p>&copy; 2025 Güvenli PDF Araçları.</p>
 </div>
 
 <script>
+    // ==============================
+    // PDF DÖNÜŞTÜRÜCÜ KODLARI
+    // ==============================
     function updateFileCount() {
         const input = document.getElementById('imageInput');
         const label = document.getElementById('file-count');
@@ -151,34 +128,26 @@
             return;
         }
 
-        btn.disabled = true;
-        btn.innerText = "Dönüştürülüyor...";
-        status.style.color = "#333";
-        status.innerText = "Lütfen bekleyin...";
+        btn.disabled = true; btn.innerText = "Dönüştürülüyor...";
+        status.style.color = "#333"; status.innerText = "Lütfen bekleyin...";
 
         try {
             const doc = new jsPDF();
-
             for (let i = 0; i < input.files.length; i++) {
                 const file = input.files[i];
                 const imageData = await readFileAsDataURL(file);
                 const imgProps = doc.getImageProperties(imageData);
                 const pdfWidth = doc.internal.pageSize.getWidth();
                 const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
                 if (i > 0) doc.addPage();
                 doc.addImage(imageData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
             }
-
             doc.save("belge.pdf");
-            status.style.color = "#28a745";
-            status.innerText = "✅ İndirme başladı!";
+            status.style.color = "#28a745"; status.innerText = "✅ İndirme başladı!";
         } catch (error) {
-            alert("Hata: " + error);
-            status.innerText = "";
+            alert("Hata: " + error); status.innerText = "";
         } finally {
-            btn.disabled = false;
-            btn.innerText = "Dönüştür ve İndir";
+            btn.disabled = false; btn.innerText = "Dönüştür ve İndir";
             setTimeout(() => { status.innerText = ""; }, 5000);
         }
     }
@@ -191,8 +160,116 @@
             reader.readAsDataURL(file);
         });
     }
+
+    // ==============================
+    // BASİT FLAPPY BIRD OYUN KODLARI
+    // ==============================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+
+    let gamePlaying = false;
+    let score = 0;
+    let bird = { x: 50, y: 150, width: 20, height: 20, velocity: 0, gravity: 0.5, jump: -8 };
+    let pipes = [];
+    let pipeWidth = 40;
+    let pipeGap = 120;
+    let frameCount = 0;
+
+    function drawBird() {
+        ctx.fillStyle = "#FFD700"; // Kuş rengi (Sarı)
+        ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
+    }
+
+    function drawPipes() {
+        ctx.fillStyle = "#2ecc71"; // Boru rengi (Yeşil)
+        pipes.forEach(pipe => {
+            ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
+            ctx.fillRect(pipe.x, canvas.height - pipe.bottomHeight, pipeWidth, pipe.bottomHeight);
+        });
+    }
+
+    function updateGame() {
+        if (!gamePlaying) return;
+
+        bird.velocity += bird.gravity;
+        bird.y += bird.velocity;
+
+        if (bird.y + bird.height > canvas.height || bird.y < 0) {
+            resetGame();
+        }
+
+        if (frameCount % 100 === 0) {
+            let topHeight = Math.random() * (canvas.height / 2);
+            let bottomHeight = canvas.height - topHeight - pipeGap;
+            pipes.push({ x: canvas.width, topHeight: topHeight, bottomHeight: bottomHeight });
+        }
+
+        pipes.forEach((pipe, index) => {
+            pipe.x -= 2; // Boru hızı
+
+            if (bird.x < pipe.x + pipeWidth &&
+                bird.x + bird.width > pipe.x &&
+                (bird.y < pipe.topHeight || bird.y + bird.height > canvas.height - pipe.bottomHeight)) {
+                resetGame();
+            }
+
+            if (pipe.x + pipeWidth < 0) {
+                pipes.splice(index, 1);
+                score++;
+                scoreDisplay.innerText = "Skor: " + score;
+            }
+        });
+        frameCount++;
+    }
+
+    function resetGame() {
+        gamePlaying = false;
+        bird.y = 150;
+        bird.velocity = 0;
+        pipes = [];
+        score = 0;
+        scoreDisplay.innerText = "Skor: 0 (Tekrar oynamak için tıkla)";
+        frameCount = 0;
+        draw();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBird();
+        drawPipes();
+        if (!gamePlaying) {
+            ctx.fillStyle = "rgba(0,0,0,0.5)";
+            ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = "white";
+            ctx.font = "20px Arial";
+            ctx.fillText("Başlamak için Tıkla", 70, 240);
+        }
+    }
+
+    function jump() {
+        if (!gamePlaying) {
+            gamePlaying = true;
+            gameLoop();
+        }
+        bird.velocity = bird.jump;
+    }
+
+    canvas.addEventListener('click', jump);
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') jump();
+    });
+
+    function gameLoop() {
+        if (gamePlaying) {
+            updateGame();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+    }
+
+    resetGame(); // Oyunu başlangıç durumuna getir
 </script>
 
 </body>
-
 </html>
