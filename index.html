@@ -190,10 +190,12 @@
         }
     });
 
-    // GRAFİK ÇİZİM FONKSİYONLARI (Sprite yok, Kodla Çizim var)
+    // GRAFİK ÇİZİM FONKSİYONLARI
     const bird = {
         x: 50, y: 150, radius: 12,
-        velocity: 0, gravity: 0.25, jump: -4.6, // FİZİK AYARLARI (Daha yumuşak)
+        velocity: 0, 
+        gravity: 0.12,  // GÜNCELLENDİ: Daha yavaş düşüş (0.25'ten 0.12'ye indi)
+        jump: -3.6,     // GÜNCELLENDİ: Daha dengeli zıplama
         
         draw: function() {
             // Kuşun Gövdesi
@@ -297,7 +299,7 @@
 
     const pipes = {
         position: [],
-        w: 52, h: 400, gap: 100, dx: 2,
+        w: 52, h: 400, gap: 110, dx: 2, // GAP arttırıldı (Daha geniş aralık)
         
         draw: function() {
             for(let i = 0; i < this.position.length; i++){
