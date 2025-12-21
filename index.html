@@ -11,90 +11,56 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="description" content="Ücretsiz PDF Dönüştürücü ve Oyun.">
-    <title>PDF Dönüştürücü & Pro Oyun</title>
+    <title>PDF & Pro Flappy</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
-        /* --- MODERN & TEMİZ TASARIM --- */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f0f2f5; 
-            color: #333; 
-            margin: 0; 
-            padding: 0; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            background-color: #f0f2f5; color: #333; 
+            margin: 0; padding: 0; 
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
         
-        /* PDF KUTUSU STİLİ */
         .tool-container { 
-            background: white; 
-            width: 90%; 
-            max-width: 500px; 
-            padding: 30px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            text-align: center; 
-            margin-top: 40px;
-            margin-bottom: 40px;
-            transition: transform 0.3s ease;
+            background: white; width: 90%; max-width: 500px; padding: 30px; 
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            text-align: center; margin-top: 30px; margin-bottom: 30px;
         }
-        .tool-container:hover { transform: translateY(-5px); }
 
-        h1 { font-size: 24px; color: #2c3e50; margin-bottom: 25px; font-weight: 700; }
-        
         .btn { 
             background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
             color: white; padding: 15px 30px; border: none; border-radius: 50px; 
             cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; margin-top: 20px;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-            transition: all 0.2s;
         }
-        .btn:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6); }
-        .btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
 
         .file-area {
             border: 2px dashed #cbd5e0; border-radius: 15px; padding: 30px;
-            background: #f8fafc; cursor: pointer; transition: border-color 0.3s;
+            background: #f8fafc; cursor: pointer;
         }
-        .file-area:hover { border-color: #4facfe; background: #ebf8ff; }
 
-        /* OYUN ALANI STİLİ */
-        .game-wrapper {
-            position: relative;
-            margin-bottom: 50px;
-        }
+        .game-wrapper { position: relative; margin-bottom: 50px; }
         canvas {
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-            background: linear-gradient(#4facfe, #00f2fe); /* Gökyüzü */
-            cursor: pointer;
-            display: block;
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            background: linear-gradient(#4facfe, #00f2fe); cursor: pointer; display: block;
         }
-        .game-ui {
-            text-align: center; margin-top: 10px; color: #555; font-size: 14px;
-        }
-        
+        .game-ui { text-align: center; margin-top: 10px; color: #555; font-size: 14px; }
         .footer { font-size: 12px; color: #999; margin-bottom: 20px; margin-top: auto; }
     </style>
 </head>
 <body>
 
 <div class="tool-container">
-    <h1>📄 Resimden PDF'e</h1>
-    
+    <h3>📄 Resimden PDF'e</h3>
     <div class="file-area" onclick="document.getElementById('imageInput').click()">
-        <span style="font-size: 40px;">📂</span><br>
-        <span style="color: #666; font-size: 14px;">Resimleri seçmek için tıkla</span>
+        <span style="font-size: 30px;">📂</span><br>
+        <span style="font-size: 14px; color:#666">Resim seçmek için tıkla</span>
         <input type="file" id="imageInput" accept="image/*" multiple style="display: none" onchange="updateFileCount()">
     </div>
-    
-    <p id="file-count" style="margin-top:10px; color:#007bff; font-weight:bold;"></p>
+    <p id="file-count" style="margin:10px 0 0 0; color:#007bff; font-weight:bold; font-size:14px;"></p>
     <button id="convertBtn" class="btn" onclick="convertToPDF()">PDF OLUŞTUR</button>
-    <p id="status" style="margin-top:15px; font-weight:500;"></p>
+    <p id="status" style="margin-top:10px; font-size:14px;"></p>
 </div>
 
 <div class="game-wrapper">
@@ -105,9 +71,7 @@
     </div>
 </div>
 
-<div class="footer">
-    &copy; 2025 Güvenli Araçlar & Oyun Stüdyosu.
-</div>
+<div class="footer">&copy; 2025 Güvenli Araçlar.</div>
 
 <script>
     // --- PDF FONKSİYONLARI ---
@@ -116,18 +80,14 @@
         const label = document.getElementById('file-count');
         if(input.files.length > 0) label.innerText = input.files.length + " resim seçildi.";
     }
-
     async function convertToPDF() {
         const { jsPDF } = window.jspdf;
         const input = document.getElementById('imageInput');
         const status = document.getElementById('status');
         const btn = document.getElementById('convertBtn');
-
         if (input.files.length === 0) { alert("Lütfen resim seçiniz."); return; }
-
         btn.disabled = true; btn.innerText = "İşleniyor...";
-        status.innerText = "PDF hazırlanıyor...";
-
+        status.innerText = "Hazırlanıyor...";
         try {
             const doc = new jsPDF();
             for (let i = 0; i < input.files.length; i++) {
@@ -142,9 +102,8 @@
             doc.save("dosyalarim.pdf");
             status.innerText = "✅ İndirildi!";
         } catch (error) { alert("Hata: " + error); } 
-        finally { btn.disabled = false; btn.innerText = "PDF OLUŞTUR"; }
+        finally { btn.disabled = false; btn.innerText = "PDF OLUŞTUR"; status.innerText = ""; }
     }
-
     function readFileAsDataURL(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -154,34 +113,28 @@
         });
     }
 
-    // --- PROFESYONEL OYUN MOTORU ---
+    // --- OYUN MOTORU ---
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     
-    // Oyun Değişkenleri
-    let state = { current: 0, getReady: 0, game: 1, over: 2 }; // Oyun durumları
+    let state = { current: 0, getReady: 0, game: 1, over: 2 };
     let frames = 0;
     let score = { best: localStorage.getItem('flappy_highscore') || 0, value: 0 };
     document.getElementById('highScoreText').innerText = score.best;
+    
+    // HIZ DEĞİŞKENİ (Giderek artacak)
+    let gameSpeed = 1.5; // Başlangıç hızı (Daha yavaş)
 
-    // Kontroller
     canvas.addEventListener('click', function(evt){
         switch(state.current){
-            case state.getReady:
-                state.current = state.game;
-                break;
-            case state.game:
-                bird.flap();
-                break;
-            case state.over:
-                resetGame();
-                break;
+            case state.getReady: state.current = state.game; break;
+            case state.game: bird.flap(); break;
+            case state.over: resetGame(); break;
         }
     });
-    
     window.addEventListener('keydown', function(e){
         if(e.code === 'Space'){
-            e.preventDefault(); // Sayfayı kaydırmayı engelle
+            e.preventDefault();
             switch(state.current){
                 case state.getReady: state.current = state.game; break;
                 case state.game: bird.flap(); break;
@@ -190,116 +143,71 @@
         }
     });
 
-    // GRAFİK ÇİZİM FONKSİYONLARI
     const bird = {
         x: 50, y: 150, radius: 12,
         velocity: 0, 
-        gravity: 0.12,  // GÜNCELLENDİ: Daha yavaş düşüş (0.25'ten 0.12'ye indi)
-        jump: -3.6,     // GÜNCELLENDİ: Daha dengeli zıplama
+        gravity: 0.10, // DAHA YAVAŞ DÜŞÜŞ
+        jump: -3.2,    // DAHA HAFİF ZIPLAMA
         
         draw: function() {
-            // Kuşun Gövdesi
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = "#FFD700"; // Altın Sarısı
-            ctx.fill();
-            ctx.strokeStyle = "#000";
-            ctx.stroke();
-
-            // Göz
-            ctx.beginPath();
-            ctx.arc(this.x + 5, this.y - 5, 4, 0, Math.PI * 2);
-            ctx.fillStyle = "#FFF";
-            ctx.fill();
-            // Göz bebeği
-            ctx.beginPath();
-            ctx.arc(this.x + 7, this.y - 5, 1, 0, Math.PI * 2);
-            ctx.fillStyle = "#000";
-            ctx.fill();
-
-            // Gaga
-            ctx.beginPath();
-            ctx.moveTo(this.x + 8, this.y);
-            ctx.lineTo(this.x + 20, this.y + 4);
-            ctx.lineTo(this.x + 8, this.y + 8);
-            ctx.fillStyle = "#ff6b6b";
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "#FFD700"; ctx.fill(); ctx.stroke();
             
-            // Kanat (Animasyonlu)
-            ctx.beginPath();
-            let wingY = (frames % 10 < 5) ? this.y + 5 : this.y - 2; 
-            ctx.ellipse(this.x - 5, wingY, 8, 5, -0.2, 0, Math.PI * 2);
-            ctx.fillStyle = "#eccc68";
-            ctx.fill();
-            ctx.stroke();
+            // Göz
+            ctx.beginPath(); ctx.arc(this.x+5, this.y-5, 4, 0, Math.PI*2); ctx.fillStyle="#FFF"; ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x+7, this.y-5, 1, 0, Math.PI*2); ctx.fillStyle="#000"; ctx.fill();
+            
+            // Kanat
+            ctx.beginPath(); 
+            let wingY = (frames % 10 < 5) ? this.y+5 : this.y-2; 
+            ctx.ellipse(this.x-5, wingY, 8, 5, -0.2, 0, Math.PI*2);
+            ctx.fillStyle = "#eccc68"; ctx.fill(); ctx.stroke();
+            
+            // Gaga
+            ctx.beginPath(); ctx.moveTo(this.x+8, this.y); ctx.lineTo(this.x+20, this.y+4); ctx.lineTo(this.x+8, this.y+8);
+            ctx.fillStyle = "#ff6b6b"; ctx.fill();
         },
-        
-        flap: function() {
-            this.velocity = this.jump;
-        },
-        
+        flap: function() { this.velocity = this.jump; },
         update: function() {
-            // Oyun başlamadıysa havada süzül
             if(state.current == state.getReady){
                 this.y = 150 + Math.cos(frames/15) * 5; 
             } else {
                 this.velocity += this.gravity;
                 this.y += this.velocity;
-                
-                // Yere çarpma
                 if(this.y + this.radius >= canvas.height - fg.h){
-                    this.y = canvas.height - fg.h - this.radius;
-                    state.current = state.over;
+                    this.y = canvas.height - fg.h - this.radius; state.current = state.over;
                 }
-                
-                // Tavana çarpma (Engelle)
-                if(this.y - this.radius <= 0){
-                    this.y = this.radius;
-                }
+                if(this.y - this.radius <= 0) this.y = this.radius;
             }
         }
     };
 
     const bg = {
         draw: function() {
-            ctx.fillStyle = "#70c5ce"; // Gökyüzü
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Bulutlar (Basit çizim)
+            ctx.fillStyle = "#70c5ce"; ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "#FFF";
             ctx.beginPath(); ctx.arc(100, 400, 30, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(140, 410, 40, 0, Math.PI*2); ctx.fill();
             ctx.beginPath(); ctx.arc(280, 200, 30, 0, Math.PI*2); ctx.fill();
         }
     };
 
     const fg = {
-        h: 112, // Zemin yüksekliği
-        x: 0,
-        dx: 2,
+        h: 112, x: 0,
         draw: function() {
-            ctx.fillStyle = "#ded895";
-            ctx.fillRect(0, canvas.height - this.h, canvas.width, this.h);
-            
-            // Çimen
-            ctx.fillStyle = "#73bf2e";
-            ctx.fillRect(0, canvas.height - this.h, canvas.width, 15);
-            ctx.strokeStyle = "#558c22";
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height - this.h + 15);
-            ctx.lineTo(canvas.width, canvas.height - this.h + 15);
-            ctx.stroke();
+            ctx.fillStyle = "#ded895"; ctx.fillRect(0, canvas.height - this.h, canvas.width, this.h);
+            ctx.fillStyle = "#73bf2e"; ctx.fillRect(0, canvas.height - this.h, canvas.width, 15);
+            ctx.strokeStyle = "#558c22"; ctx.beginPath(); ctx.moveTo(0, canvas.height-this.h+15); ctx.lineTo(canvas.width, canvas.height-this.h+15); ctx.stroke();
         },
         update: function() {
             if(state.current == state.game){
-                this.x = (this.x - this.dx) % (canvas.width/2);
+                // Zemin de oyun hızıyla hareket ediyor
+                this.x = (this.x - gameSpeed) % (canvas.width/2);
             }
         }
     };
 
     const pipes = {
-        position: [],
-        w: 52, h: 400, gap: 110, dx: 2, // GAP arttırıldı (Daha geniş aralık)
+        position: [], w: 52, h: 400, gap: 120, // GAP DAHA GENİŞ
         
         draw: function() {
             for(let i = 0; i < this.position.length; i++){
@@ -307,131 +215,90 @@
                 let topY = p.y;
                 let bottomY = p.y + this.h + this.gap;
                 
-                // Boru Gradyanı (Silindir efekti)
                 let gradient = ctx.createLinearGradient(p.x, 0, p.x + this.w, 0);
-                gradient.addColorStop(0, "#558c22");
-                gradient.addColorStop(0.5, "#73bf2e");
-                gradient.addColorStop(1, "#558c22");
+                gradient.addColorStop(0, "#558c22"); gradient.addColorStop(0.5, "#73bf2e"); gradient.addColorStop(1, "#558c22");
                 ctx.fillStyle = gradient;
                 
-                // Üst Boru
                 ctx.fillRect(p.x, topY, this.w, this.h);
-                // Boru ağzı
-                ctx.fillRect(p.x - 2, topY + this.h - 20, this.w + 4, 20);
+                ctx.fillRect(p.x-2, topY+this.h-20, this.w+4, 20);
                 
-                // Alt Boru
                 ctx.fillRect(p.x, bottomY, this.w, this.h);
-                // Boru ağzı
-                ctx.fillRect(p.x - 2, bottomY, this.w + 4, 20);
+                ctx.fillRect(p.x-2, bottomY, this.w+4, 20);
                 
-                // Siyah kontür
-                ctx.strokeStyle = "#000";
-                ctx.strokeRect(p.x, topY, this.w, this.h);
-                ctx.strokeRect(p.x, bottomY, this.w, this.h);
+                ctx.strokeStyle="#000"; ctx.strokeRect(p.x, topY, this.w, this.h); ctx.strokeRect(p.x, bottomY, this.w, this.h);
             }
         },
-        
         update: function() {
             if(state.current !== state.game) return;
             
-            // Her 120 frame'de yeni boru
-            if(frames % 120 == 0){
-                this.position.push({
-                    x: canvas.width,
-                    y: -150 * (Math.random() + 1)
-                });
+            // Boru üretme sıklığı hıza göre ayarlanır
+            if(frames % Math.floor(150 / gameSpeed) == 0){
+                this.position.push({ x: canvas.width, y: -150 * (Math.random() + 1) });
             }
             
             for(let i = 0; i < this.position.length; i++){
                 let p = this.position[i];
                 let bottomPipeY = p.y + this.h + this.gap;
                 
-                // Çarpışma Kontrolü
-                // 1. Borulara çarptı mı?
                 if(bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + this.w && 
                    (bird.y - bird.radius < p.y + this.h || bird.y + bird.radius > bottomPipeY)){
                     state.current = state.over;
                 }
                 
-                // Boruyu hareket ettir
-                p.x -= this.dx;
+                // Boruları güncel oyun hızıyla hareket ettir
+                p.x -= gameSpeed;
                 
-                // Ekran dışına çıkarsa sil
                 if(p.x + this.w <= 0){
                     this.position.shift();
-                    score.value += 1; // SKOR ARTTIR
+                    score.value += 1;
                     score.best = Math.max(score.value, score.best);
                     localStorage.setItem('flappy_highscore', score.best);
                     document.getElementById('highScoreText').innerText = score.best;
                 }
             }
         },
-        
-        reset: function() {
-            this.position = [];
-        }
+        reset: function() { this.position = []; }
     };
 
     function drawScore() {
-        ctx.fillStyle = "#FFF";
-        ctx.strokeStyle = "#000";
-        
+        ctx.fillStyle = "#FFF"; ctx.strokeStyle = "#000";
         if(state.current == state.game){
-            ctx.lineWidth = 2;
-            ctx.font = "35px Impact";
-            ctx.fillText(score.value, canvas.width/2 - 10, 50);
-            ctx.strokeText(score.value, canvas.width/2 - 10, 50);
+            ctx.lineWidth = 2; ctx.font = "35px Impact";
+            ctx.fillText(score.value, canvas.width/2 - 10, 50); ctx.strokeText(score.value, canvas.width/2 - 10, 50);
         } else if(state.current == state.over){
-            // OYUN BİTTİ EKRANI
-            ctx.fillStyle = "rgba(0,0,0,0.5)";
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-            
-            ctx.fillStyle = "#FFF";
-            ctx.font = "40px Impact";
-            ctx.fillText("OYUN BİTTİ", 90, 200);
-            
-            ctx.font = "25px Arial";
-            ctx.fillText("Skor: " + score.value, 130, 250);
+            ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "#FFF"; ctx.font = "40px Impact"; ctx.fillText("OYUN BİTTİ", 90, 200);
+            ctx.font = "25px Arial"; ctx.fillText("Skor: " + score.value, 130, 250);
             ctx.fillText("En İyi: " + score.best, 125, 290);
-            
-            ctx.fillStyle = "#FFD700";
-            ctx.fillText("Tekrar oyna!", 110, 350);
+            ctx.fillStyle = "#FFD700"; ctx.fillText("Tekrar oyna!", 110, 350);
         } else if(state.current == state.getReady){
-            // BAŞLANGIÇ EKRANI
-            ctx.fillStyle = "#FFF";
-            ctx.strokeStyle = "#000";
-            ctx.lineWidth = 2;
-            ctx.font = "30px Impact";
-            ctx.fillText("HAZIR OL!", 115, 200);
-            ctx.font = "16px Arial";
-            ctx.fillText("(Başlamak için tıkla)", 105, 240);
+            ctx.fillStyle = "#FFF"; ctx.strokeStyle = "#000"; ctx.lineWidth = 2;
+            ctx.font = "30px Impact"; ctx.fillText("HAZIR OL!", 115, 200);
+            ctx.font = "16px Arial"; ctx.fillText("(Başlamak için tıkla)", 105, 240);
         }
     }
 
     function resetGame(){
-        bird.y = 150;
-        bird.velocity = 0;
-        pipes.reset();
-        score.value = 0;
-        frames = 0;
+        bird.y = 150; bird.velocity = 0; pipes.reset(); score.value = 0; frames = 0;
+        gameSpeed = 1.5; // HIZI SIFIRLA
         state.current = state.getReady;
     }
 
     function loop(){
-        bg.draw();
-        pipes.draw();
-        pipes.update();
-        fg.draw();
-        fg.update();
-        bird.draw();
-        bird.update();
-        drawScore();
+        bg.draw(); pipes.draw(); pipes.update(); fg.draw(); fg.update(); bird.draw(); bird.update(); drawScore();
         frames++;
+        
+        // --- HIZLANDIRMA MANTIĞI ---
+        if(state.current == state.game){
+            // Her karede hızı çok az arttır (Max hız 3.5 olsun)
+            if(gameSpeed < 3.5) {
+                gameSpeed += 0.0005; 
+            }
+        }
+        
         requestAnimationFrame(loop);
     }
-    
-    loop(); // Oyunu Başlat
+    loop();
 </script>
-
 </body>
 </html>
