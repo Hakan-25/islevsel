@@ -10,295 +10,368 @@
     </script>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>PDF & Pro Flappy</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hızlı Yazma Testi | Pro</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f0f2f5; color: #333; 
-            margin: 0; padding: 0; 
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        :root {
+            --primary: #3b82f6; /* Modern Mavi */
+            --bg: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+            --current-bg: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Üst Bar */
+        header {
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+        }
+        h1 { margin: 0; font-size: 24px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+        .subtitle { font-size: 14px; color: var(--text-muted); margin-top: 5px; }
+
+        /* Ana Kutu */
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        /* İstatistik Barı (Canlı) */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px 30px;
+            background: #f1f5f9;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-muted);
+        }
+        .stat-item span { color: var(--text-main); font-size: 24px; margin-left: 8px; }
+        .timer { color: var(--primary) !important; }
+
+        /* Kelime Alanı */
+        .word-display {
+            font-size: 26px;
+            line-height: 1.8;
+            height: 140px; /* 3 satır görünür */
+            overflow: hidden;
+            text-align: left;
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: var(--text-muted);
+            user-select: none;
+            position: relative;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
         }
         
-        .tool-container { 
-            background: white; width: 90%; max-width: 500px; padding: 30px; 
-            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            text-align: center; margin-top: 30px; margin-bottom: 30px;
+        /* Kelime Stilleri */
+        .word { 
+            display: inline-block; 
+            margin-right: 12px; 
+            padding: 2px 6px; 
+            border-radius: 6px;
+            transition: all 0.1s;
+        }
+        .word.current { 
+            background-color: var(--current-bg); 
+            color: var(--text-main); 
+            border-bottom: 3px solid var(--primary);
+        }
+        .word.correct { color: var(--correct); }
+        .word.wrong { color: var(--wrong); text-decoration: line-through; }
+
+        /* Yazı Yazma Kutusu */
+        .input-area input {
+            width: 100%;
+            padding: 20px;
+            font-size: 22px;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            text-align: center;
+            font-family: inherit;
+        }
+        .input-area input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
 
-        .btn { 
-            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-            color: white; padding: 15px 30px; border: none; border-radius: 50px; 
-            cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; margin-top: 20px;
+        /* Yeniden Başlat Butonu */
+        .restart-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: transform 0.1s;
         }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .restart-btn:hover { transform: scale(1.05); background-color: #2563eb; }
 
-        .file-area {
-            border: 2px dashed #cbd5e0; border-radius: 15px; padding: 30px;
-            background: #f8fafc; cursor: pointer;
+        /* SONUÇ MODALI (Popup) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+            z-index: 100;
         }
-
-        .game-wrapper { position: relative; margin-bottom: 50px; }
-        canvas {
-            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-            background: linear-gradient(#4facfe, #00f2fe); cursor: pointer; display: block;
+        .modal {
+            background: white; padding: 40px; border-radius: 24px; width: 400px; text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .game-ui { text-align: center; margin-top: 10px; color: #555; font-size: 14px; }
-        .footer { font-size: 12px; color: #999; margin-bottom: 20px; margin-top: auto; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .result-title { font-size: 20px; color: var(--text-muted); margin-bottom: 10px; }
+        .result-wpm { font-size: 64px; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 5px; }
+        .result-acc { font-size: 18px; color: var(--correct); font-weight: 600; margin-bottom: 30px; }
+        
+        .footer { margin-top: auto; padding: 20px; color: var(--text-muted); font-size: 13px; }
     </style>
 </head>
 <body>
 
-<div class="tool-container">
-    <h3>📄 Resimden PDF'e</h3>
-    <div class="file-area" onclick="document.getElementById('imageInput').click()">
-        <span style="font-size: 30px;">📂</span><br>
-        <span style="font-size: 14px; color:#666">Resim seçmek için tıkla</span>
-        <input type="file" id="imageInput" accept="image/*" multiple style="display: none" onchange="updateFileCount()">
+<header>
+    <h1>⚡ Pro Klavye Hız Testi</h1>
+    <div class="subtitle">Bakalım parmakların ne kadar hızlı?</div>
+</header>
+
+<div class="container">
+    <div class="stats-bar">
+        <div class="stat-item timer">Süre: <span id="timeLeft">60</span>s</div>
+        <div class="stat-item">WPM: <span id="wpm">0</span></div>
+        <div class="stat-item">Doğruluk: <span id="accuracy">%100</span></div>
     </div>
-    <p id="file-count" style="margin:10px 0 0 0; color:#007bff; font-weight:bold; font-size:14px;"></p>
-    <button id="convertBtn" class="btn" onclick="convertToPDF()">PDF OLUŞTUR</button>
-    <p id="status" style="margin-top:10px; font-size:14px;"></p>
+
+    <div class="word-display" id="wordDisplay" onclick="document.getElementById('textInput').focus()">
+        </div>
+
+    <div class="input-area">
+        <input type="text" id="textInput" placeholder="Yazmaya başla..." autocomplete="off" spellcheck="false">
+    </div>
+
+    <button class="restart-btn" onclick="resetGame()">🔄 Testi Yeniden Başlat</button>
 </div>
 
-<div class="game-wrapper">
-    <canvas id="gameCanvas" width="360" height="540"></canvas>
-    <div class="game-ui">
-        Zıplamak için tıkla veya BOŞLUK tuşuna bas <br>
-        <strong>En Yüksek Skor: <span id="highScoreText">0</span></strong>
+<div class="modal-overlay" id="resultModal">
+    <div class="modal">
+        <div class="result-title">Süre Doldu! Sonucun:</div>
+        <div class="result-wpm" id="finalWpm">0</div>
+        <div style="color:#64748b; font-weight:600;">WPM (Kelime/Dakika)</div>
+        <div class="result-acc" id="finalAcc">Doğruluk: %0</div>
+        <button class="restart-btn" onclick="resetGame()">Tekrar Dene</button>
     </div>
 </div>
 
-<div class="footer">&copy; 2025 Güvenli Araçlar.</div>
+<div class="footer">&copy; 2025 Hızlı Klavye. Geliştirici: Hakan</div>
 
 <script>
-    // --- PDF FONKSİYONLARI ---
-    function updateFileCount() {
-        const input = document.getElementById('imageInput');
-        const label = document.getElementById('file-count');
-        if(input.files.length > 0) label.innerText = input.files.length + " resim seçildi.";
+    // --- TÜRKÇE KELİME HAVUZU (300 En Yaygın Kelime) ---
+    const wordList = [
+        "bir", "ve", "bu", "de", "da", "için", "çok", "o", "en", "ne", "kadar", "olan", "olarak", "var", "ile", 
+        "daha", "ama", "gibi", "sonra", "büyük", "yer", "yıl", "zaman", "kendi", "böyle", "her", "şey", "diye", 
+        "iki", "yok", "tarafından", "önce", "insan", "arasında", "son", "iş", "ancak", "şekilde", "yeni", "sadece", 
+        "bütün", "göre", "aynı", "bile", "hiç", "şimdi", "yüzden", "artık", "oldu", "olduğunu", "olması", "ben", 
+        "sen", "biz", "siz", "onlar", "güzel", "iyi", "kötü", "uzun", "kısa", "geldi", "gitti", "yaptı", "dedi", 
+        "çünkü", "veya", "ya", "hem", "kim", "hangi", "nasıl", "neden", "nerede", "evet", "hayır", "belki", "gün", 
+        "saat", "dakika", "bugün", "yarın", "dün", "gece", "sabah", "akşam", "hafta", "ay", "yıl", "su", "ekmek", 
+        "yemek", "kitap", "okul", "ev", "araba", "yol", "kapı", "pencere", "masa", "sandalye", "bilgisayar", "telefon", 
+        "kalem", "kağıt", "arkadaş", "aile", "baba", "anne", "kardeş", "çocuk", "bebek", "genç", "yaşlı", "kadın", 
+        "erkek", "doktor", "öğretmen", "öğrenci", "devlet", "millet", "ülke", "şehir", "köy", "sokak", "cadde", "park", 
+        "bahçe", "ağaç", "çiçek", "hayvan", "köpek", "kedi", "kuş", "balık", "deniz", "göl", "nehir", "dağ", "tepe", 
+        "orman", "hava", "güneş", "ay", "yıldız", "yağmur", "kar", "rüzgar", "ateş", "toprak", "demir", "altın", 
+        "gümüş", "para", "banka", "market", "mağaza", "fiyat", "ucuz", "pahalı", "bedava", "satış", "alışveriş", 
+        "hesap", "fatura", "borç", "kredi", "kart", "numara", "isim", "soyad", "adres", "telefon", "posta", "mesaj", 
+        "haber", "bilgi", "soru", "cevap", "test", "sınav", "ders", "konu", "bölüm", "sınıf", "grup", "takım", "oyun", 
+        "spor", "müzik", "film", "sanat", "resim", "fotoğraf", "renk", "kırmızı", "mavi", "yeşil", "sarı", "siyah", 
+        "beyaz", "turuncu", "mor", "pembe", "kahverengi", "gri", "açık", "koyu", "sıcak", "soğuk", "ılık", "hızlı", 
+        "yavaş", "kolay", "zor", "ağır", "hafif", "yüksek", "alçak", "geniş", "dar", "uzak", "yakın", "iç", "dış", 
+        "sağ", "sol", "üst", "alt", "ön", "arka", "orta", "yan", "karşı", "baş", "son", "ilk", "tek", "çift", "tam", 
+        "yarım", "çeyrek", "miktar", "sayı", "rakam", "harf", "kelime", "cümle", "metin", "yazı", "konuşma", "ses", 
+        "gürültü", "sessizlik", "mutlu", "üzgün", "kızgın", "korkmuş", "şaşkın", "yorgun", "hasta", "sağlıklı", 
+        "güçlü", "zayıf", "zengin", "fakir", "dolu", "boş", "temiz", "kirli", "yeni", "eski", "açık", "kapalı"
+    ];
+
+    let words = [];
+    let timer = 60;
+    let timerInterval = null;
+    let isPlaying = false;
+    let currentWordIndex = 0;
+    let correctKeystrokes = 0;
+    let totalKeystrokes = 0;
+    let correctWordsCount = 0;
+
+    const wordDisplay = document.getElementById('wordDisplay');
+    const textInput = document.getElementById('textInput');
+    const timeDisplay = document.getElementById('timeLeft');
+    const wpmDisplay = document.getElementById('wpm');
+    const accDisplay = document.getElementById('accuracy');
+    const modal = document.getElementById('resultModal');
+
+    // Oyunu Hazırla
+    function initGame() {
+        words = [];
+        // Rastgele 100 kelime seç
+        for(let i=0; i<150; i++) {
+            words.push(wordList[Math.floor(Math.random() * wordList.length)]);
+        }
+        currentWordIndex = 0;
+        renderWords();
     }
-    async function convertToPDF() {
-        const { jsPDF } = window.jspdf;
-        const input = document.getElementById('imageInput');
-        const status = document.getElementById('status');
-        const btn = document.getElementById('convertBtn');
-        if (input.files.length === 0) { alert("Lütfen resim seçiniz."); return; }
-        btn.disabled = true; btn.innerText = "İşleniyor...";
-        status.innerText = "Hazırlanıyor...";
-        try {
-            const doc = new jsPDF();
-            for (let i = 0; i < input.files.length; i++) {
-                const file = input.files[i];
-                const imageData = await readFileAsDataURL(file);
-                const imgProps = doc.getImageProperties(imageData);
-                const pdfWidth = doc.internal.pageSize.getWidth();
-                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                if (i > 0) doc.addPage();
-                doc.addImage(imageData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-            }
-            doc.save("dosyalarim.pdf");
-            status.innerText = "✅ İndirildi!";
-        } catch (error) { alert("Hata: " + error); } 
-        finally { btn.disabled = false; btn.innerText = "PDF OLUŞTUR"; status.innerText = ""; }
-    }
-    function readFileAsDataURL(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
+
+    // Kelimeleri Ekrana Bas
+    function renderWords() {
+        wordDisplay.innerHTML = '';
+        words.forEach((word, index) => {
+            const span = document.createElement('span');
+            span.innerText = word;
+            span.className = 'word';
+            if (index === 0) span.classList.add('current');
+            wordDisplay.appendChild(span);
         });
     }
 
-    // --- OYUN MOTORU ---
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    let state = { current: 0, getReady: 0, game: 1, over: 2 };
-    let frames = 0;
-    let score = { best: localStorage.getItem('flappy_highscore') || 0, value: 0 };
-    document.getElementById('highScoreText').innerText = score.best;
-    
-    // HIZ DEĞİŞKENİ (Giderek artacak)
-    let gameSpeed = 1.5; // Başlangıç hızı (Daha yavaş)
-
-    canvas.addEventListener('click', function(evt){
-        switch(state.current){
-            case state.getReady: state.current = state.game; break;
-            case state.game: bird.flap(); break;
-            case state.over: resetGame(); break;
+    // Yazma Mantığı
+    textInput.addEventListener('input', () => {
+        if (!isPlaying && textInput.value.length > 0) {
+            startTimer();
         }
-    });
-    window.addEventListener('keydown', function(e){
-        if(e.code === 'Space'){
-            e.preventDefault();
-            switch(state.current){
-                case state.getReady: state.current = state.game; break;
-                case state.game: bird.flap(); break;
-                case state.over: resetGame(); break;
-            }
-        }
-    });
 
-    const bird = {
-        x: 50, y: 150, radius: 12,
-        velocity: 0, 
-        gravity: 0.10, // DAHA YAVAŞ DÜŞÜŞ
-        jump: -3.2,    // DAHA HAFİF ZIPLAMA
+        const currentWord = words[currentWordIndex];
+        const typedValue = textInput.value;
         
-        draw: function() {
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = "#FFD700"; ctx.fill(); ctx.stroke();
-            
-            // Göz
-            ctx.beginPath(); ctx.arc(this.x+5, this.y-5, 4, 0, Math.PI*2); ctx.fillStyle="#FFF"; ctx.fill();
-            ctx.beginPath(); ctx.arc(this.x+7, this.y-5, 1, 0, Math.PI*2); ctx.fillStyle="#000"; ctx.fill();
-            
-            // Kanat
-            ctx.beginPath(); 
-            let wingY = (frames % 10 < 5) ? this.y+5 : this.y-2; 
-            ctx.ellipse(this.x-5, wingY, 8, 5, -0.2, 0, Math.PI*2);
-            ctx.fillStyle = "#eccc68"; ctx.fill(); ctx.stroke();
-            
-            // Gaga
-            ctx.beginPath(); ctx.moveTo(this.x+8, this.y); ctx.lineTo(this.x+20, this.y+4); ctx.lineTo(this.x+8, this.y+8);
-            ctx.fillStyle = "#ff6b6b"; ctx.fill();
-        },
-        flap: function() { this.velocity = this.jump; },
-        update: function() {
-            if(state.current == state.getReady){
-                this.y = 150 + Math.cos(frames/15) * 5; 
+        // Boşluk tuşuna basıldı mı? (Kelime bitimi)
+        if (typedValue.endsWith(' ')) {
+            const wordSpan = wordDisplay.children[currentWordIndex];
+            const cleanTyped = typedValue.trim();
+
+            if (cleanTyped === currentWord) {
+                wordSpan.classList.add('correct');
+                wordSpan.classList.remove('current', 'wrong');
+                correctWordsCount++;
+                correctKeystrokes += currentWord.length + 1; // +1 boşluk için
             } else {
-                this.velocity += this.gravity;
-                this.y += this.velocity;
-                if(this.y + this.radius >= canvas.height - fg.h){
-                    this.y = canvas.height - fg.h - this.radius; state.current = state.over;
-                }
-                if(this.y - this.radius <= 0) this.y = this.radius;
+                wordSpan.classList.add('wrong');
+                wordSpan.classList.remove('current');
             }
-        }
-    };
 
-    const bg = {
-        draw: function() {
-            ctx.fillStyle = "#70c5ce"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#FFF";
-            ctx.beginPath(); ctx.arc(100, 400, 30, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(280, 200, 30, 0, Math.PI*2); ctx.fill();
-        }
-    };
-
-    const fg = {
-        h: 112, x: 0,
-        draw: function() {
-            ctx.fillStyle = "#ded895"; ctx.fillRect(0, canvas.height - this.h, canvas.width, this.h);
-            ctx.fillStyle = "#73bf2e"; ctx.fillRect(0, canvas.height - this.h, canvas.width, 15);
-            ctx.strokeStyle = "#558c22"; ctx.beginPath(); ctx.moveTo(0, canvas.height-this.h+15); ctx.lineTo(canvas.width, canvas.height-this.h+15); ctx.stroke();
-        },
-        update: function() {
-            if(state.current == state.game){
-                // Zemin de oyun hızıyla hareket ediyor
-                this.x = (this.x - gameSpeed) % (canvas.width/2);
-            }
-        }
-    };
-
-    const pipes = {
-        position: [], w: 52, h: 400, gap: 120, // GAP DAHA GENİŞ
-        
-        draw: function() {
-            for(let i = 0; i < this.position.length; i++){
-                let p = this.position[i];
-                let topY = p.y;
-                let bottomY = p.y + this.h + this.gap;
-                
-                let gradient = ctx.createLinearGradient(p.x, 0, p.x + this.w, 0);
-                gradient.addColorStop(0, "#558c22"); gradient.addColorStop(0.5, "#73bf2e"); gradient.addColorStop(1, "#558c22");
-                ctx.fillStyle = gradient;
-                
-                ctx.fillRect(p.x, topY, this.w, this.h);
-                ctx.fillRect(p.x-2, topY+this.h-20, this.w+4, 20);
-                
-                ctx.fillRect(p.x, bottomY, this.w, this.h);
-                ctx.fillRect(p.x-2, bottomY, this.w+4, 20);
-                
-                ctx.strokeStyle="#000"; ctx.strokeRect(p.x, topY, this.w, this.h); ctx.strokeRect(p.x, bottomY, this.w, this.h);
-            }
-        },
-        update: function() {
-            if(state.current !== state.game) return;
+            totalKeystrokes += typedValue.length;
+            currentWordIndex++;
             
-            // Boru üretme sıklığı hıza göre ayarlanır
-            if(frames % Math.floor(150 / gameSpeed) == 0){
-                this.position.push({ x: canvas.width, y: -150 * (Math.random() + 1) });
+            // Sıradaki kelimeye geç
+            if (currentWordIndex < words.length) {
+                wordDisplay.children[currentWordIndex].classList.add('current');
+                
+                // Otomatik Kaydırma (Scroll) - Profesyonel Dokunuş
+                const nextWord = wordDisplay.children[currentWordIndex];
+                if (nextWord.offsetTop > wordDisplay.offsetTop + 60) {
+                   wordDisplay.scrollTop = nextWord.offsetTop - 25; // Satır kaydır
+                }
             }
+
+            textInput.value = ''; // Kutuyu temizle
+            updateStats();
+        }
+    });
+
+    function startTimer() {
+        isPlaying = true;
+        timerInterval = setInterval(() => {
+            timer--;
+            timeDisplay.innerText = timer;
             
-            for(let i = 0; i < this.position.length; i++){
-                let p = this.position[i];
-                let bottomPipeY = p.y + this.h + this.gap;
-                
-                if(bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + this.w && 
-                   (bird.y - bird.radius < p.y + this.h || bird.y + bird.radius > bottomPipeY)){
-                    state.current = state.over;
-                }
-                
-                // Boruları güncel oyun hızıyla hareket ettir
-                p.x -= gameSpeed;
-                
-                if(p.x + this.w <= 0){
-                    this.position.shift();
-                    score.value += 1;
-                    score.best = Math.max(score.value, score.best);
-                    localStorage.setItem('flappy_highscore', score.best);
-                    document.getElementById('highScoreText').innerText = score.best;
-                }
+            // Süre Bitince
+            if (timer === 0) {
+                finishGame();
             }
-        },
-        reset: function() { this.position = []; }
-    };
-
-    function drawScore() {
-        ctx.fillStyle = "#FFF"; ctx.strokeStyle = "#000";
-        if(state.current == state.game){
-            ctx.lineWidth = 2; ctx.font = "35px Impact";
-            ctx.fillText(score.value, canvas.width/2 - 10, 50); ctx.strokeText(score.value, canvas.width/2 - 10, 50);
-        } else if(state.current == state.over){
-            ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle = "#FFF"; ctx.font = "40px Impact"; ctx.fillText("OYUN BİTTİ", 90, 200);
-            ctx.font = "25px Arial"; ctx.fillText("Skor: " + score.value, 130, 250);
-            ctx.fillText("En İyi: " + score.best, 125, 290);
-            ctx.fillStyle = "#FFD700"; ctx.fillText("Tekrar oyna!", 110, 350);
-        } else if(state.current == state.getReady){
-            ctx.fillStyle = "#FFF"; ctx.strokeStyle = "#000"; ctx.lineWidth = 2;
-            ctx.font = "30px Impact"; ctx.fillText("HAZIR OL!", 115, 200);
-            ctx.font = "16px Arial"; ctx.fillText("(Başlamak için tıkla)", 105, 240);
-        }
+        }, 1000);
     }
 
-    function resetGame(){
-        bird.y = 150; bird.velocity = 0; pipes.reset(); score.value = 0; frames = 0;
-        gameSpeed = 1.5; // HIZI SIFIRLA
-        state.current = state.getReady;
-    }
-
-    function loop(){
-        bg.draw(); pipes.draw(); pipes.update(); fg.draw(); fg.update(); bird.draw(); bird.update(); drawScore();
-        frames++;
+    function updateStats() {
+        // WPM Hesabı: (Doğru Karakter Sayısı / 5) / (Geçen Dakika)
+        // Basitlik olsun diye şimdilik: (Doğru Kelime) / (Geçen Dakika)
+        const timeElapsed = 60 - timer;
+        const wpm = Math.round((correctWordsCount / timeElapsed) * 60) || 0;
         
-        // --- HIZLANDIRMA MANTIĞI ---
-        if(state.current == state.game){
-            // Her karede hızı çok az arttır (Max hız 3.5 olsun)
-            if(gameSpeed < 3.5) {
-                gameSpeed += 0.0005; 
-            }
-        }
-        
-        requestAnimationFrame(loop);
+        // Doğruluk Hesabı
+        const accuracy = totalKeystrokes > 0 
+            ? Math.round((correctKeystrokes / totalKeystrokes) * 100) 
+            : 100;
+
+        wpmDisplay.innerText = wpm;
+        accDisplay.innerText = '%' + accuracy;
     }
-    loop();
+
+    function finishGame() {
+        clearInterval(timerInterval);
+        isPlaying = false;
+        textInput.disabled = true;
+        
+        // Sonuçları Modala Yaz
+        document.getElementById('finalWpm').innerText = wpmDisplay.innerText;
+        document.getElementById('finalAcc').innerText = 'Doğruluk: ' + accDisplay.innerText;
+        
+        modal.style.display = 'flex'; // Modalı Göster
+    }
+
+    function resetGame() {
+        clearInterval(timerInterval);
+        timer = 60;
+        isPlaying = false;
+        currentWordIndex = 0;
+        correctWordsCount = 0;
+        correctKeystrokes = 0;
+        totalKeystrokes = 0;
+        
+        timeDisplay.innerText = "60";
+        wpmDisplay.innerText = "0";
+        accDisplay.innerText = "%100";
+        textInput.value = '';
+        textInput.disabled = false;
+        textInput.focus();
+        
+        modal.style.display = 'none';
+        wordDisplay.scrollTop = 0;
+        
+        initGame();
+    }
+
+    // Başlangıçta çalıştır
+    initGame();
+    textInput.focus();
+
 </script>
+
 </body>
 </html>
