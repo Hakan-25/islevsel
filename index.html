@@ -8,113 +8,113 @@
       gtag('js', new Date());
       gtag('config', 'G-MXHVBZBVZJ');
     </script>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ücretsiz online JPG'den PDF'e çevirici. Dosyalarınız sunucuya yüklenmez, tarayıcıda işlenir.">
-    <title>PDF Dönüştürücü & Oyun</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Ücretsiz PDF Dönüştürücü ve Oyun.">
+    <title>PDF Dönüştürücü & Pro Oyun</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
-        /* --- GENEL STİLLER --- */
+        /* --- MODERN & TEMİZ TASARIM --- */
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background-color: #f8f9fa; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f0f2f5; 
             color: #333; 
             margin: 0; 
             padding: 0; 
             display: flex;
             flex-direction: column;
-            align-items: center; /* Merkeze hizala */
+            align-items: center;
             min-height: 100vh;
         }
-        .container { 
+        
+        /* PDF KUTUSU STİLİ */
+        .tool-container { 
             background: white; 
-            width: 90%;
-            max-width: 480px; 
+            width: 90%; 
+            max-width: 500px; 
             padding: 30px; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
             text-align: center; 
-            margin-top: 30px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            transition: transform 0.3s ease;
         }
-        h1 { font-size: 22px; margin-bottom: 20px; color: #222; }
+        .tool-container:hover { transform: translateY(-5px); }
+
+        h1 { font-size: 24px; color: #2c3e50; margin-bottom: 25px; font-weight: 700; }
+        
         .btn { 
-            background-color: #007bff; color: white; padding: 12px 30px; border: none; border-radius: 8px; 
-            cursor: pointer; font-size: 16px; font-weight: 600; transition: background 0.2s; width: 100%; margin-top: 20px;
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white; padding: 15px 30px; border: none; border-radius: 50px; 
+            cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+            transition: all 0.2s;
         }
-        .btn:hover { background-color: #0056b3; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-        .file-upload-wrapper {
-            position: relative; width: 100%; height: 120px; border: 2px dashed #ddd; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; background: #fafafa; transition: border 0.3s;
-        }
-        .file-upload-wrapper:hover { border-color: #007bff; background: #f0f7ff; }
-        .file-upload-wrapper input { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-        .upload-text { pointer-events: none; color: #666; font-size: 14px; padding: 10px; }
-        #status { margin-top: 20px; font-weight: 500; min-height: 24px; }
+        .btn:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
 
-        /* --- OYUN STİLLERİ --- */
-        .game-container {
-            margin-top: 50px;
+        .file-area {
+            border: 2px dashed #cbd5e0; border-radius: 15px; padding: 30px;
+            background: #f8fafc; cursor: pointer; transition: border-color 0.3s;
+        }
+        .file-area:hover { border-color: #4facfe; background: #ebf8ff; }
+
+        /* OYUN ALANI STİLİ */
+        .game-wrapper {
+            position: relative;
             margin-bottom: 50px;
-            text-align: center;
         }
-        #gameCanvas {
-            border: 4px solid #333;
-            border-radius: 8px;
-            background-color: #70c5ce; /* Gökyüzü rengi */
+        canvas {
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            background: linear-gradient(#4facfe, #00f2fe); /* Gökyüzü */
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: block;
         }
-        .game-info {
-            color: #555; font-size: 14px; margin-top: 10px;
+        .game-ui {
+            text-align: center; margin-top: 10px; color: #555; font-size: 14px;
         }
-
-        /* ALT BİLGİ */
-        .seo-footer {
-            background-color: #fff; padding: 30px 20px; margin-top: auto; border-top: 1px solid #eee; color: #666; font-size: 14px; line-height: 1.6; width: 100%; text-align: center;
-        }
+        
+        .footer { font-size: 12px; color: #999; margin-bottom: 20px; margin-top: auto; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>JPG ➔ PDF Dönüştürücü</h1>
+<div class="tool-container">
+    <h1>📄 Resimden PDF'e</h1>
     
-    <div class="file-upload-wrapper">
-        <span class="upload-text">📂 Resimleri seçmek için tıklayın veya sürükleyin</span>
-        <input type="file" id="imageInput" accept="image/*" multiple onchange="updateFileCount()">
+    <div class="file-area" onclick="document.getElementById('imageInput').click()">
+        <span style="font-size: 40px;">📂</span><br>
+        <span style="color: #666; font-size: 14px;">Resimleri seçmek için tıkla</span>
+        <input type="file" id="imageInput" accept="image/*" multiple style="display: none" onchange="updateFileCount()">
     </div>
     
-    <p id="file-count" style="font-size: 14px; color: #007bff; display: none;"></p>
-
-    <button id="convertBtn" class="btn" onclick="convertToPDF()">Dönüştür ve İndir</button>
-    <p id="status"></p>
+    <p id="file-count" style="margin-top:10px; color:#007bff; font-weight:bold;"></p>
+    <button id="convertBtn" class="btn" onclick="convertToPDF()">PDF OLUŞTUR</button>
+    <p id="status" style="margin-top:15px; font-weight:500;"></p>
 </div>
 
-<div class="game-container">
-    <h2>Canın mı sıkıldı? Oyna! 🐦</h2>
-    <canvas id="gameCanvas" width="320" height="480"></canvas>
-    <p class="game-info">Başlamak ve zıplamak için ekrana tıkla veya boşluk tuşuna bas.</p>
-    <h3 id="scoreDisplay">Skor: 0</h3>
+<div class="game-wrapper">
+    <canvas id="gameCanvas" width="360" height="540"></canvas>
+    <div class="game-ui">
+        Zıplamak için tıkla veya BOŞLUK tuşuna bas <br>
+        <strong>En Yüksek Skor: <span id="highScoreText">0</span></strong>
+    </div>
 </div>
 
-
-<div class="seo-footer">
-    <p>Bu araç ile resim dosyalarınızı hızlıca PDF formatına çevirebilirsiniz. Dosyalarınız sunucuya yüklenmez.</p>
-    <p>&copy; 2025 Güvenli PDF Araçları.</p>
+<div class="footer">
+    &copy; 2025 Güvenli Araçlar & Oyun Stüdyosu.
 </div>
 
 <script>
-    // ==============================
-    // PDF DÖNÜŞTÜRÜCÜ KODLARI
-    // ==============================
+    // --- PDF FONKSİYONLARI ---
     function updateFileCount() {
         const input = document.getElementById('imageInput');
         const label = document.getElementById('file-count');
-        if (input.files.length > 0) {
-            label.innerText = input.files.length + " adet resim seçildi.";
-            label.style.display = "block";
-        }
+        if(input.files.length > 0) label.innerText = input.files.length + " resim seçildi.";
     }
 
     async function convertToPDF() {
@@ -123,13 +123,10 @@
         const status = document.getElementById('status');
         const btn = document.getElementById('convertBtn');
 
-        if (input.files.length === 0) {
-            alert("Lütfen resim seçiniz.");
-            return;
-        }
+        if (input.files.length === 0) { alert("Lütfen resim seçiniz."); return; }
 
-        btn.disabled = true; btn.innerText = "Dönüştürülüyor...";
-        status.style.color = "#333"; status.innerText = "Lütfen bekleyin...";
+        btn.disabled = true; btn.innerText = "İşleniyor...";
+        status.innerText = "PDF hazırlanıyor...";
 
         try {
             const doc = new jsPDF();
@@ -142,14 +139,10 @@
                 if (i > 0) doc.addPage();
                 doc.addImage(imageData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
             }
-            doc.save("belge.pdf");
-            status.style.color = "#28a745"; status.innerText = "✅ İndirme başladı!";
-        } catch (error) {
-            alert("Hata: " + error); status.innerText = "";
-        } finally {
-            btn.disabled = false; btn.innerText = "Dönüştür ve İndir";
-            setTimeout(() => { status.innerText = ""; }, 5000);
-        }
+            doc.save("dosyalarim.pdf");
+            status.innerText = "✅ İndirildi!";
+        } catch (error) { alert("Hata: " + error); } 
+        finally { btn.disabled = false; btn.innerText = "PDF OLUŞTUR"; }
     }
 
     function readFileAsDataURL(file) {
@@ -161,114 +154,281 @@
         });
     }
 
-    // ==============================
-    // BASİT FLAPPY BIRD OYUN KODLARI
-    // ==============================
+    // --- PROFESYONEL OYUN MOTORU ---
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const scoreDisplay = document.getElementById('scoreDisplay');
+    
+    // Oyun Değişkenleri
+    let state = { current: 0, getReady: 0, game: 1, over: 2 }; // Oyun durumları
+    let frames = 0;
+    let score = { best: localStorage.getItem('flappy_highscore') || 0, value: 0 };
+    document.getElementById('highScoreText').innerText = score.best;
 
-    let gamePlaying = false;
-    let score = 0;
-    let bird = { x: 50, y: 150, width: 20, height: 20, velocity: 0, gravity: 0.5, jump: -8 };
-    let pipes = [];
-    let pipeWidth = 40;
-    let pipeGap = 120;
-    let frameCount = 0;
-
-    function drawBird() {
-        ctx.fillStyle = "#FFD700"; // Kuş rengi (Sarı)
-        ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
-    }
-
-    function drawPipes() {
-        ctx.fillStyle = "#2ecc71"; // Boru rengi (Yeşil)
-        pipes.forEach(pipe => {
-            ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
-            ctx.fillRect(pipe.x, canvas.height - pipe.bottomHeight, pipeWidth, pipe.bottomHeight);
-        });
-    }
-
-    function updateGame() {
-        if (!gamePlaying) return;
-
-        bird.velocity += bird.gravity;
-        bird.y += bird.velocity;
-
-        if (bird.y + bird.height > canvas.height || bird.y < 0) {
-            resetGame();
-        }
-
-        if (frameCount % 100 === 0) {
-            let topHeight = Math.random() * (canvas.height / 2);
-            let bottomHeight = canvas.height - topHeight - pipeGap;
-            pipes.push({ x: canvas.width, topHeight: topHeight, bottomHeight: bottomHeight });
-        }
-
-        pipes.forEach((pipe, index) => {
-            pipe.x -= 2; // Boru hızı
-
-            if (bird.x < pipe.x + pipeWidth &&
-                bird.x + bird.width > pipe.x &&
-                (bird.y < pipe.topHeight || bird.y + bird.height > canvas.height - pipe.bottomHeight)) {
+    // Kontroller
+    canvas.addEventListener('click', function(evt){
+        switch(state.current){
+            case state.getReady:
+                state.current = state.game;
+                break;
+            case state.game:
+                bird.flap();
+                break;
+            case state.over:
                 resetGame();
-            }
-
-            if (pipe.x + pipeWidth < 0) {
-                pipes.splice(index, 1);
-                score++;
-                scoreDisplay.innerText = "Skor: " + score;
-            }
-        });
-        frameCount++;
-    }
-
-    function resetGame() {
-        gamePlaying = false;
-        bird.y = 150;
-        bird.velocity = 0;
-        pipes = [];
-        score = 0;
-        scoreDisplay.innerText = "Skor: 0 (Tekrar oynamak için tıkla)";
-        frameCount = 0;
-        draw();
-    }
-
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawBird();
-        drawPipes();
-        if (!gamePlaying) {
-            ctx.fillStyle = "rgba(0,0,0,0.5)";
-            ctx.fillRect(0,0,canvas.width, canvas.height);
-            ctx.fillStyle = "white";
-            ctx.font = "20px Arial";
-            ctx.fillText("Başlamak için Tıkla", 70, 240);
+                break;
         }
-    }
-
-    function jump() {
-        if (!gamePlaying) {
-            gamePlaying = true;
-            gameLoop();
+    });
+    
+    window.addEventListener('keydown', function(e){
+        if(e.code === 'Space'){
+            e.preventDefault(); // Sayfayı kaydırmayı engelle
+            switch(state.current){
+                case state.getReady: state.current = state.game; break;
+                case state.game: bird.flap(); break;
+                case state.over: resetGame(); break;
+            }
         }
-        bird.velocity = bird.jump;
-    }
-
-    canvas.addEventListener('click', jump);
-    document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') jump();
     });
 
-    function gameLoop() {
-        if (gamePlaying) {
-            updateGame();
-            draw();
-            requestAnimationFrame(gameLoop);
+    // GRAFİK ÇİZİM FONKSİYONLARI (Sprite yok, Kodla Çizim var)
+    const bird = {
+        x: 50, y: 150, radius: 12,
+        velocity: 0, gravity: 0.25, jump: -4.6, // FİZİK AYARLARI (Daha yumuşak)
+        
+        draw: function() {
+            // Kuşun Gövdesi
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "#FFD700"; // Altın Sarısı
+            ctx.fill();
+            ctx.strokeStyle = "#000";
+            ctx.stroke();
+
+            // Göz
+            ctx.beginPath();
+            ctx.arc(this.x + 5, this.y - 5, 4, 0, Math.PI * 2);
+            ctx.fillStyle = "#FFF";
+            ctx.fill();
+            // Göz bebeği
+            ctx.beginPath();
+            ctx.arc(this.x + 7, this.y - 5, 1, 0, Math.PI * 2);
+            ctx.fillStyle = "#000";
+            ctx.fill();
+
+            // Gaga
+            ctx.beginPath();
+            ctx.moveTo(this.x + 8, this.y);
+            ctx.lineTo(this.x + 20, this.y + 4);
+            ctx.lineTo(this.x + 8, this.y + 8);
+            ctx.fillStyle = "#ff6b6b";
+            ctx.fill();
+            
+            // Kanat (Animasyonlu)
+            ctx.beginPath();
+            let wingY = (frames % 10 < 5) ? this.y + 5 : this.y - 2; 
+            ctx.ellipse(this.x - 5, wingY, 8, 5, -0.2, 0, Math.PI * 2);
+            ctx.fillStyle = "#eccc68";
+            ctx.fill();
+            ctx.stroke();
+        },
+        
+        flap: function() {
+            this.velocity = this.jump;
+        },
+        
+        update: function() {
+            // Oyun başlamadıysa havada süzül
+            if(state.current == state.getReady){
+                this.y = 150 + Math.cos(frames/15) * 5; 
+            } else {
+                this.velocity += this.gravity;
+                this.y += this.velocity;
+                
+                // Yere çarpma
+                if(this.y + this.radius >= canvas.height - fg.h){
+                    this.y = canvas.height - fg.h - this.radius;
+                    state.current = state.over;
+                }
+                
+                // Tavana çarpma (Engelle)
+                if(this.y - this.radius <= 0){
+                    this.y = this.radius;
+                }
+            }
+        }
+    };
+
+    const bg = {
+        draw: function() {
+            ctx.fillStyle = "#70c5ce"; // Gökyüzü
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Bulutlar (Basit çizim)
+            ctx.fillStyle = "#FFF";
+            ctx.beginPath(); ctx.arc(100, 400, 30, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(140, 410, 40, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(280, 200, 30, 0, Math.PI*2); ctx.fill();
+        }
+    };
+
+    const fg = {
+        h: 112, // Zemin yüksekliği
+        x: 0,
+        dx: 2,
+        draw: function() {
+            ctx.fillStyle = "#ded895";
+            ctx.fillRect(0, canvas.height - this.h, canvas.width, this.h);
+            
+            // Çimen
+            ctx.fillStyle = "#73bf2e";
+            ctx.fillRect(0, canvas.height - this.h, canvas.width, 15);
+            ctx.strokeStyle = "#558c22";
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - this.h + 15);
+            ctx.lineTo(canvas.width, canvas.height - this.h + 15);
+            ctx.stroke();
+        },
+        update: function() {
+            if(state.current == state.game){
+                this.x = (this.x - this.dx) % (canvas.width/2);
+            }
+        }
+    };
+
+    const pipes = {
+        position: [],
+        w: 52, h: 400, gap: 100, dx: 2,
+        
+        draw: function() {
+            for(let i = 0; i < this.position.length; i++){
+                let p = this.position[i];
+                let topY = p.y;
+                let bottomY = p.y + this.h + this.gap;
+                
+                // Boru Gradyanı (Silindir efekti)
+                let gradient = ctx.createLinearGradient(p.x, 0, p.x + this.w, 0);
+                gradient.addColorStop(0, "#558c22");
+                gradient.addColorStop(0.5, "#73bf2e");
+                gradient.addColorStop(1, "#558c22");
+                ctx.fillStyle = gradient;
+                
+                // Üst Boru
+                ctx.fillRect(p.x, topY, this.w, this.h);
+                // Boru ağzı
+                ctx.fillRect(p.x - 2, topY + this.h - 20, this.w + 4, 20);
+                
+                // Alt Boru
+                ctx.fillRect(p.x, bottomY, this.w, this.h);
+                // Boru ağzı
+                ctx.fillRect(p.x - 2, bottomY, this.w + 4, 20);
+                
+                // Siyah kontür
+                ctx.strokeStyle = "#000";
+                ctx.strokeRect(p.x, topY, this.w, this.h);
+                ctx.strokeRect(p.x, bottomY, this.w, this.h);
+            }
+        },
+        
+        update: function() {
+            if(state.current !== state.game) return;
+            
+            // Her 120 frame'de yeni boru
+            if(frames % 120 == 0){
+                this.position.push({
+                    x: canvas.width,
+                    y: -150 * (Math.random() + 1)
+                });
+            }
+            
+            for(let i = 0; i < this.position.length; i++){
+                let p = this.position[i];
+                let bottomPipeY = p.y + this.h + this.gap;
+                
+                // Çarpışma Kontrolü
+                // 1. Borulara çarptı mı?
+                if(bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + this.w && 
+                   (bird.y - bird.radius < p.y + this.h || bird.y + bird.radius > bottomPipeY)){
+                    state.current = state.over;
+                }
+                
+                // Boruyu hareket ettir
+                p.x -= this.dx;
+                
+                // Ekran dışına çıkarsa sil
+                if(p.x + this.w <= 0){
+                    this.position.shift();
+                    score.value += 1; // SKOR ARTTIR
+                    score.best = Math.max(score.value, score.best);
+                    localStorage.setItem('flappy_highscore', score.best);
+                    document.getElementById('highScoreText').innerText = score.best;
+                }
+            }
+        },
+        
+        reset: function() {
+            this.position = [];
+        }
+    };
+
+    function drawScore() {
+        ctx.fillStyle = "#FFF";
+        ctx.strokeStyle = "#000";
+        
+        if(state.current == state.game){
+            ctx.lineWidth = 2;
+            ctx.font = "35px Impact";
+            ctx.fillText(score.value, canvas.width/2 - 10, 50);
+            ctx.strokeText(score.value, canvas.width/2 - 10, 50);
+        } else if(state.current == state.over){
+            // OYUN BİTTİ EKRANI
+            ctx.fillStyle = "rgba(0,0,0,0.5)";
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            
+            ctx.fillStyle = "#FFF";
+            ctx.font = "40px Impact";
+            ctx.fillText("OYUN BİTTİ", 90, 200);
+            
+            ctx.font = "25px Arial";
+            ctx.fillText("Skor: " + score.value, 130, 250);
+            ctx.fillText("En İyi: " + score.best, 125, 290);
+            
+            ctx.fillStyle = "#FFD700";
+            ctx.fillText("Tekrar oyna!", 110, 350);
+        } else if(state.current == state.getReady){
+            // BAŞLANGIÇ EKRANI
+            ctx.fillStyle = "#FFF";
+            ctx.strokeStyle = "#000";
+            ctx.lineWidth = 2;
+            ctx.font = "30px Impact";
+            ctx.fillText("HAZIR OL!", 115, 200);
+            ctx.font = "16px Arial";
+            ctx.fillText("(Başlamak için tıkla)", 105, 240);
         }
     }
 
-    resetGame(); // Oyunu başlangıç durumuna getir
+    function resetGame(){
+        bird.y = 150;
+        bird.velocity = 0;
+        pipes.reset();
+        score.value = 0;
+        frames = 0;
+        state.current = state.getReady;
+    }
+
+    function loop(){
+        bg.draw();
+        pipes.draw();
+        pipes.update();
+        fg.draw();
+        fg.update();
+        bird.draw();
+        bird.update();
+        drawScore();
+        frames++;
+        requestAnimationFrame(loop);
+    }
+    
+    loop(); // Oyunu Başlat
 </script>
 
 </body>
