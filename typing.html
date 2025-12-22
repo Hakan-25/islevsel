@@ -27,7 +27,7 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             height: 100vh;
-            overflow: hidden; /* PC'de scroll olmasın */
+            overflow: hidden;
             display: flex;
         }
 
@@ -101,7 +101,6 @@
             width: 100%;
         }
 
-        /* Language Switcher */
         .lang-switch {
             position: absolute;
             top: 20px;
@@ -191,6 +190,7 @@
             color: #9ca3af;
             user-select: none;
             transition: transform 0.2s ease;
+            transform-origin: top left;
         }
 
         .word { margin-right: 12px; display: inline-block; border-bottom: 2px solid transparent; }
@@ -213,7 +213,6 @@
 
         #input-field { position: absolute; opacity: 0; z-index: -99; }
 
-        /* SONUÇ MODALI */
         .result-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.95);
@@ -251,64 +250,44 @@
 
         /* --- MOBİL UYUMLULUK (RESPONSIVE) --- */
         @media (max-width: 768px) {
-            body {
-                flex-direction: column; /* Yan yana değil, alt alta diz */
-                height: 100vh;
-                overflow: hidden; /* Sayfa kaymasını engelle */
-            }
+            body { flex-direction: column; overflow: hidden; }
 
-            /* Mobilde Sidebar'ı Üst Menü Yap */
             .sidebar {
-                width: 100%;
-                height: auto;
-                flex-direction: row; /* İçindekileri yan yana diz */
-                align-items: center;
-                justify-content: space-between;
-                padding: 10px 15px;
-                border-right: none;
-                border-bottom: 1px solid #e5e7eb;
+                width: 100%; height: auto; flex-direction: row !important;
+                align-items: center; justify-content: space-between;
+                padding: 10px 15px; border-right: none; border-bottom: 1px solid #e5e7eb;
                 box-shadow: none;
             }
 
-            .back-btn { margin-bottom: 0; font-size: 1rem; color: var(--accent); }
-            .back-btn span { display: inline; } /* "Ana Menü" yazısını göster */
-            .back-btn i { font-size: 1.1rem; }
+            .back-btn { margin-bottom: 0 !important; font-size: 1rem; color: var(--accent) !important; display: flex !important; }
+            .back-btn span { display: inline !important; }
 
-            /* Mobilde Rekor Kutusunu Görünür Yap */
             .record-box {
-                margin-bottom: 0;
-                padding: 5px 10px;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                border: 1px solid #e2e8f0;
-                background: #f8fafc;
+                margin-bottom: 0 !important; padding: 5px 10px !important;
+                display: flex !important; align-items: center; gap: 5px;
+                border: 1px solid #e2e8f0; background: #f8fafc;
             }
-            .record-title, .record-date, .record-unit, .tips { display: none; } /* Tarih vb. gizli kalsın */
-            .record-score { font-size: 1.2rem; margin: 0; color: var(--accent); }
-            .record-box::before { content: "🏆"; font-size: 1rem; } /* Kupa ikonu */
+            .record-title, .record-date, .record-unit, .tips { display: none !important; }
+            .record-score { font-size: 1.2rem !important; margin: 0; color: var(--accent); }
+            .record-box::before { content: "🏆"; font-size: 1rem; }
 
             .lang-switch { top: 75px; right: 10px; }
-            /* Orta Alan Ayarları */
             .main-content { justify-content: start; padding-top: 20px; }
-            
-            .config-bar { margin-bottom: 1rem; padding: 5px; margin-top: 45px; }
+            .config-bar { margin-top: 45px; margin-bottom: 1rem; padding: 5px; }
             .time-btn { padding: 5px 10px; font-size: 0.8rem; }
-
             .live-stats { font-size: 1.5rem; padding: 5px 20px; margin-bottom: 1rem; }
 
             .typing-container {
                 width: 95%;
-                height: 120px; /* Mobilde daha az yer kaplasın */
+                height: 120px; /* Mobilde daha kompakt */
                 padding: 15px;
             }
 
             .words-wrapper {
-                font-size: 1.3rem; /* Yazıları biraz küçült */
-                line-height: 2rem;
+                font-size: 1.3rem; /* Mobilde font küçüldü */
+                line-height: 2rem; /* Mobilde satır yüksekliği ~32px oldu */
             }
 
-            /* Sonuç Ekranı */
             .result-card { padding: 1.5rem; width: 95%; }
             .result-score { font-size: 3.5rem; }
         }
@@ -323,17 +302,15 @@
 
     <aside class="sidebar">
         <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> <span id="ui-menu">Ana Menü</span></a>
-        
         <div class="record-box">
             <div class="record-title"><span id="ui-best">EN İYİ</span> (<span id="record-mode-label">30s</span>)</div>
             <div class="record-score" id="best-score">0</div>
             <div class="record-unit" id="ui-unit">DOĞRU KELİME</div>
             <div class="record-date" id="best-date">Kayıt Yok</div>
         </div>
-
         <div class="tips" id="ui-tips">
             <b>Mobil İpucu:</b><br>
-            Telefonda yazarken kelime önerilerini (otomatik düzeltme) kapatırsan daha rahat edersin.<br>
+            Telefonda yazarken kelime önerilerini kapatırsan daha rahat edersin.<br>
         </div>
     </aside>
 
@@ -344,13 +321,10 @@
             <button class="time-btn" onclick="setTime(60)">60s</button>
             <button class="time-btn" onclick="setTime(180)">3dk</button>
         </div>
-
         <div class="live-stats" id="timer">30</div>
-
         <div class="typing-container" onclick="focusInput()">
             <div class="words-wrapper" id="words-wrapper"></div>
         </div>
-        
         <input type="text" id="input-field" autocomplete="off" autocapitalize="none" spellcheck="false" style="font-size: 16px;">
     </main>
 
@@ -359,7 +333,6 @@
             <div class="result-title" id="ui-timeout">Süre Doldu!</div>
             <div class="result-score" id="final-score">0</div>
             <div class="result-label" id="ui-result-label">Doğru Kelime</div>
-            
             <div class="grid-stats">
                 <div class="stat-item">
                     <span id="ui-stat-keys">Toplam Vuruş</span>
@@ -374,13 +347,11 @@
                     <b id="stat-date">--</b>
                 </div>
             </div>
-
             <button class="restart-btn" onclick="resetGame()" id="ui-restart">Tekrar Dene</button>
         </div>
     </div>
 
     <script>
-        // --- 1000 KELİME HAVUZU ---
         const wordPools = {
             tr: [
                 "ben", "sen", "o", "biz", "siz", "onlar", "ve", "ile", "ama", "fakat", "lakin", "çünkü", "veya", "ya", "da", "de",
@@ -497,11 +468,10 @@
         const recordModeLabel = document.getElementById("record-mode-label");
 
         window.onload = () => { 
-    // Sayfa ilk açıldığında hafızadaki rekoru çek ve her yere (mobil dahil) yaz
-    loadBestScore(maxTime); 
-    setLanguage(currentLang); 
-    resetGame(); 
-};
+            loadBestScore(maxTime); 
+            setLanguage(currentLang); 
+            resetGame(); 
+        };
 
         function setLanguage(lang) {
             if (isTyping) return;
@@ -598,6 +568,7 @@
             const currentWordDiv = wordWrapper.children[currentWordIndex];
             const chars = currentWordDiv.querySelectorAll(".letter");
             
+            // Geri silme işlemi
             if (inputType === "deleteContentBackward") {
                 if (currentCharIndex > 0) {
                     removeClassFromChar(currentWordIndex, currentCharIndex, "active");
@@ -606,6 +577,8 @@
                     removeClassFromChar(currentWordIndex, currentCharIndex, "incorrect");
                     addClassToCurrentChar("active");
                 }
+                // Silme yapınca da scroll kontrolü yap (Geri yukarı çıkması için)
+                checkScroll();
                 return;
             }
 
@@ -626,7 +599,9 @@
 
                     currentWordIndex++;
                     currentCharIndex = 0;
-                    checkScroll();
+                    
+                    checkScroll(); // Scroll kontrolü burada
+
                     if (currentWordIndex < words.length) addClassToCurrentChar("active");
                     inputField.value = "";
                 } 
@@ -653,14 +628,25 @@
             }
         }
 
+        // --- MİLİMETRİK SCROLL DÜZELTMESİ BURADA ---
         function checkScroll() {
-            const currentWordDiv = wordWrapper.children[currentWordIndex];
-            const prevWordDiv = wordWrapper.children[currentWordIndex - 1];
-            if (prevWordDiv && currentWordDiv.offsetTop > prevWordDiv.offsetTop) {
-                const lineHeight = 40; 
-                const currentTransform = parseInt(wordWrapper.style.transform.replace("translateY(", "").replace("px)", "") || 0);
-                wordWrapper.style.transform = `translateY(${currentTransform - lineHeight}px)`;
+            const currentWord = wordWrapper.children[currentWordIndex];
+            if (!currentWord) return;
+
+            // O anki kelimenin yüksekliğini dinamik al (Mobil: ~32px, PC: 40px)
+            const lineHeight = currentWord.offsetHeight; 
+            
+            // Aktif kelimenin yukarıdan uzaklığı
+            const offsetTop = currentWord.offsetTop;
+
+            // Kural: Eğer 2. satırın altına iniyorsak (offset > lineHeight), yukarı kaydır.
+            // Bu sayede aktif satır hep 2. sırada görünür, 1. satır yukarıda kalır.
+            let newTranslateY = 0;
+            if (offsetTop > lineHeight) {
+                newTranslateY = -(offsetTop - lineHeight);
             }
+
+            wordWrapper.style.transform = `translateY(${newTranslateY}px)`;
         }
 
         function finishGame() {
@@ -733,4 +719,3 @@
     </script>
 </body>
 </html>
-
