@@ -220,11 +220,21 @@
     }
 
     function addPipeColumn() {
-        const gap = 170; 
-        const pipeY = Phaser.Math.Between(150, config.height - gap - 150);
+        // --- DİNAMİK ZORLUK AYARI ---
+        // Başlangıç boşluğu 170px.
+        // Her 5 puanda bir boşluk 2px daralır.
+        // Ama asla 130px'in altına inmez (İmkansız olmasın diye).
+        let currentGap = Math.max(130, 170 - (Math.floor(score / 5) * 2)); 
+        
+        // --- GELİŞMİŞ RASTGELELİK ---
+        // Boru yüksekliği artık daha geniş bir aralıkta (100px - ekran boyu - boşluk - 100px) değişiyor.
+        // Bu sayede borular bazen çok yukarıda, bazen çok aşağıda çıkabilir.
+        const minPipeHeight = 100;
+        const maxPipeHeight = config.height - currentGap - 100;
+        const pipeY = Phaser.Math.Between(minPipeHeight, maxPipeHeight);
 
         let topPipe = pipes.create(config.width + 50, pipeY, 'pipe').setOrigin(0.5, 1).setFlipY(true);
-        let bottomPipe = pipes.create(config.width + 50, pipeY + gap, 'pipe').setOrigin(0.5, 0);
+        let bottomPipe = pipes.create(config.width + 50, pipeY + currentGap, 'pipe').setOrigin(0.5, 0);
 
         pipes.getChildren().forEach(p => {
             if (p.body && !p.body.velocity.x) { 
@@ -236,7 +246,7 @@
         });
 
         // Coin Ekle
-        let coinY = pipeY + (gap / 2); 
+        let coinY = pipeY + (currentGap / 2); 
         let coin = coins.create(config.width + 50, coinY, 'coin');
         coin.setVelocityX(-200);
         coin.body.allowGravity = false; 
