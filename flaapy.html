@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Flappy Hakan</title>
+    <title>HakanTools | Flappy Hakan Flat</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; background-color: #71c5cf; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        #ui-layer { position: fixed; top: 40px; width: 100%; text-align: center; pointer-events: none; color: white; text-shadow: 4px 4px 0 rgba(0,0,0,0.2); z-index: 10; font-family: 'Arial Black', sans-serif; }
-        .back-btn { position: fixed; bottom: 20px; left: 20px; padding: 12px 24px; background: #ffffff; color: #333; text-decoration: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 0 #ccc; transition: 0.1s; z-index: 20; }
-        .back-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #ccc; }
+        /* Arka plan rengini resimdeki gökyüzü mavisiyle eşleştirdik */
+        body { margin: 0; padding: 0; background-color: #4EC0CA; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; }
+        #ui-layer { position: fixed; top: 40px; width: 100%; text-align: center; pointer-events: none; color: white; text-shadow: 2px 2px 0 rgba(0,0,0,0.3); z-index: 10; font-weight: bold; }
+        .back-btn { position: fixed; bottom: 20px; left: 20px; padding: 12px 24px; background: #ffffff; color: #4EC0CA; text-decoration: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 0 #3da0a9; transition: 0.1s; z-index: 20; }
+        .back-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #3da0a9; }
     </style>
 </head>
 <body>
 
     <div id="ui-layer">
         <div style="font-size: 60px;" id="current-score">0</div>
-        <div style="font-size: 16px; letter-spacing: 2px;">EN İYİ: <span id="best-score">0</span></div>
+        <div style="font-size: 18px; letter-spacing: 1px;">EN İYİ: <span id="best-score">0</span></div>
     </div>
 
     <a href="index.html" class="back-btn">← ÇIKIŞ</a>
@@ -27,9 +28,14 @@
         type: Phaser.AUTO,
         width: isMobile ? window.innerWidth : 400,
         height: isMobile ? window.innerHeight : 600,
+        // Şeffaf canvas, arka plan rengini body'den alacak
+        transparent: true,
         physics: {
             default: 'arcade',
-            arcade: { gravity: { y: 1100 }, debug: false }
+            arcade: { 
+                gravity: { y: 1100 }, // Senin sevdiğin fizik ayarı
+                debug: false 
+            }
         },
         scene: { preload: preload, create: create, update: update }
     };
@@ -40,27 +46,31 @@
     document.getElementById('best-score').innerText = bestScore;
 
     function preload() {
-        // Fotoğraftaki o temiz görselleri GitHub üzerinden profesyonel assetlerle çekiyoruz
-        this.load.image('bg', 'https://raw.githubusercontent.com/samme/phaser-examples-assets/master/sprites/background-day.png');
-        this.load.image('bird', 'https://raw.githubusercontent.com/samme/phaser-examples-assets/master/sprites/yellowbird-midflap.png');
-        this.load.image('pipe', 'https://raw.githubusercontent.com/samme/phaser-examples-assets/master/sprites/pipe-green.png');
-        this.load.image('base', 'https://raw.githubusercontent.com/samme/phaser-examples-assets/master/sprites/base.png');
+        // --- YENİ FLAT DESIGN GÖRSELLER ---
+        // Resimdeki gibi temiz, modern ve vektörel varlıklar
+        this.load.image('bird', 'https://i.imgur.com/5s8L9YI.png'); // Flat sarı kuş
+        this.load.image('pipe', 'https://i.imgur.com/4x5Y6zT.png'); // Düz yeşil boru
+        this.load.image('ground', 'https://i.imgur.com/q3X2Y8A.png'); // Flat zemin
+        this.load.image('cloud', 'https://i.imgur.com/8W4X7dZ.png'); // Flat bulut
     }
 
     function create() {
-        // Arka Plan (O fotoğraftaki gibi ferah)
-        let back = this.add.image(0, 0, 'bg').setOrigin(0, 0);
-        back.displayWidth = config.width;
-        back.displayHeight = config.height;
+        // Arka plana birkaç dekoratif bulut ekleyelim
+        this.add.image(config.width * 0.2, config.height * 0.2, 'cloud').setScale(0.5).setAlpha(0.8);
+        this.add.image(config.width * 0.8, config.height * 0.3, 'cloud').setScale(0.3).setAlpha(0.6);
 
         pipes = this.physics.add.group();
 
-        // Kuş (Sarı ve net)
+        // Kuş ayarları (Resimdeki gibi tombul ve net)
         bird = this.physics.add.sprite(config.width / 4, config.height / 2, 'bird');
-        bird.setScale(1.5).setDepth(10);
-        
-        // Zemin (Fotoğraftaki gibi dalgalı yeşil alanın alt kısmı)
-        this.base = this.add.tileSprite(config.width/2, config.height - 50, config.width, 112, 'base').setDepth(20);
+        bird.setScale(0.12); // Görselin boyutuna göre ölçekleme
+        // Kuşun çarpışma kutusunu görselle eşitle (Milimetrik ayar)
+        bird.body.setCircle(bird.width * 0.4, bird.width * 0.1, bird.height * 0.1); 
+        bird.setDepth(10);
+
+        // Zemin (Resimdeki gibi düz ve net)
+        this.ground = this.add.tileSprite(config.width/2, config.height, config.width, 100, 'ground').setOrigin(0.5, 1).setDepth(20);
+        this.physics.add.existing(this.ground, true); // Zemini katı yap
 
         this.input.on('pointerdown', jump, this);
         this.input.keyboard.on('keydown-SPACE', jump, this);
@@ -74,20 +84,22 @@
         });
 
         this.physics.add.collider(bird, pipes, gameOver, null, this);
+        this.physics.add.collider(bird, this.ground, gameOver, null, this);
     }
 
     function update() {
         if (!gameHasStarted) {
             bird.body.allowGravity = false;
+            // Başlamadan önce hafifçe süzülme efekti
+            bird.y = (config.height / 2) + Math.sin(this.time.now / 500) * 10;
             return;
         }
 
-        // Mekanik aynı kalsın dedin, sadece zemin aksın
-        this.base.tilePositionX += 2;
+        this.ground.tilePositionX += 2.5; // Zemin akış hızı
 
         if (bird.angle < 30) bird.angle += 2;
         
-        if (bird.y > config.height - 100 || bird.y < -50) gameOver.call(this);
+        if (bird.y < -50) gameOver.call(this);
     }
 
     function jump() {
@@ -96,26 +108,32 @@
             bird.body.allowGravity = true;
             this.pipeTimer.paused = false;
         }
-        bird.setVelocityY(-350);
-        bird.angle = -20;
+        bird.setVelocityY(-350); // Senin sevdiğin zıplama gücü
+        this.tweens.add({
+            targets: bird,
+            angle: -20,
+            duration: 100
+        });
     }
 
     function addPipeColumn() {
-        const gap = 160; // Geçiş aralığı
-        const pipeY = Phaser.Math.Between(100, config.height - gap - 200);
+        const gap = 170; // Boru aralığı (Biraz daha rahat)
+        const pipeY = Phaser.Math.Between(100, config.height - gap - 150);
 
-        // Üst Boru (Fotoğraftaki gibi gölgeli ve net)
+        // Üst Boru
         let topPipe = pipes.create(config.width + 50, pipeY, 'pipe').setOrigin(0.5, 1).setFlipY(true);
+        topPipe.setScale(0.6); // Boru kalınlık ayarı
         
         // Alt Boru
         let bottomPipe = pipes.create(config.width + 50, pipeY + gap, 'pipe').setOrigin(0.5, 0);
+        bottomPipe.setScale(0.6);
 
         pipes.getChildren().forEach(p => {
             p.body.allowGravity = false;
-            p.setVelocityX(-200);
+            p.setVelocityX(-200); // Boru geliş hızı
+            p.body.setSize(p.width * 0.9, p.height); // Çarpışma kutusu ayarı
         });
 
-        // Skor mantığı (Çift boru olduğu için her geçişte 1 artsın)
         this.time.delayedCall(1500, () => {
              if(gameHasStarted) {
                 score += 0.5; 
