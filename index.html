@@ -14,19 +14,18 @@
     <title>Hızlı Yazma Testi | Ultimate</title>
     <style>
         :root {
-            --primary: #f59e0b; /* Amber/Turuncu Tema */
-            --primary-hover: #d97706;
-            --bg: #111827; /* Koyu Mod */
-            --panel: #1f2937;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --correct: #10b981; /* Yeşil */
-            --wrong: #ef4444; /* Kırmızı */
-            --current-word: #374151;
+            --primary: #fbbf24; /* Daha parlak sarı/turuncu */
+            --bg: #111827; /* Koyu Arka Plan */
+            --panel: #1f2937; /* Panel Rengi */
+            --text-main: #f9fafb; /* Bembeyaz Ana Yazı */
+            --text-muted: #9ca3af; /* Okunabilir Açık Gri */
+            --correct: #34d399; /* Parlak Yeşil */
+            --wrong: #f87171; /* Parlak Kırmızı */
+            --current-bg: #374151;
         }
 
         body {
-            font-family: 'Courier New', Courier, monospace; /* Monospace font yazılımcı hissi verir */
+            font-family: 'Courier New', Courier, monospace;
             background-color: var(--bg);
             color: var(--text-main);
             margin: 0; padding: 0;
@@ -34,10 +33,9 @@
             min-height: 100vh;
         }
 
-        /* Üst Bar */
         header {
             width: 100%; padding: 20px 0; text-align: center;
-            background: var(--panel); border-bottom: 2px solid #374151; margin-bottom: 20px;
+            background: var(--panel); border-bottom: 1px solid #374151; margin-bottom: 20px;
         }
         h1 { margin: 0; font-size: 28px; color: var(--primary); letter-spacing: 1px; }
 
@@ -46,17 +44,17 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* Ayar Barı (Süre Seçimi) */
+        /* Ayar Barı */
         .config-bar {
             background: var(--panel);
             padding: 10px 20px;
             border-radius: 12px;
             margin-bottom: 20px;
             display: flex; gap: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 1px solid #374151;
         }
         .time-btn {
-            background: transparent; border: 2px solid #4b5563; color: #9ca3af;
+            background: transparent; border: 2px solid #4b5563; color: #d1d5db;
             padding: 5px 15px; border-radius: 8px; cursor: pointer; font-weight: bold;
             transition: all 0.2s;
         }
@@ -69,66 +67,75 @@
         }
         .live-stat span { color: white; margin-left: 10px; }
 
-        /* Kelime Kutusu */
+        /* Kelime Kutusu (DÜZELTİLDİ) */
         .word-box-wrapper {
             position: relative; width: 100%; background: var(--panel);
-            border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 16px; padding: 30px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #374151;
         }
         .word-display {
-            font-size: 28px; line-height: 1.6; height: 140px; /* 3 satır sığacak kadar */
-            overflow: hidden; user-select: none; color: #4b5563;
+            font-size: 28px; line-height: 1.8; height: 160px;
+            overflow: hidden; user-select: none; 
+            color: var(--text-muted); /* ARTIK AÇIK GRİ (Okunabilir) */
         }
-        .word { display: inline-block; margin-right: 15px; border-radius: 4px; padding: 2px 5px; }
-        .word.current { background-color: #374151; color: white; border-left: 2px solid var(--primary); }
-        .word.correct { color: var(--correct); }
-        .word.wrong { color: var(--wrong); text-decoration: underline; }
-
-        /* Gizli Input */
-        #textInput {
-            position: absolute; opacity: 0; top: 0; left: 0; height: 100%; width: 100%; cursor: text;
+        
+        .word { 
+            display: inline-block; margin-right: 15px; border-radius: 6px; padding: 4px 8px; 
+            transition: all 0.1s ease;
         }
+        
+        /* Aktif Kelime (DÜZELTİLDİ - DAHA BELİRGİN) */
+        .word.current { 
+            background-color: var(--primary); /* Sarı Arka Plan */
+            color: #111; /* Siyah Yazı */
+            font-weight: bold;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        }
+        
+        .word.correct { color: var(--correct); } /* Parlak Yeşil */
+        .word.wrong { color: var(--wrong); text-decoration: underline; background: rgba(248, 113, 113, 0.1); } /* Parlak Kırmızı */
 
-        /* Blur Efekti (Odak Kaybolursa) */
+        #textInput { position: absolute; opacity: 0; top: 0; left: 0; height: 100%; width: 100%; cursor: text; }
+
         .blur-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(4px);
+            background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(4px);
             display: flex; justify-content: center; align-items: center;
-            border-radius: 16px; z-index: 10; cursor: pointer; color: white; font-size: 20px;
+            border-radius: 16px; z-index: 10; cursor: pointer; color: white; font-size: 22px; font-weight: bold;
         }
         .hidden { display: none !important; }
 
-        /* YENİDEN BAŞLAT BUTONU */
         .restart-btn {
             margin-top: 30px; background: #374151; color: white; border: none;
             padding: 12px 40px; font-size: 18px; border-radius: 8px; cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s; border: 1px solid #4b5563;
         }
-        .restart-btn:hover { background: var(--primary); color: #111; }
+        .restart-btn:hover { background: var(--primary); color: #111; border-color: var(--primary); }
 
-        /* SONUÇ MODALI (DETAYLI) */
+        /* Sonuç Ekranı */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 100;
+            background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 100;
         }
         .modal {
             background: var(--panel); width: 500px; padding: 40px; border-radius: 20px;
-            text-align: center; border: 1px solid #374151; box-shadow: 0 0 50px rgba(245, 158, 11, 0.2);
+            text-align: center; border: 1px solid #4b5563; box-shadow: 0 0 50px rgba(251, 191, 36, 0.15);
         }
         .modal h2 { color: white; margin-bottom: 5px; }
-        .big-wpm { font-size: 72px; font-weight: 900; color: var(--primary); margin: 10px 0; line-height: 1; }
-        .big-wpm span { font-size: 16px; color: #9ca3af; font-weight: normal; display: block; margin-top: 5px; }
+        .big-wpm { font-size: 72px; font-weight: 900; color: var(--primary); margin: 10px 0; line-height: 1; text-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
+        .big-wpm span { font-size: 16px; color: #9ca3af; font-weight: normal; display: block; margin-top: 5px; text-shadow: none; }
         
-        /* Detay Tablosu */
         .stats-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 30px 0;
-            text-align: left; background: #111827; padding: 20px; border-radius: 12px;
+            text-align: left; background: #111827; padding: 20px; border-radius: 12px; border: 1px solid #374151;
         }
         .grid-item { display: flex; justify-content: space-between; font-size: 14px; color: #9ca3af; border-bottom: 1px solid #374151; padding-bottom: 5px; }
         .grid-item strong { color: white; font-size: 16px; }
         .acc-high { color: var(--correct) !important; }
         
-        .footer { margin-top: auto; padding: 20px; color: #4b5563; font-size: 12px; }
-
+        .footer { margin-top: auto; padding: 20px; color: #6b7280; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -138,9 +145,8 @@
 </header>
 
 <div class="container">
-    
     <div class="config-bar">
-        <span style="color:white; align-self:center; font-size:14px; margin-right:5px;">Süre:</span>
+        <span style="color:#d1d5db; align-self:center; font-size:14px; margin-right:5px;">Süre:</span>
         <button class="time-btn" onclick="setTime(30)">30s</button>
         <button class="time-btn active" onclick="setTime(60)">60s</button>
         <button class="time-btn" onclick="setTime(120)">2dk</button>
@@ -149,13 +155,13 @@
 
     <div class="live-stats">
         <div class="live-stat" id="timerDisplay">60</div>
-        <div class="live-stat" style="color: var(--text-muted)">|</div>
+        <div class="live-stat" style="color: #4b5563">|</div>
         <div class="live-stat">WPM: <span id="liveWpm">0</span></div>
     </div>
 
     <div class="word-box-wrapper" onclick="document.getElementById('textInput').focus()">
         <div class="blur-overlay" id="focusOverlay">
-            👆 Yazmak için tıkla
+            👆 Başlamak için TIKLA
         </div>
         <div class="word-display" id="wordDisplay"></div>
         <input type="text" id="textInput" autocomplete="off" spellcheck="false">
@@ -178,34 +184,29 @@
             <div class="grid-item">Süre: <strong id="finalTime">60s</strong></div>
         </div>
 
-        <button class="restart-btn" onclick="resetGame()" style="width:100%; background:var(--primary); color:#111;">Tekrar Dene</button>
+        <button class="restart-btn" onclick="resetGame()" style="width:100%; background:var(--primary); color:#111; border-color:var(--primary);">Tekrar Dene</button>
     </div>
 </div>
 
 <div class="footer">&copy; 2025 Hakan-25 | GitHub Pages</div>
 
 <script>
-    // --- BÜYÜK KELİME HAVUZU (Sıkıştırılmış Liste) ---
-    // Buraya yaklaşık 600+ en sık kullanılan kelimeyi ekledim.
+    // --- BÜYÜK KELİME HAVUZU (Türkçe) ---
     const rawWordList = "bir ve bu de da için çok o en ne kadar olan olarak var ile daha ama gibi sonra büyük yer yıl zaman kendi böyle her şey diye iki yok tarafından önce insan arasında son iş ancak şekilde yeni sadece bütün göre aynı bile hiç şimdi yüzden artık oldu olduğunu olması ben sen biz siz onlar güzel iyi kötü uzun kısa geldi gitti yaptı dedi çünkü veya ya hem kim hangi nasıl neden nerede evet hayır belki gün saat dakika bugün yarın dün gece sabah akşam hafta ay yıl su ekmek yemek kitap okul ev araba yol kapı pencere masa sandalye bilgisayar telefon kalem kağıt arkadaş aile baba anne kardeş çocuk bebek genç yaşlı kadın erkek doktor öğretmen öğrenci devlet millet ülke şehir köy sokak cadde park bahçe ağaç çiçek hayvan köpek kedi kuş balık deniz göl nehir dağ tepe orman hava güneş ay yıldız yağmur kar rüzgar ateş toprak demir altın gümüş para banka market mağaza fiyat ucuz pahalı bedava satış alışveriş hesap fatura borç kredi kart numara isim soyad adres telefon posta mesaj haber bilgi soru cevap test sınav ders konu bölüm sınıf grup takım oyun spor müzik film sanat resim fotoğraf renk kırmızı mavi yeşil sarı siyah beyaz turuncu mor pembe kahverengi gri açık koyu sıcak soğuk ılık hızlı yavaş kolay zor ağır hafif yüksek alçak geniş dar uzak yakın iç dış sağ sol üst alt ön arka orta yan karşı baş son ilk tek çift tam yarım çeyrek miktar sayı rakam harf kelime cümle metin yazı konuşma ses gürültü sessizlik mutlu üzgün kızgın korkmuş şaşkın yorgun hasta sağlıklı güçlü zayıf zengin fakir dolu boş temiz kirli yeni eski açık kapalı gelmek gitmek almak vermek yapmak etmek konuşmak söylemek duymak görmek bakmak yürümek koşmak oturmak kalkmak yatmak uyumak uyanmak çalışmak okumak yazmak çizmek düşünmek anlamak bilmek sevmek istemek korkmak şaşırmak gülmek ağlamak başlamak bitmek durmak kalmak yaşamak ölmek bulmak kaybetmek açmak kapatmak sormak cevaplamak kazanmak içmek yemek oynamak beklemek aramak buluşmak tanışmak ayrılmak evlenmek boşanmak doğmak büyümek unutmak hatırlamak öğrenmek öğretmek izlemek dinlemek sürmek taşımak yardım etmek teşekkür etmek özür dilemek lütfen merhaba hoşça kal nasılsın iyiyim sağ ol tebrikler başarılar şans aşk sevgi nefret barış savaş özgürlük adalet hak hukuk kural yasa ceza suç polis asker jandarma mahkeme avukat hakim savcı hapis suçlu masum tanık delil olay durum gerçek yalan doğru yanlış hata kusur eksik fazla az çok biraz birkaç birçok hiçbiri hepsi bazı kimse herkes birbiri öteki diğeri hangi şu o bu bunlar şunlar onlar burası şurası orası neresi buraya şuraya oraya nereye buradan şuradan oradan nereden niçin ne zaman ne kadar kaç kimin hangi nasıl ne";
     
     const wordPool = rawWordList.split(" ");
 
-    // AYARLAR
     let selectedTime = 60;
     let timer = 60;
     let isPlaying = false;
     let timerInterval = null;
-
-    // OYUN VERİLERİ
-    let displayWords = []; // Ekranda o an görünen kelimeler
+    let displayWords = [];
     let currentWordIndex = 0;
     let correctKeystrokes = 0;
     let wrongKeystrokes = 0;
     let correctWords = 0;
     let wrongWords = 0;
     
-    // DOM ELEMENTLERİ
     const wordDisplay = document.getElementById('wordDisplay');
     const textInput = document.getElementById('textInput');
     const timerDisplay = document.getElementById('timerDisplay');
@@ -213,21 +214,16 @@
     const focusOverlay = document.getElementById('focusOverlay');
     const modal = document.getElementById('resultModal');
 
-    // SÜRE SEÇİMİ
     function setTime(seconds) {
-        if(isPlaying) return; // Oyun oynanırken değiştirilemez
+        if(isPlaying) return;
         selectedTime = seconds;
         timer = seconds;
         timerDisplay.innerText = timer;
-        
-        // Buton renklerini güncelle
         document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
-        
-        resetGame(); // Süre değişince oyunu sıfırla
+        resetGame();
     }
 
-    // OYUNU BAŞLATMA
     function initGame() {
         fillWordDisplay();
         textInput.value = '';
@@ -245,15 +241,12 @@
         focusOverlay.classList.remove('hidden');
     }
 
-    // KELİMELERİ DOLDUR (Sonsuz Döngü İçin)
     function fillWordDisplay() {
         displayWords = [];
         wordDisplay.innerHTML = '';
-        // Ekrana sığacak kadar (yaklaşık 40-50 kelime) rastgele seç
         for(let i=0; i<40; i++) {
             const randomWord = wordPool[Math.floor(Math.random() * wordPool.length)];
             displayWords.push(randomWord);
-            
             const span = document.createElement('span');
             span.innerText = randomWord;
             span.className = 'word';
@@ -262,7 +255,6 @@
         wordDisplay.children[0].classList.add('current');
     }
 
-    // INPUT DİNLEYİCİSİ
     textInput.addEventListener('input', () => {
         if(!isPlaying && textInput.value.length > 0) {
             startTimer();
@@ -273,14 +265,12 @@
         const typedValue = textInput.value;
         const currentSpan = wordDisplay.children[currentWordIndex];
 
-        // Kelime bitti mi? (Boşluk tuşu)
         if(typedValue.endsWith(' ')) {
             const cleanTyped = typedValue.trim();
-            
             if(cleanTyped === currentWord) {
                 currentSpan.className = 'word correct';
                 correctWords++;
-                correctKeystrokes += currentWord.length + 1; // +1 boşluk
+                correctKeystrokes += currentWord.length + 1;
             } else {
                 currentSpan.className = 'word wrong';
                 wrongWords++;
@@ -290,26 +280,24 @@
             currentWordIndex++;
             textInput.value = '';
 
-            // SAYFAYI YENİLEME MANTIĞI (En üste gelme)
-            // Eğer listenin sonuna yaklaştıysak (son 10 kelime kala) veya bittiyse
             if(currentWordIndex >= displayWords.length - 1 || wordDisplay.children[currentWordIndex].offsetTop > 90) {
                  refreshPage();
             } else {
                 wordDisplay.children[currentWordIndex].classList.add('current');
             }
-            
             updateStats();
         } else {
-            // Anlık yazarken hata kontrolü (Opsiyonel: kırmızı yapma)
+            // Canlı Hata Kontrolü
             if(!currentWord.startsWith(typedValue)) {
-                currentSpan.style.backgroundColor = '#7f1d1d'; // Hata rengi
+                currentSpan.style.backgroundColor = '#7f1d1d'; // Hata (Koyu Kırmızı)
+                currentSpan.style.color = '#fecaca';
             } else {
-                currentSpan.style.backgroundColor = '#374151'; // Normal
+                currentSpan.style.backgroundColor = '#fbbf24'; // Normal (Sarı)
+                currentSpan.style.color = '#111';
             }
         }
     });
 
-    // SAYFAYI TEMİZLE VE YENİLERİ GETİR
     function refreshPage() {
         fillWordDisplay();
         currentWordIndex = 0;
@@ -321,10 +309,7 @@
             timer--;
             timerDisplay.innerText = timer;
             updateStats();
-            
-            if(timer === 0) {
-                finishGame();
-            }
+            if(timer === 0) finishGame();
         }, 1000);
     }
 
@@ -342,14 +327,12 @@
         textInput.blur();
         modal.style.display = 'flex';
 
-        // İstatistik Hesaplama
         const timeMins = selectedTime / 60;
         const grossWpm = Math.round(((correctKeystrokes + wrongKeystrokes) / 5) / timeMins);
         const netWpm = Math.round((correctKeystrokes / 5) / timeMins);
         const totalKeystrokes = correctKeystrokes + wrongKeystrokes;
         const accuracy = totalKeystrokes > 0 ? Math.round((correctKeystrokes / totalKeystrokes) * 100) : 0;
 
-        // Sonuçları Yazdır
         document.getElementById('finalWpm').innerHTML = `${netWpm} <span>WPM (Net Hız)</span>`;
         document.getElementById('finalAcc').innerText = '%' + accuracy;
         document.getElementById('finalKeystrokes').innerText = `${correctKeystrokes} (D) / ${wrongKeystrokes} (Y)`;
@@ -364,17 +347,9 @@
         initGame();
     }
 
-    // Input Odaklanma Kontrolü
-    textInput.addEventListener('blur', () => {
-        if(isPlaying) focusOverlay.classList.remove('hidden');
-    });
-    textInput.addEventListener('focus', () => {
-        focusOverlay.classList.add('hidden');
-    });
-
-    // Başlangıç
+    textInput.addEventListener('blur', () => { if(isPlaying) focusOverlay.classList.remove('hidden'); });
+    textInput.addEventListener('focus', () => { focusOverlay.classList.add('hidden'); });
     initGame();
-
 </script>
 </body>
 </html>
