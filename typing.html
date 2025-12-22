@@ -270,23 +270,23 @@
                 box-shadow: none;
             }
 
-            .back-btn { margin-bottom: 0; font-size: 0.9rem; }
-            .back-btn span { display: none; } /* "Ana Menü" yazısını gizle, sadece ok kalsın */
-            .back-btn i { font-size: 1.2rem; }
+            .back-btn { margin-bottom: 0; font-size: 1rem; color: var(--accent); }
+            .back-btn span { display: inline; } /* "Ana Menü" yazısını göster */
+            .back-btn i { font-size: 1.1rem; }
 
-            /* Mobilde Rekor Kutusunu Küçült */
+            /* Mobilde Rekor Kutusunu Görünür Yap */
             .record-box {
                 margin-bottom: 0;
                 padding: 5px 10px;
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                border: none;
-                background: transparent;
+                gap: 5px;
+                border: 1px solid #e2e8f0;
+                background: #f8fafc;
             }
-            .record-title, .record-date, .record-unit, .tips { display: none; } /* Fazlalıkları gizle */
-            .record-score { font-size: 1.5rem; margin: 0; }
-            .record-box::before { content: "🏆 "; font-size: 1.2rem; } /* Kupa ikonu ekle */
+            .record-title, .record-date, .record-unit, .tips { display: none; } /* Tarih vb. gizli kalsın */
+            .record-score { font-size: 1.2rem; margin: 0; color: var(--accent); }
+            .record-box::before { content: "🏆"; font-size: 1rem; } /* Kupa ikonu */
 
             .lang-switch { top: 75px; right: 10px; }
             /* Orta Alan Ayarları */
@@ -586,7 +586,8 @@
                 isTyping = true;
                 timer = setInterval(initTimer, 1000);
             }
-            const val = inputField.value.toLowerCase(); // Bu satırı ekle veya mevcut olanı böyle değiştir.
+
+            const val = inputField.value.toLowerCase();
             const inputChar = val.slice(-1);
             const inputType = e.inputType;
             const currentWordDiv = wordWrapper.children[currentWordIndex];
@@ -727,4 +728,3 @@
     </script>
 </body>
 </html>
-
