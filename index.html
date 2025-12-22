@@ -1,470 +1,154 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MXHVBZBVZJ"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-MXHVBZBVZJ');
-    </script>
-
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hakan Tools | Hepsi Bir Arada</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HakanTools | Hepsi Bir Arada</title>
     <style>
-        :root {
-            --primary: #2563eb; /* Profesyonel Mavi */
-            --secondary: #1e293b;
-            --bg: #f8fafc; /* Göz yormayan çok açık gri */
-            --card-bg: #ffffff;
-            --text: #334155;
-            --success: #10b981;
-            --danger: #ef4444;
-            --accent: #f59e0b;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column; min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Açık gri arka plan */
+            color: #1f2937;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        /* --- ÜST BAR & NAVİGASYON --- */
-        header {
-            background: white;
-            padding: 15px 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100;
+        /* --- Navbar --- */
+        .navbar {
+            background-color: #ffffff;
+            padding: 1.5rem 5%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
         }
-        .logo { font-size: 20px; font-weight: 800; color: var(--secondary); letter-spacing: -0.5px; }
-        .logo span { color: var(--primary); }
-        
-        .home-btn {
-            background: #f1f5f9; color: var(--secondary); border: none;
-            padding: 8px 15px; border-radius: 8px; font-weight: 600; cursor: pointer;
-            display: none; /* Sadece araç içindeyken görünür */
-            font-size: 14px;
-        }
-        .home-btn:hover { background: #e2e8f0; }
 
-        /* --- ANA MENÜ (GRID SİSTEMİ) --- */
-        #menu-page {
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #111827;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: #3b82f6; /* Tools kısmı mavi olsun */
+        }
+
+        /* --- Ana İçerik --- */
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 40px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+            gap: 2rem;
             width: 100%;
+            max-width: 1200px;
         }
 
-        .menu-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
+        /* --- Kart Tasarımı --- */
+        .card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            padding: 3rem 2rem;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-            border: 1px solid #e2e8f0;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .menu-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); border-color: var(--primary); }
-        
-        .icon-box { font-size: 50px; margin-bottom: 20px; }
-        .card-title { font-size: 22px; font-weight: 700; color: var(--secondary); margin-bottom: 10px; }
-        .card-desc { color: #64748b; font-size: 14px; line-height: 1.5; }
-
-        /* --- SAYFA YAPISI (Apps) --- */
-        .app-page {
-            display: none; /* Varsayılan olarak gizli */
-            flex-direction: column; align-items: center;
-            padding: 20px; width: 100%; flex: 1;
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- ORTAK BUTONLAR --- */
-        .btn-primary {
-            background: var(--primary); color: white; border: none;
-            padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600;
-            cursor: pointer; width: 100%; max-width: 300px; margin-top: 20px;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
-        }
-        .btn-primary:active { transform: scale(0.98); }
-
-        /* ==============================
-           UYGULAMA 1: PDF DÖNÜŞTÜRÜCÜ
-           ============================== */
-        .pdf-box {
-            background: white; width: 100%; max-width: 500px; padding: 40px;
-            border-radius: 24px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-        }
-        .upload-area {
-            border: 2px dashed #cbd5e1; border-radius: 16px; padding: 40px 20px;
-            background: #f8fafc; cursor: pointer; transition: all 0.2s; margin-bottom: 20px;
-        }
-        .upload-area:hover { border-color: var(--primary); background: #eff6ff; }
-
-        /* ==============================
-           UYGULAMA 2: KLAVYE HIZ TESTİ (Aydınlık Tema)
-           ============================== */
-        .typing-container {
-            width: 100%; max-width: 900px; background: white; padding: 30px;
-            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-        }
-        .config-bar {
-            display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;
-        }
-        .time-btn {
-            background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 16px;
-            border-radius: 8px; cursor: pointer; color: #64748b; font-weight: 600;
-        }
-        .time-btn.active { background: var(--secondary); color: white; border-color: var(--secondary); }
-        
-        .word-display {
-            font-size: 26px; line-height: 1.8; height: 150px; overflow: hidden;
-            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;
-            color: #94a3b8; /* Pasif kelimeler açık gri */
-            user-select: none; position: relative;
-        }
-        
-        .word { display: inline-block; margin-right: 12px; padding: 2px 6px; border-radius: 6px; }
-        .word.current { 
-            background: #e0f2fe; color: #0f172a; border-bottom: 2px solid var(--primary); /* Aktif kelime net */
-        }
-        .word.correct { color: var(--success); }
-        .word.wrong { color: var(--danger); text-decoration: line-through; }
-        
-        #hiddenInput { position: absolute; opacity: 0; top: 0; left: 0; }
-        .stats-row { display: flex; justify-content: space-around; margin-top: 20px; font-size: 20px; font-weight: 700; color: var(--secondary); }
-
-        /* ==============================
-           UYGULAMA 3: FLAPPY BIRD (Mobil Uyumlu)
-           ============================== */
-        canvas {
-            background: #70c5ce; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 100%; display: block; margin: 0 auto; cursor: pointer;
+            text-decoration: none; /* Link alt çizgisini kaldır */
+            color: inherit;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* --- FOOTER --- */
-        .footer { margin-top: auto; padding: 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #e5e7eb;
+        }
+
+        .icon-box {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background-color: #f3f4f6;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #111827;
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="logo">Hakan<span>Tools</span></div>
-    <button class="home-btn" onclick="goHome()">🏠 Ana Menü</button>
-</header>
+    <nav class="navbar">
+        <a href="index.html" class="logo">Hakan<span>Tools</span></a>
+    </nav>
 
-<div id="menu-page">
-    <div class="menu-card" onclick="openApp('pdf')">
-        <div class="icon-box">📄</div>
-        <div class="card-title">PDF Dönüştürücü</div>
-        <div class="card-desc">Resimlerini saniyeler içinde birleştirip PDF yap. Sunucu yok, %100 güvenli.</div>
-    </div>
-    <div class="menu-card" onclick="openApp('typing')">
-        <div class="icon-box">⌨️</div>
-        <div class="card-title">Klavye Hız Testi</div>
-        <div class="card-desc">Parmakların ne kadar hızlı? Profesyonel analiz ve detaylı sonuçlar.</div>
-    </div>
-    <div class="menu-card" onclick="openApp('game')">
-        <div class="icon-box">🐦</div>
-        <div class="card-title">Flappy Bird</div>
-        <div class="card-desc">Canın mı sıkıldı? Klasik oyunun modern haliyle stres at.</div>
-    </div>
-</div>
+    <div class="main-container">
+        <div class="grid-container">
 
-<div id="app-pdf" class="app-page">
-    <div class="pdf-box">
-        <h2>Resimden PDF'e</h2>
-        <p style="color:#64748b; margin-bottom:30px;">Dosyalarınız cihazınızdan dışarı çıkmaz.</p>
-        
-        <div class="upload-area" onclick="document.getElementById('imageInput').click()">
-            <div style="font-size:40px; margin-bottom:10px;">📂</div>
-            <div>Resimleri seçmek için tıkla</div>
+            <a href="#" class="card" onclick="alert('Bu özellik yakında eklenecek!')">
+                <div class="icon-box">📄</div>
+                <h2>PDF Dönüştürücü</h2>
+                <p>Resimlerini saniyeler içinde birleştirip PDF yap. Sunucu yok, %100 güvenli.</p>
+            </a>
+
+            <a href="typing.html" class="card">
+                <div class="icon-box">⌨️</div>
+                <h2>Klavye Hız Testi</h2>
+                <p>Parmakların ne kadar hızlı? Profesyonel analiz ve detaylı sonuçlar.</p>
+            </a>
+
+            <a href="#" class="card" onclick="alert('Oyun yapım aşamasında!')">
+                <div class="icon-box">🐦</div>
+                <h2>Flappy Bird</h2>
+                <p>Canın mı sıkıldı? Klasik oyunun modern haliyle stres at.</p>
+            </a>
+
         </div>
-        <input type="file" id="imageInput" accept="image/*" multiple style="display: none" onchange="updatePdfStatus()">
-        
-        <div id="pdfStatus" style="color:var(--primary); font-weight:bold; height:20px;"></div>
-        <button class="btn-primary" onclick="convertToPDF()">PDF OLUŞTUR VE İNDİR</button>
     </div>
-</div>
 
-<div id="app-typing" class="app-page">
-    <div class="typing-container">
-        <div class="config-bar">
-            <button class="time-btn active" onclick="setTypingTime(30)">30s</button>
-            <button class="time-btn" onclick="setTypingTime(60)">60s</button>
-            <button class="time-btn" onclick="setTypingTime(120)">2dk</button>
-        </div>
-        
-        <div class="word-display" id="wordDisplay" onclick="document.getElementById('hiddenInput').focus()">
-            </div>
-        <input type="text" id="hiddenInput" autocomplete="off">
-        
-        <div class="stats-row">
-            <div style="color:var(--accent)">Süre: <span id="timer">30</span>s</div>
-            <div>WPM: <span id="wpm">0</span></div>
-        </div>
+    <footer>
+        &copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.
+    </footer>
 
-        <button class="btn-primary" onclick="initTypingGame()" style="background:var(--secondary);">⟳ Yeniden Başlat</button>
-    </div>
-</div>
-
-<div id="app-game" class="app-page">
-    <div style="text-align:center;">
-        <h2 style="margin-bottom:10px;">Flappy Hakan</h2>
-        <p style="color:#64748b; margin-bottom:20px;">Zıplamak için tıkla veya ekrana dokun</p>
-        <canvas id="gameCanvas" width="320" height="480"></canvas>
-        <h3 id="scoreDisplay" style="margin-top:20px; font-size:24px;">Skor: 0</h3>
-    </div>
-</div>
-
-<div class="footer">&copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.</div>
-
-<script>
-    // --- NAVİGASYON MANTIĞI ---
-    function openApp(appName) {
-        document.getElementById('menu-page').style.display = 'none';
-        document.querySelector('.home-btn').style.display = 'block';
-        
-        // Tüm appleri gizle
-        document.querySelectorAll('.app-page').forEach(el => el.style.display = 'none');
-        
-        // Seçileni aç
-        document.getElementById('app-' + appName).style.display = 'flex';
-
-        // Eğer oyun açıldıysa oyunu resetle
-        if(appName === 'game') resetFlappy();
-        // Eğer typing açıldıysa oyunu hazırla
-        if(appName === 'typing') initTypingGame();
-    }
-
-    function goHome() {
-        document.getElementById('menu-page').style.display = 'grid';
-        document.querySelector('.home-btn').style.display = 'none';
-        document.querySelectorAll('.app-page').forEach(el => el.style.display = 'none');
-    }
-
-    // ==========================================
-    // 1. PDF MANTIĞI
-    // ==========================================
-    function updatePdfStatus() {
-        const count = document.getElementById('imageInput').files.length;
-        document.getElementById('pdfStatus').innerText = count > 0 ? count + " resim seçildi." : "";
-    }
-
-    async function convertToPDF() {
-        const { jsPDF } = window.jspdf;
-        const input = document.getElementById('imageInput');
-        if(input.files.length === 0) return alert("Lütfen resim seçin!");
-        
-        const doc = new jsPDF();
-        for(let i=0; i<input.files.length; i++) {
-            const file = input.files[i];
-            const dataUrl = await new Promise(r => {
-                const reader = new FileReader();
-                reader.onload = (e) => r(e.target.result);
-                reader.readAsDataURL(file);
-            });
-            
-            const imgProps = doc.getImageProperties(dataUrl);
-            const pdfWidth = doc.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-            
-            if(i > 0) doc.addPage();
-            doc.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-        }
-        doc.save("dosyalarim.pdf");
-        alert("PDF İndirildi! 🚀");
-    }
-
-    // ==========================================
-    // 2. KLAVYE HIZ TESTİ MANTIĞI
-    // ==========================================
-    const wordList = "bir ve bu de da için çok o en ne kadar olan olarak var ile daha ama gibi sonra büyük yer yıl zaman kendi böyle her şey diye iki yok tarafından önce insan arasında son iş ancak şekilde yeni sadece bütün göre aynı bile hiç şimdi yüzden artık oldu olduğunu olması ben sen biz siz onlar güzel iyi kötü uzun kısa geldi gitti yaptı dedi çünkü veya ya hem kim hangi nasıl neden nerede evet hayır belki gün saat dakika bugün yarın dün gece sabah akşam hafta ay yıl su ekmek yemek kitap okul ev araba yol kapı pencere masa sandalye bilgisayar telefon kalem kağıt arkadaş aile baba anne kardeş çocuk bebek genç yaşlı kadın erkek doktor öğretmen öğrenci devlet millet ülke şehir köy sokak cadde park bahçe ağaç çiçek hayvan köpek kedi kuş balık deniz göl nehir dağ tepe orman hava güneş ay yıldız yağmur kar rüzgar ateş toprak demir altın gümüş para banka market mağaza fiyat ucuz pahalı bedava satış alışveriş hesap fatura borç kredi kart numara isim soyad adres telefon posta mesaj haber bilgi soru cevap test sınav ders konu bölüm sınıf grup takım oyun spor müzik film sanat resim fotoğraf renk kırmızı mavi yeşil sarı siyah beyaz turuncu mor pembe kahverengi gri açık koyu sıcak soğuk ılık hızlı yavaş kolay zor ağır hafif yüksek alçak geniş dar uzak yakın iç dış sağ sol üst alt ön arka orta yan karşı baş son ilk tek çift tam yarım çeyrek miktar sayı rakam harf kelime cümle metin yazı konuşma ses gürültü sessizlik mutlu üzgün kızgın korkmuş şaşkın yorgun hasta sağlıklı güçlü zayıf zengin fakir dolu boş temiz kirli yeni eski açık kapalı".split(" ");
-    
-    let typingTimer = 30;
-    let selectedTime = 30;
-    let isTyping = false;
-    let interval = null;
-    let words = [];
-    let wordIndex = 0;
-    let correctChars = 0;
-
-    function setTypingTime(t) {
-        selectedTime = t;
-        document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-        initTypingGame();
-    }
-
-    function initTypingGame() {
-        clearInterval(interval);
-        isTyping = false;
-        typingTimer = selectedTime;
-        document.getElementById('timer').innerText = typingTimer;
-        document.getElementById('wpm').innerText = 0;
-        document.getElementById('hiddenInput').value = "";
-        
-        words = [];
-        const display = document.getElementById('wordDisplay');
-        display.innerHTML = "";
-        
-        for(let i=0; i<50; i++) {
-            const w = wordList[Math.floor(Math.random() * wordList.length)];
-            words.push(w);
-            const span = document.createElement('span');
-            span.innerText = w;
-            span.className = 'word';
-            display.appendChild(span);
-        }
-        wordIndex = 0;
-        correctChars = 0;
-        display.children[0].classList.add('current');
-        display.scrollTop = 0;
-    }
-
-    document.getElementById('hiddenInput').addEventListener('input', function() {
-        if(!isTyping) {
-            isTyping = true;
-            interval = setInterval(() => {
-                typingTimer--;
-                document.getElementById('timer').innerText = typingTimer;
-                if(typingTimer <= 0) {
-                    clearInterval(interval);
-                    alert("Süre Doldu! Skorun: " + document.getElementById('wpm').innerText + " WPM");
-                    initTypingGame();
-                }
-            }, 1000);
-        }
-
-        const val = this.value;
-        const currentWord = words[wordIndex];
-        const span = document.getElementById('wordDisplay').children[wordIndex];
-
-        if(val.endsWith(" ")) {
-            const trimmed = val.trim();
-            if(trimmed === currentWord) {
-                span.className = "word correct";
-                correctChars += currentWord.length + 1;
-            } else {
-                span.className = "word wrong";
-            }
-            
-            wordIndex++;
-            this.value = "";
-            
-            // WPM Hesapla
-            const timePassed = selectedTime - typingTimer;
-            if(timePassed > 0) {
-                const wpm = Math.round((correctChars / 5) / (timePassed / 60));
-                document.getElementById('wpm').innerText = wpm;
-            }
-
-            if(wordIndex < words.length) {
-                const nextSpan = document.getElementById('wordDisplay').children[wordIndex];
-                nextSpan.classList.add('current');
-                if(nextSpan.offsetTop > 100) {
-                    document.getElementById('wordDisplay').scrollTop += 30;
-                }
-            } else {
-                // Kelimeler biterse yenile
-                initTypingGame(); // Basit döngü
-            }
-        }
-    });
-
-    // ==========================================
-    // 3. FLAPPY BIRD MANTIĞI
-    // ==========================================
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    let bird = {x: 50, y: 150, v: 0, g: 0.15, jump: -3.5}; // Gravity düşürüldü
-    let pipes = [];
-    let gameRunning = false;
-    let score = 0;
-    let frames = 0;
-
-    function resetFlappy() {
-        bird.y = 150; bird.v = 0;
-        pipes = []; score = 0; frames = 0;
-        gameRunning = false;
-        document.getElementById('scoreDisplay').innerText = "Başlamak için Tıkla";
-        drawGame();
-    }
-
-    function updateGame() {
-        if(!gameRunning) return;
-        
-        bird.v += bird.g;
-        bird.y += bird.v;
-
-        if(frames % 120 === 0) {
-            pipes.push({x: canvas.width, y: Math.random() * 200 + 50});
-        }
-
-        pipes.forEach((p, i) => {
-            p.x -= 1.5; // Hız
-            if(p.x + 40 < 0) {
-                pipes.shift();
-                score++;
-                document.getElementById('scoreDisplay').innerText = "Skor: " + score;
-            }
-            
-            // Çarpışma
-            if(
-                (bird.x + 20 > p.x && bird.x < p.x + 40 && (bird.y < p.y || bird.y > p.y + 120)) ||
-                bird.y > canvas.height || bird.y < 0
-            ) {
-                gameRunning = false;
-                document.getElementById('scoreDisplay').innerText = "Yandın! Skor: " + score;
-            }
-        });
-
-        drawGame();
-        requestAnimationFrame(updateGame);
-    }
-
-    function drawGame() {
-        ctx.fillStyle = "#70c5ce";
-        ctx.fillRect(0,0, canvas.width, canvas.height);
-        
-        // Kuş
-        ctx.fillStyle = "#facc15";
-        ctx.fillRect(bird.x, bird.y, 20, 20);
-        
-        // Borular
-        ctx.fillStyle = "#22c55e";
-        pipes.forEach(p => {
-            ctx.fillRect(p.x, 0, 40, p.y);
-            ctx.fillRect(p.x, p.y + 120, 40, canvas.height);
-        });
-    }
-
-    // Kontroller (Hem Tıkla Hem Dokun)
-    function jump() {
-        if(!gameRunning) {
-            gameRunning = true;
-            updateGame();
-        }
-        bird.v = bird.jump;
-    }
-    
-    canvas.addEventListener('mousedown', jump);
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
-
-</script>
 </body>
 </html>
