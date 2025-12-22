@@ -7,16 +7,26 @@
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         body { margin: 0; padding: 0; background-color: #4ec0ca; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; }
+        
+        /* Skor Paneli (Ortada) */
         #ui-layer { position: fixed; top: 10%; width: 100%; text-align: center; pointer-events: none; color: white; text-shadow: 2px 2px 0 rgba(0,0,0,0.2); z-index: 100; font-weight: bold; }
+        
+        /* Yeni Coin Paneli (Sağ Üst) */
+        #coin-ui { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.2); padding: 8px 15px; border-radius: 20px; color: #FFD700; font-weight: bold; font-size: 18px; display: flex; align-items: center; gap: 8px; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 2px solid #fff; }
+        
         .back-btn { position: fixed; bottom: 20px; left: 20px; padding: 12px 24px; background: #ffffff; color: #4ec0ca; text-decoration: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 0 #3da0a9; transition: 0.1s; z-index: 100; font-family: sans-serif; }
         .back-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #3da0a9; }
     </style>
 </head>
 <body>
 
+    <div id="coin-ui">
+        <span>💰</span> <span id="total-coins">0</span>
+    </div>
+
     <div id="ui-layer">
         <div style="font-size: 60px; line-height: 1;" id="current-score">0</div>
-        <div style="font-size: 18px; margin-top: 5px; opacity: 0.9;">EN İYİ: <span id="best-score">0</span></div>
+        <div style="font-size: 18px; margin-top: 5px; opacity: 0.9;">REKOR: <span id="best-score">0</span></div>
     </div>
 
     <a href="index.html" class="back-btn">← ÇIKIŞ</a>
@@ -38,47 +48,55 @@
         scene: { preload: preload, create: create, update: update }
     };
 
-    let bird, pipes, score = 0, bestScore = localStorage.getItem('flappy_best') || 0;
+    let bird, pipes, coins, score = 0;
+    // LocalStorage'dan verileri çekiyoruz
+    let bestScore = localStorage.getItem('flappy_best') || 0;
+    let totalCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
+    
     let gameHasStarted = false;
     const game = new Phaser.Game(config);
+    
+    // UI Güncelleme
     document.getElementById('best-score').innerText = bestScore;
+    document.getElementById('total-coins').innerText = totalCoins;
 
     function preload() {
-        // Resim yüklemiyoruz, her şeyi kodla çiziyoruz (Kırılmaz Link)
+        // Kodla çizim yapıyoruz, dışarıdan resim yok.
     }
 
     function create() {
-        // --- 1. KRAL KUŞU ÇİZELİM (Pembe Taçlı) ---
+        // --- 1. COIN ÇİZİMİ (Güzel bir Altın) ---
+        let coinG = this.make.graphics();
+        // Dış Çember (Koyu Altın)
+        coinG.fillStyle(0xFFD700, 1);
+        coinG.fillCircle(15, 15, 15);
+        coinG.lineStyle(2, 0xB8860B, 1);
+        coinG.strokeCircle(15, 15, 15);
+        // İç Parlama (Açık Sarı)
+        coinG.fillStyle(0xFFFACD, 1); 
+        coinG.fillCircle(15, 15, 10);
+        // Dolar İşareti Yerine "H" Harfi veya Basit Çizgi (Minimalist)
+        coinG.fillStyle(0xB8860B, 1);
+        coinG.fillRect(13, 8, 4, 14); 
+        coinG.generateTexture('coin', 32, 32);
+
+        // --- 2. KRAL KUŞU ÇİZİMİ (Pembe Taçlı) ---
         let birdG = this.make.graphics();
-        
-        // Önce Tacı Çizelim (Kafanın üstüne gelsin diye y koordinatları düşük)
-        birdG.fillStyle(0xFF69B4, 1); // "HotPink" rengi (Canlı Pembe)
-        // Tacın 3 sivri ucu (Poligon çizimi)
-        birdG.fillTriangle(10, 8, 14, 0, 18, 8); // Sol uç
-        birdG.fillTriangle(18, 8, 22, -2, 26, 8); // Orta uç (Daha yüksek)
-        birdG.fillTriangle(26, 8, 30, 0, 34, 8); // Sağ uç
-
-        // Kuşun Gövdesi (Sarı) - Tacın altına çiziyoruz
-        birdG.fillStyle(0xF4CE42, 1);
-        birdG.fillCircle(22, 20, 14); // Gövdeyi biraz aşağı aldık ki taç sığsın
-
-        // Göz (Beyaz)
-        birdG.fillStyle(0xFFFFFF, 1);
+        birdG.fillStyle(0xFF69B4, 1); // Pembe Taç
+        birdG.fillTriangle(10, 8, 14, 0, 18, 8); 
+        birdG.fillTriangle(18, 8, 22, -2, 26, 8); 
+        birdG.fillTriangle(26, 8, 30, 0, 34, 8); 
+        birdG.fillStyle(0xF4CE42, 1); // Sarı Gövde
+        birdG.fillCircle(22, 20, 14);
+        birdG.fillStyle(0xFFFFFF, 1); // Göz
         birdG.fillCircle(28, 16, 6);
-        
-        // Göz Bebeği (Siyah)
-        birdG.fillStyle(0x000000, 1);
+        birdG.fillStyle(0x000000, 1); // Göz Bebeği
         birdG.fillCircle(30, 16, 2);
-
-        // Gaga (Turuncu)
-        birdG.fillStyle(0xF39C12, 1);
+        birdG.fillStyle(0xF39C12, 1); // Gaga
         birdG.fillTriangle(32, 20, 44, 23, 32, 26);
-
-        // Dokuyu oluştur (Boyutu büyüttük ki taç kesilmesin: 45x40)
         birdG.generateTexture('bird', 45, 40);
 
-
-        // --- 2. BORUYU ÇİZELİM (Flat Yeşil) ---
+        // --- 3. BORU ÇİZİMİ ---
         let pipeG = this.make.graphics();
         pipeG.fillStyle(0x73BF2E, 1); 
         pipeG.fillRect(2, 2, 50, 600);
@@ -89,7 +107,7 @@
         pipeG.strokeRect(0, 0, 54, 26);
         pipeG.generateTexture('pipe', 56, 600);
 
-        // --- 3. ZEMİNİ ÇİZELİM ---
+        // --- 4. ZEMİN ÇİZİMİ ---
         let groundG = this.make.graphics();
         groundG.fillStyle(0xDED895, 1); 
         groundG.fillRect(0, 10, 400, 100);
@@ -99,24 +117,25 @@
         groundG.strokeRect(0, 0, 400, 15);
         groundG.generateTexture('ground', 400, 110);
 
-        // --- 4. BULUT ÇİZELİM ---
+        // --- 5. BULUT ÇİZİMİ (TAM BEYAZ) ---
         let cloudG = this.make.graphics();
-        cloudG.fillStyle(0xFFFFFF, 1);
+        cloudG.fillStyle(0xFFFFFF, 1); // Tam Beyaz
         cloudG.fillCircle(20, 20, 20);
         cloudG.fillCircle(45, 20, 25);
         cloudG.fillCircle(75, 20, 20);
         cloudG.generateTexture('cloud', 100, 50);
 
-        // --- OYUN NESNELERİ ---
+        // --- SAHNE NESNELERİ ---
         
-        this.add.image(config.width * 0.2, config.height * 0.2, 'cloud').setAlpha(0.5);
-        this.add.image(config.width * 0.8, config.height * 0.35, 'cloud').setAlpha(0.3).setScale(0.8);
+        // Bulutlar (Daha parlak ve beyaz)
+        this.add.image(config.width * 0.2, config.height * 0.2, 'cloud').setAlpha(0.9);
+        this.add.image(config.width * 0.8, config.height * 0.35, 'cloud').setAlpha(0.8).setScale(0.8);
 
         pipes = this.physics.add.group();
+        coins = this.physics.add.group(); // Coin grubu
 
         bird = this.physics.add.sprite(config.width / 4, config.height / 2, 'bird');
         bird.setDepth(10);
-        // Çarpışma alanını gövdeye göre ayarladık (Taca çarparsa ölmesin, yazıktır)
         bird.body.setCircle(12, 10, 8); 
 
         this.ground = this.add.tileSprite(config.width/2, config.height, config.width, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
@@ -133,8 +152,12 @@
             paused: true
         });
 
+        // Çarpışmalar
         this.physics.add.collider(bird, pipes, gameOver, null, this);
         this.physics.add.collider(bird, this.ground, gameOver, null, this);
+        
+        // Coin Toplama Olayı (Overlap: İçinden geçince tetiklenir)
+        this.physics.add.overlap(bird, coins, collectCoin, null, this);
     }
 
     function update() {
@@ -162,15 +185,12 @@
     }
 
     function addPipeColumn() {
-        const gap = 160; 
+        const gap = 170; // Boşluk biraz rahat olsun coin için
         const pipeY = Phaser.Math.Between(150, config.height - gap - 150);
 
-        let topPipe = pipes.create(config.width + 50, pipeY, 'pipe');
-        topPipe.setOrigin(0.5, 1); 
-        topPipe.setFlipY(true);
-
-        let bottomPipe = pipes.create(config.width + 50, pipeY + gap, 'pipe');
-        bottomPipe.setOrigin(0.5, 0); 
+        // Borular
+        let topPipe = pipes.create(config.width + 50, pipeY, 'pipe').setOrigin(0.5, 1).setFlipY(true);
+        let bottomPipe = pipes.create(config.width + 50, pipeY + gap, 'pipe').setOrigin(0.5, 0);
 
         pipes.getChildren().forEach(p => {
             if (p.body && !p.body.velocity.x) { 
@@ -181,14 +201,41 @@
             }
         });
 
-        // --- SKOR GÜNCELLEMESİ (DÜZELTİLDİ) ---
-        // Artık her boru geçişinde TAM 1 puan veriyoruz.
+        // --- COIN EKLEME MANTIĞI ---
+        // Coin, boruların tam arasındaki boşluğun ortasında oluşsun
+        let coinY = pipeY + (gap / 2); 
+        let coin = coins.create(config.width + 50, coinY, 'coin');
+        
+        coin.setVelocityX(-200); // Borularla aynı hızda sola gitsin
+        coin.body.allowGravity = false; // Yerçekiminden etkilenmesin
+
+        // COIN ANİMASYONU (Kendi etrafında dönme efekti)
+        this.tweens.add({
+            targets: coin,
+            scaleX: 0, // X ekseninde daralarak dönme hissi verir
+            duration: 500,
+            yoyo: true, // Geri açıl
+            repeat: -1 // Sonsuz döngü
+        });
+
+        // Skor Arttırma
         this.time.delayedCall(1500, () => {
              if(gameHasStarted) {
-                score += 1; // Eskiden 0.5 idi, şimdi 1 oldu.
+                score += 1; 
                 document.getElementById('current-score').innerText = score;
              }
         });
+    }
+
+    function collectCoin(bird, coin) {
+        coin.disableBody(true, true); // Coini ekrandan sil
+        
+        // Coin Sayacını Arttır
+        totalCoins += 1;
+        document.getElementById('total-coins').innerText = totalCoins;
+        
+        // Hafızaya Kaydet
+        localStorage.setItem('flappy_coins', totalCoins);
     }
 
     function gameOver() {
@@ -197,6 +244,10 @@
             localStorage.setItem('flappy_best', bestScore);
             document.getElementById('best-score').innerText = bestScore;
         }
+        
+        // Oyun bitince coinleri de kaydet (Garanti olsun)
+        localStorage.setItem('flappy_coins', totalCoins);
+
         gameHasStarted = false;
         score = 0;
         document.getElementById('current-score').innerText = "0";
