@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Hız Testi | Speed Typer</title>
+    <style>
+        /* --- CSS (Görsel Tasarım) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #323437;
+            --main-color: #e2b714;
+            --sub-color: #646669;
+            --text-color: #d1d0c5;
+            --error-color: #ca4754;
+            --correct-color: #d1d0c5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Roboto Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 1000px;
+            max-width: 90%;
+            padding: 20px;
+        }
+
+        /* Başlık ve İstatistikler */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            color: var(--main-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            font-size: 1.2rem;
+            color: var(--sub-color);
+        }
+
+        .stats-bar span b {
+            color: var(--main-color);
+        }
+
+        /* Yazı Alanı */
+        .typing-area {
+            position: relative;
+            background: transparent;
+            font-size: 1.5rem;
+            line-height: 2rem;
+            min-height: 150px;
+            margin-bottom: 2rem;
+            user-select: none; /* Metin seçilemesin */
+        }
+
+        .wrapper {
+            background-color: transparent;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .content-box {
+            color: var(--sub-color);
+            word-break: break-all;
+        }
+
+        /* Gizli Input (Odağı buraya vereceğiz) */
+        .input-field {
+            position: absolute;
+            z-index: -999;
+            opacity: 0;
+        }
+
+        /* Harf Durumları */
+        .content-box span {
+            position: relative;
+        }
+
+        .content-box span.correct {
+            color: var(--correct-color);
+        }
+
+        .content-box span.incorrect {
+            color: var(--error-color);
+            text-decoration: underline;
+        }
+
+        /* Yanıp sönen imleç (Cursor) */
+        .content-box span.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 100%;
+            width: 2px;
+            background: var(--main-color);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Buton */
+        .restart-btn {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .restart-btn:hover {
+            background-color: var(--main-color);
+        }
+
+        /* Geçmiş Skor Tablosu */
+        .history-section {
+            margin-top: 3rem;
+            width: 100%;
+            border-top: 2px solid var(--sub-color);
+            padding-top: 1rem;
+        }
+
+        .history-title {
+            color: var(--sub-color);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .history-table th, .history-table td {
+            padding: 8px;
+            border-bottom: 1px solid #444;
+            color: var(--sub-color);
+        }
+
+        .history-table th {
+            color: var(--main-color);
+        }
+
+        /* Sonuç Ekranı Overlay */
+        .result-overlay {
+            display: none; /* Başlangıçta gizli */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .result-box {
+            background: var(--bg-color);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid var(--main-color);
+        }
+
+        .result-box h2 {
+            color: var(--main-color);
+            margin-bottom: 20px;
+        }
+
+        .result-stats {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div>TYPING TEST PRO</div>
+            <div class="stats-bar">
+                <span>Süre: <b id="timeLeft">60</b>s</span>
+                <span>WPM: <b id="wpmTag">0</b></span>
+                <span>Doğruluk: <b id="accuracyTag">100%</b></span>
+            </div>
+        </div>
+
+        <div class="wrapper" onclick="focusInput()">
+            <input type="text" class="input-field" id="inputField">
+            <div class="typing-area">
+                <p class="content-box" id="typingText"></p>
+            </div>
+            <p style="text-align: center; color: var(--sub-color); font-size: 0.8rem; margin-top: 10px;">
+                (Yazmak için ekrana tıkla veya herhangi bir tuşa bas)
+            </p>
+        </div>
+
+        <button class="restart-btn" onclick="resetGame()">Yeniden Başlat (Tab)</button>
+
+        <div class="history-section">
+            <h3 class="history-title">Geçmiş Rekorlar (Son 5)</h3>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>WPM</th>
+                        <th>Doğruluk</th>
+                        <th>Hata</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-box">
+            <h2>Süre Doldu!</h2>
+            <div class="result-stats">
+                <p>WPM: <b id="finalWpm" style="color:var(--main-color)">0</b></p>
+                <p>Doğruluk: <b id="finalAcc">0%</b></p>
+                <p>Tuş Vuruşu: <span id="finalCpm">0</span></p>
+            </div>
+            <button class="restart-btn" onclick="closeResultAndReset()">Tekrar Dene</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- JAVASCRIPT (Mantık ve Kontroller) --- */
+        
+        // Türkçe Kelime Havuzu (Burası genişletilebilir)
+        const paragraphs = [
+            "yazılım geliştirmek sabır ve sürekli pratik gerektirir kod yazarken dikkatli olmak hataları azaltır python ve javascript günümüzün en popüler dilleridir klavye hızını artırmak zaman kazandırır her gün düzenli olarak çalışmak başarıyı getirir bilgisayar başında doğru oturmak sağlık için önemlidir teknolojiyi takip etmek geleceği yakalamaktır yapay zeka hayatımızın her alanına girmeye başladı",
+            "bir fincan kahve eşliğinde kod yazmak gibisi yoktur algoritmalar problemlerin çözüm yoludur veri yapıları programlamanın temel taşlarıdır internet dünyası bilgiye ulaşmayı kolaylaştırdı siber güvenlik gün geçtikçe daha önemli hale geliyor açık kaynak kodlu yazılımlar topluluklar tarafından geliştirilir",
+            "başarı tesadüf değildir çok çalışmanın ürünüdür hata yapmaktan korkma hatayı düzeltmekten kork kitap okumak kelime dağarcığını geliştirir hızlı okuma teknikleri anlamayı güçlendirir sabah erken kalkmak günü verimli kılar spor yapmak zihni açar ve stresi azaltır",
+            "modern web tasarımı kullanıcı deneyimine odaklanır mobil uyumlu siteler artık bir zorunluluktur bulut bilişim verileri her yerden erişilebilir kılar nesnelerin interneti cihazları birbirine bağlar büyük veri analizi şirketlerin stratejilerini belirler blokzincir teknolojisi güvenli veri transferi sağlar"
+        ];
+
+        const typingText = document.querySelector("#typingText");
+        const inpField = document.querySelector("#inputField");
+        const timeTag = document.querySelector("#timeLeft");
+        const wpmTag = document.querySelector("#wpmTag");
+        const accuracyTag = document.querySelector("#accuracyTag");
+        const resultOverlay = document.querySelector("#resultOverlay");
+        const historyBody = document.querySelector("#historyBody");
+
+        let timer,
+            maxTime = 60,
+            timeLeft = maxTime,
+            charIndex = 0,
+            mistakes = 0,
+            isTyping = 0;
+
+        // Sayfa yüklendiğinde çalışacaklar
+        window.onload = () => {
+            loadParagraph();
+            loadHistory();
+            document.addEventListener("keydown", () => inpField.focus());
+        };
+
+        function loadParagraph() {
+            // Rastgele bir paragraf seç
+            const ranIndex = Math.floor(Math.random() * paragraphs.length);
+            typingText.innerHTML = "";
+            
+            // Harfleri span içine alarak ekrana bas
+            paragraphs[ranIndex].split("").forEach(char => {
+                let span = `<span>${char}</span>`;
+                typingText.innerHTML += span;
+            });
+            
+            // İlk harfe imleci koy
+            typingText.querySelectorAll("span")[0].classList.add("active");
+            
+            // Sayfaya tıklayınca input'a odaklan
+            document.addEventListener("keydown", () => inpField.focus());
+            typingText.addEventListener("click", () => inpField.focus());
+        }
+
+        function initTyping() {
+            let characters = typingText.querySelectorAll("span");
+            let typedChar = inpField.value.split("")[charIndex];
+
+            if (charIndex < characters.length - 1 && timeLeft > 0) {
+                if (!isTyping) { // İlk tuşa basıldığında sayacı başlat
+                    timer = setInterval(initTimer, 1000);
+                    isTyping = true;
+                }
+                
+                // Backspace (Silme) Kontrolü
+                if (typedChar == null) {
+                    if (charIndex > 0) {
+                        charIndex--;
+                        if (characters[charIndex].classList.contains("incorrect")) {
+                            mistakes--;
+                        }
+                        characters[charIndex].classList.remove("correct", "incorrect");
+                    }
+                } else {
+                    // Doğru/Yanlış Kontrolü
+                    if (characters[charIndex].innerText === typedChar) {
+                        characters[charIndex].classList.add("correct");
+                    } else {
+                        mistakes++;
+                        characters[charIndex].classList.add("incorrect");
+                    }
+                    charIndex++;
+                }
+
+                // İmleç (Cursor) Kaydırma
+                characters.forEach(span => span.classList.remove("active"));
+                characters[charIndex].classList.add("active");
+
+                // İstatistikleri Güncelle
+                let wpm = Math.round(((charIndex - mistakes) / 5) / (maxTime - timeLeft) * 60);
+                wpm = wpm < 0 || !wpm || wpm === Infinity ? 0 : wpm;
+                
+                let accuracy = Math.floor(((charIndex - mistakes) / charIndex) * 100);
+                accuracy = isNaN(accuracy) ? 100 : accuracy;
+
+                wpmTag.innerText = wpm;
+                accuracyTag.innerText = accuracy + "%";
+            } else {
+                // Metin bittiyse veya süre bittiyse
+                clearInterval(timer);
+                inpField.value = "";
+                finishGame();
+            }
+        }
+
+        function initTimer() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                timeTag.innerText = timeLeft;
+                let wpm = Math.round(((charIndex - mistakes) / 5) / (maxTime - timeLeft) * 60);
+                wpmTag.innerText = wpm;
+            } else {
+                clearInterval(timer);
+                finishGame();
+            }
+        }
+
+        function finishGame() {
+            // Sonuçları göster
+            resultOverlay.style.display = "flex";
+            
+            // Final WPM Hesapla
+            let wpm = Math.round(((charIndex - mistakes) / 5) / (maxTime - timeLeft > 0 ? maxTime - timeLeft : 60) * 60);
+            if(wpm < 0) wpm = 0;
+
+            let accuracy = Math.floor(((charIndex - mistakes) / (charIndex > 0 ? charIndex : 1)) * 100);
+            
+            document.getElementById("finalWpm").innerText = wpm;
+            document.getElementById("finalAcc").innerText = accuracy + "%";
+            document.getElementById("finalCpm").innerText = charIndex; // Toplam basılan tuş
+
+            saveToHistory(wpm, accuracy, mistakes);
+        }
+
+        function saveToHistory(wpm, acc, err) {
+            let history = JSON.parse(localStorage.getItem('typingRecords')) || [];
+            let date = new Date().toLocaleDateString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            
+            history.unshift({ date: date, wpm: wpm, acc: acc, err: err });
+            if (history.length > 5) history.pop(); // Sadece son 5 kaydı tut
+            
+            localStorage.setItem('typingRecords', JSON.stringify(history));
+            loadHistory();
+        }
+
+        function loadHistory() {
+            let history = JSON.parse(localStorage.getItem('typingRecords')) || [];
+            historyBody.innerHTML = "";
+            
+            history.forEach(record => {
+                let row = `<tr>
+                    <td>${record.date}</td>
+                    <td><b>${record.wpm}</b></td>
+                    <td>${record.acc}%</td>
+                    <td style="color:var(--error-color)">${record.err}</td>
+                </tr>`;
+                historyBody.innerHTML += row;
+            });
+        }
+
+        function resetGame() {
+            loadParagraph();
+            clearInterval(timer);
+            timeLeft = maxTime;
+            charIndex = mistakes = isTyping = 0;
+            inpField.value = "";
+            timeTag.innerText = timeLeft;
+            wpmTag.innerText = 0;
+            accuracyTag.innerText = "100%";
+            resultOverlay.style.display = "none";
+        }
+
+        function closeResultAndReset() {
+            resetGame();
+        }
+
+        function focusInput() {
+            inpField.focus();
+        }
+
+        inpField.addEventListener("input", initTyping);
+        
+        // Tab tuşuyla hızlı reset
+        document.addEventListener("keydown", (e) => {
+            if(e.key === "Tab") {
+                e.preventDefault();
+                resetGame();
+            }
+        });
+
+    </script>
+</body>
+</html>
