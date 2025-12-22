@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HakanTools | Flappy Hakan</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; }
+        canvas { display: block; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 8px; }
+        #ui-layer { position: fixed; top: 20px; left: 20px; pointer-events: none; color: white; z-index: 10; }
+        .back-btn { position: fixed; bottom: 20px; left: 20px; padding: 10px 20px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 20px; font-size: 14px; backdrop-filter: blur(5px); }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <div style="font-size: 24px; font-weight: bold;">🏆 Skor: <span id="current-score">0</span></div>
+        <div style="font-size: 14px; opacity: 0.8;">En İyi: <span id="best-score">0</span></div>
+    </div>
+
+    <a href="index.html" class="back-btn">← Ana Menü</a>
+
+    <script>
+    // Mobil Ekran Ayarları
+    const isMobile = window.innerWidth < 768;
+    const config = {
+        type: Phaser.AUTO,
+        width: isMobile ? window.innerWidth : 400,
+        height: isMobile ? window.innerHeight : 600,
+        backgroundColor: '#71c5cf',
+        physics: {
+            default: 'arcade',
+            arcade: { gravity: { y: 1000 }, debug: false }
+        },
+        scene: { preload: preload, create: create, update: update }
+    };
+
+    let bird, pipes, score = 0, bestScore = localStorage.getItem('flappy_best') || 0;
+    const game = new Phaser.Game(config);
+    document.getElementById('best-score').innerText = bestScore;
+
+    function preload() {
+        // Profesyonel Assetler (Placeholder kullanarak hemen çalışmasını sağlıyoruz)
+        this.load.image('bird', 'https://raw.githubusercontent.com/samme/phaser-examples-assets/master/sprites/yellowbird-midflap.png');
+        this.load.image('pipe', 'https://raw.githubusercontent.com/samme/phaser-examples-assets/master/sprites/pipe-green.png');
+    }
+
+    function create() {
+        // Kuş Oluşturma
+        bird = this.physics.add.sprite(config.width / 4, config.height / 2, 'bird');
+        bird.setCollideWorldBounds(true);
+        bird.setScale(1.5);
+
+        // Boru Grubu
+        pipes = this.physics.add.group();
+
+        // Dokunmatik ve Mouse Kontrolü
+        this.input.on('pointerdown', jump);
+        this.input.keyboard.on('keydown-SPACE', jump);
+
+        // Boru Üretme Döngüsü
+        this.time.addEvent({ delay: 1500, callback: addPipeColumn, callbackScope: this, loop: true });
+
+        // Çarpışma Kontrolü
+        this.physics.add.collider(bird, pipes, gameOver, null, this);
+    }
+
+    function update() {
+        // Kuşun burnunu aşağı eğme efekti
+        if (bird.angle < 20) bird.angle += 1;
+        
+        // Ekrandan düşerse yanma
+        if (bird.y > config.height || bird.y < 0) gameOver.call(this);
+    }
+
+    function jump() {
+        bird.setVelocityY(-350);
+        bird.angle = -20;
+    }
+
+    function addOnePipe(x, y) {
+        let pipe = pipes.create(x, y, 'pipe');
+        pipe.setImmovable(true);
+        pipe.body.allowGravity = false;
+        pipe.setVelocityX(-200);
+        pipe.checkWorldBounds = true;
+        pipe.outOfBoundsKill = true;
+    }
+
+    function addPipeColumn() {
+        let hole = Math.floor(Math.random() * 5) + 1;
+        score += 1;
+        document.getElementById('current-score').innerText = score;
+
+        for (let i = 0; i < 10; i++) {
+            if (i !== hole && i !== hole + 1 && i !== hole + 2) {
+                addOnePipe(config.width, i * 65);
+            }
+        }
+    }
+
+    function gameOver() {
+        if (score > bestScore) {
+            bestScore = score;
+            localStorage.setItem('flappy_best', bestScore);
+            document.getElementById('best-score').innerText = bestScore;
+        }
+        this.scene.restart();
+        score = 0;
+        document.getElementById('current-score').innerText = score;
+    }
+    </script>
+</body>
+</html>
