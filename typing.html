@@ -351,7 +351,7 @@
             <div class="words-wrapper" id="words-wrapper"></div>
         </div>
         
-        <input type="text" id="input-field" autocomplete="off" style="font-size: 16px;">
+        <input type="text" id="input-field" autocomplete="off" autocapitalize="none" spellcheck="false" style="font-size: 16px;">
     </main>
 
     <div class="result-modal" id="result-modal">
@@ -586,8 +586,7 @@
                 isTyping = true;
                 timer = setInterval(initTimer, 1000);
             }
-
-            const val = inputField.value;
+            const val = inputField.value.toLowerCase(); // Bu satırı ekle veya mevcut olanı böyle değiştir.
             const inputChar = val.slice(-1);
             const inputType = e.inputType;
             const currentWordDiv = wordWrapper.children[currentWordIndex];
@@ -728,3 +727,4 @@
     </script>
 </body>
 </html>
+
