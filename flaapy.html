@@ -6,109 +6,134 @@
     <title>HakanTools | Flappy Hakan</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; }
-        canvas { display: block; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 8px; }
-        #ui-layer { position: fixed; top: 20px; left: 20px; pointer-events: none; color: white; z-index: 10; }
-        .back-btn { position: fixed; bottom: 20px; left: 20px; padding: 10px 20px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 20px; font-size: 14px; backdrop-filter: blur(5px); }
+        body { margin: 0; padding: 0; background-color: #71c5cf; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #ui-layer { position: fixed; top: 40px; width: 100%; text-align: center; pointer-events: none; color: white; text-shadow: 4px 4px 0 rgba(0,0,0,0.2); z-index: 10; font-family: 'Arial Black', sans-serif; }
+        .back-btn { position: fixed; bottom: 20px; left: 20px; padding: 12px 24px; background: #ffffff; color: #333; text-decoration: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 0 #ccc; transition: 0.1s; z-index: 20; }
+        .back-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #ccc; }
     </style>
 </head>
 <body>
 
     <div id="ui-layer">
-        <div style="font-size: 24px; font-weight: bold;">🏆 Skor: <span id="current-score">0</span></div>
-        <div style="font-size: 14px; opacity: 0.8;">En İyi: <span id="best-score">0</span></div>
+        <div style="font-size: 60px;" id="current-score">0</div>
+        <div style="font-size: 16px; letter-spacing: 2px;">EN İYİ: <span id="best-score">0</span></div>
     </div>
 
-    <a href="index.html" class="back-btn">← Ana Menü</a>
+    <a href="index.html" class="back-btn">← ÇIKIŞ</a>
 
     <script>
-    // Mobil Ekran Ayarları
     const isMobile = window.innerWidth < 768;
     const config = {
         type: Phaser.AUTO,
         width: isMobile ? window.innerWidth : 400,
         height: isMobile ? window.innerHeight : 600,
-        backgroundColor: '#71c5cf',
         physics: {
             default: 'arcade',
-            arcade: { gravity: { y: 1000 }, debug: false }
+            arcade: { gravity: { y: 1100 }, debug: false }
         },
         scene: { preload: preload, create: create, update: update }
     };
 
     let bird, pipes, score = 0, bestScore = localStorage.getItem('flappy_best') || 0;
+    let gameHasStarted = false;
     const game = new Phaser.Game(config);
     document.getElementById('best-score').innerText = bestScore;
 
     function preload() {
-        // Profesyonel Assetler (Placeholder kullanarak hemen çalışmasını sağlıyoruz)
+        // Fotoğraftaki o temiz görselleri GitHub üzerinden profesyonel assetlerle çekiyoruz
+        this.load.image('bg', 'https://raw.githubusercontent.com/samme/phaser-examples-assets/master/sprites/background-day.png');
         this.load.image('bird', 'https://raw.githubusercontent.com/samme/phaser-examples-assets/master/sprites/yellowbird-midflap.png');
         this.load.image('pipe', 'https://raw.githubusercontent.com/samme/phaser-examples-assets/master/sprites/pipe-green.png');
+        this.load.image('base', 'https://raw.githubusercontent.com/samme/phaser-examples-assets/master/sprites/base.png');
     }
 
     function create() {
-        // Kuş Oluşturma
-        bird = this.physics.add.sprite(config.width / 4, config.height / 2, 'bird');
-        bird.setCollideWorldBounds(true);
-        bird.setScale(1.5);
+        // Arka Plan (O fotoğraftaki gibi ferah)
+        let back = this.add.image(0, 0, 'bg').setOrigin(0, 0);
+        back.displayWidth = config.width;
+        back.displayHeight = config.height;
 
-        // Boru Grubu
         pipes = this.physics.add.group();
 
-        // Dokunmatik ve Mouse Kontrolü
-        this.input.on('pointerdown', jump);
-        this.input.keyboard.on('keydown-SPACE', jump);
+        // Kuş (Sarı ve net)
+        bird = this.physics.add.sprite(config.width / 4, config.height / 2, 'bird');
+        bird.setScale(1.5).setDepth(10);
+        
+        // Zemin (Fotoğraftaki gibi dalgalı yeşil alanın alt kısmı)
+        this.base = this.add.tileSprite(config.width/2, config.height - 50, config.width, 112, 'base').setDepth(20);
 
-        // Boru Üretme Döngüsü
-        this.time.addEvent({ delay: 1500, callback: addPipeColumn, callbackScope: this, loop: true });
+        this.input.on('pointerdown', jump, this);
+        this.input.keyboard.on('keydown-SPACE', jump, this);
 
-        // Çarpışma Kontrolü
+        this.pipeTimer = this.time.addEvent({
+            delay: 1500,
+            callback: addPipeColumn,
+            callbackScope: this,
+            loop: true,
+            paused: true
+        });
+
         this.physics.add.collider(bird, pipes, gameOver, null, this);
     }
 
     function update() {
-        // Kuşun burnunu aşağı eğme efekti
-        if (bird.angle < 20) bird.angle += 1;
+        if (!gameHasStarted) {
+            bird.body.allowGravity = false;
+            return;
+        }
+
+        // Mekanik aynı kalsın dedin, sadece zemin aksın
+        this.base.tilePositionX += 2;
+
+        if (bird.angle < 30) bird.angle += 2;
         
-        // Ekrandan düşerse yanma
-        if (bird.y > config.height || bird.y < 0) gameOver.call(this);
+        if (bird.y > config.height - 100 || bird.y < -50) gameOver.call(this);
     }
 
     function jump() {
+        if (!gameHasStarted) {
+            gameHasStarted = true;
+            bird.body.allowGravity = true;
+            this.pipeTimer.paused = false;
+        }
         bird.setVelocityY(-350);
         bird.angle = -20;
     }
 
-    function addOnePipe(x, y) {
-        let pipe = pipes.create(x, y, 'pipe');
-        pipe.setImmovable(true);
-        pipe.body.allowGravity = false;
-        pipe.setVelocityX(-200);
-        pipe.checkWorldBounds = true;
-        pipe.outOfBoundsKill = true;
-    }
-
     function addPipeColumn() {
-        let hole = Math.floor(Math.random() * 5) + 1;
-        score += 1;
-        document.getElementById('current-score').innerText = score;
+        const gap = 160; // Geçiş aralığı
+        const pipeY = Phaser.Math.Between(100, config.height - gap - 200);
 
-        for (let i = 0; i < 10; i++) {
-            if (i !== hole && i !== hole + 1 && i !== hole + 2) {
-                addOnePipe(config.width, i * 65);
-            }
-        }
+        // Üst Boru (Fotoğraftaki gibi gölgeli ve net)
+        let topPipe = pipes.create(config.width + 50, pipeY, 'pipe').setOrigin(0.5, 1).setFlipY(true);
+        
+        // Alt Boru
+        let bottomPipe = pipes.create(config.width + 50, pipeY + gap, 'pipe').setOrigin(0.5, 0);
+
+        pipes.getChildren().forEach(p => {
+            p.body.allowGravity = false;
+            p.setVelocityX(-200);
+        });
+
+        // Skor mantığı (Çift boru olduğu için her geçişte 1 artsın)
+        this.time.delayedCall(1500, () => {
+             if(gameHasStarted) {
+                score += 0.5; 
+                document.getElementById('current-score').innerText = Math.floor(score);
+             }
+        });
     }
 
     function gameOver() {
-        if (score > bestScore) {
-            bestScore = score;
+        if (Math.floor(score) > bestScore) {
+            bestScore = Math.floor(score);
             localStorage.setItem('flappy_best', bestScore);
             document.getElementById('best-score').innerText = bestScore;
         }
-        this.scene.restart();
+        gameHasStarted = false;
         score = 0;
-        document.getElementById('current-score').innerText = score;
+        document.getElementById('current-score').innerText = "0";
+        this.scene.restart();
     }
     </script>
 </body>
