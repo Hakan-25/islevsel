@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -50,37 +50,37 @@
 <body>
 
     <aside class="sidebar">
-        <h2 style="margin-bottom:1.5rem; font-size:1.2rem; color:var(--accent)"><i class="fas fa-file-pdf"></i> PDF Araçları</h2>
-        <button class="menu-btn active" id="btn-img" onclick="showTool('img-to-pdf')"><i class="fas fa-images"></i> Resim -> PDF</button>
-        <button class="menu-btn" id="btn-merge" onclick="showTool('merge-pdf')"><i class="fas fa-layer-group"></i> PDF Birleştir</button>
-        <a href="index.html" style="margin-top:auto; text-decoration:none; color:#6b7280; font-size:0.9rem"><i class="fas fa-arrow-left"></i> Geri Dön</a>
+        <h2 style="margin-bottom:1.5rem; font-size:1.2rem; color:var(--accent)"><i class="fas fa-file-pdf"></i> PDF Tools</h2>
+        <button class="menu-btn active" id="btn-img" onclick="showTool('img-to-pdf')"><i class="fas fa-images"></i> Image -> PDF</button>
+        <button class="menu-btn" id="btn-merge" onclick="showTool('merge-pdf')"><i class="fas fa-layer-group"></i> Merge PDF</button>
+        <a href="index.html" style="margin-top:auto; text-decoration:none; color:#6b7280; font-size:0.9rem"><i class="fas fa-arrow-left"></i> Back to Menu</a>
     </aside>
 
     <main class="main-content">
         <div id="img-to-pdf" class="card">
-            <h2>Resimden PDF Oluştur</h2>
-            <p style="color:#6b7280; margin-bottom:1.5rem">Resimlerini buraya sürükle veya seç.</p>
+            <h2>Create PDF from Images</h2>
+            <p style="color:#6b7280; margin-bottom:1.5rem">Drag and drop your images here or select files.</p>
             
             <div class="drop-zone" id="img-drop-zone">
                 <i class="fas fa-file-image"></i>
-                <p>Resimleri buraya sürükle veya <b>tıkla</b></p>
+                <p>Drag images here or <b>click</b></p>
                 <input type="file" id="img-input" multiple accept="image/*" style="display:none">
             </div>
             
             <div class="file-list" id="img-file-list"></div>
-            <button class="action-btn" id="process-img-btn" disabled onclick="createPdfFromImages()">PDF'i İndir</button>
+            <button class="action-btn" id="process-img-btn" disabled onclick="createPdfFromImages()">Download PDF</button>
         </div>
 
         <div id="merge-pdf" class="card" style="display:none">
-            <h2>PDF Dosyalarını Birleştir</h2>
-            <p style="color:#6b7280; margin-bottom:1.5rem">Birleştirilecek PDF'leri ekle.</p>
+            <h2>Merge PDF Files</h2>
+            <p style="color:#6b7280; margin-bottom:1.5rem">Add the PDF files you want to merge.</p>
             <div class="drop-zone" id="pdf-drop-zone">
                 <i class="fas fa-file-pdf"></i>
-                <p>PDF'leri sürükle veya <b>tıkla</b></p>
+                <p>Drag PDFs here or <b>click</b></p>
                 <input type="file" id="pdf-input" multiple accept="application/pdf" style="display:none">
             </div>
             <div class="file-list" id="pdf-file-list"></div>
-            <button class="action-btn" id="process-pdf-btn" disabled onclick="mergeSelectedPdfs()">Birleştir ve İndir</button>
+            <button class="action-btn" id="process-pdf-btn" disabled onclick="mergeSelectedPdfs()">Merge and Download</button>
         </div>
     </main>
 
@@ -88,7 +88,7 @@
         let imgFiles = [];
         let pdfFiles = [];
 
-        // Araç değiştirme
+        // Switch tools
         function showTool(toolId) {
             document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
@@ -97,7 +97,7 @@
             else document.getElementById('btn-merge').classList.add('active');
         }
 
-        // --- Sürükle Bırak ve Seçme Mantığı ---
+        // --- Drag & Drop and Selection Logic ---
         function setupDropZone(zoneId, inputId, fileArray, listId, btnId) {
             const zone = document.getElementById(zoneId);
             const input = document.getElementById(inputId);
@@ -129,7 +129,7 @@
             fileArray.forEach((file, index) => {
                 const item = document.createElement('div');
                 item.className = 'file-item';
-                item.innerHTML = `<span>${file.name}</span><span class="remove-btn" onclick="removeFile(${index}, '${listId}')">Kaldır</span>`;
+                item.innerHTML = `<span>${file.name}</span><span class="remove-btn" onclick="removeFile(${index}, '${listId}')">Remove</span>`;
                 list.appendChild(item);
             });
             document.getElementById(btnId).disabled = fileArray.length === 0;
@@ -140,12 +140,12 @@
             else { pdfFiles.splice(index, 1); renderFileList(pdfFiles, 'pdf-file-list', 'process-pdf-btn'); }
         }
 
-        // --- PDF Oluşturma Mantığı ---
+        // --- PDF Creation Logic ---
         async function createPdfFromImages() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const btn = document.getElementById('process-img-btn');
-            btn.innerText = "İşleniyor...";
+            btn.innerText = "Processing...";
             btn.disabled = true;
 
             try {
@@ -162,16 +162,16 @@
                     const height = (imgProps.height * width) / imgProps.width;
                     doc.addImage(imgData, 'JPEG', 0, 0, width, height);
                 }
-                doc.save("HakanTools_Resimden.pdf");
+                doc.save("HakanTools_Images.pdf");
             } catch (err) {
-                alert("Hata oluştu, lütfen resimleri kontrol et.");
+                alert("An error occurred, please check your images.");
             } finally {
-                btn.innerText = "PDF'i İndir";
+                btn.innerText = "Download PDF";
                 btn.disabled = false;
             }
         }
 
-        // Başlat
+        // Start
         setupDropZone('img-drop-zone', 'img-input', imgFiles, 'img-file-list', 'process-img-btn');
         setupDropZone('pdf-drop-zone', 'pdf-input', pdfFiles, 'pdf-file-list', 'process-pdf-btn');
     </script>
