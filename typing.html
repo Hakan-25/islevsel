@@ -3,449 +3,587 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Hız Testi | Speed Typer</title>
+    <title>HakanTools | Pro Typing</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- CSS (Görsel Tasarım) --- */
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Inter:wght@400;600&display=swap');
 
         :root {
-            --bg-color: #323437;
-            --main-color: #e2b714;
-            --sub-color: #646669;
-            --text-color: #d1d0c5;
-            --error-color: #ca4754;
-            --correct-color: #d1d0c5;
+            --bg-color: #f0f2f5;
+            --sidebar-bg: #ffffff;
+            --text-main: #333333;
+            --text-sub: #888888;
+            --accent: #3b82f6; /* Mavi */
+            --correct: #22c55e; /* Yeşil */
+            --error: #ef4444; /* Kırmızı */
+            --cursor: #3b82f6;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Roboto Mono', monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            flex-direction: column;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
             overflow: hidden;
-        }
-
-        .container {
-            width: 1000px;
-            max-width: 90%;
-            padding: 20px;
-        }
-
-        /* Başlık ve İstatistikler */
-        .header {
             display: flex;
-            justify-content: space-between;
+        }
+
+        /* --- SOL PANEL (Rekor ve Menü) --- */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            height: 100%;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #e5e7eb;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: var(--text-sub);
+            font-weight: 600;
+            display: flex;
             align-items: center;
+            gap: 10px;
+            margin-bottom: 3rem;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover { color: var(--accent); }
+
+        .record-box {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
             margin-bottom: 2rem;
-            color: var(--main-color);
-            font-size: 1.5rem;
-            font-weight: bold;
         }
 
-        .stats-bar {
+        .record-title { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 5px; }
+        .record-score { font-size: 2.5rem; font-weight: 800; color: var(--accent); }
+        .record-unit { font-size: 1rem; color: var(--text-sub); }
+
+        .tips {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            line-height: 1.6;
+            margin-top: auto;
+        }
+
+        /* --- ORTA ALAN (Oyun) --- */
+        .main-content {
+            flex: 1;
             display: flex;
-            gap: 20px;
-            font-size: 1.2rem;
-            color: var(--sub-color);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
-        .stats-bar span b {
-            color: var(--main-color);
+        /* Süre Seçimi */
+        .config-bar {
+            display: flex;
+            gap: 10px;
+            background: #ffffff;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .time-btn {
+            background: none;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            color: var(--text-sub);
+            font-weight: 600;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+
+        .time-btn.active, .time-btn:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        /* Canlı İstatistikler */
+        .live-stats {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-family: 'Roboto Mono', monospace;
         }
 
         /* Yazı Alanı */
-        .typing-area {
+        .typing-container {
+            width: 900px;
+            max-width: 90%;
+            height: 160px; /* Yaklaşık 3 satır yüksekliği */
+            overflow: hidden;
             position: relative;
-            background: transparent;
-            font-size: 1.5rem;
-            line-height: 2rem;
-            min-height: 150px;
-            margin-bottom: 2rem;
-            user-select: none; /* Metin seçilemesin */
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            cursor: text;
         }
 
-        .wrapper {
-            background-color: transparent;
-            border-radius: 10px;
-            padding: 15px;
+        /* Kelimeler ve Harfler */
+        .words-wrapper {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1.6rem;
+            line-height: 2.5rem;
+            color: #9ca3af; /* Pasif kelime rengi (gri) */
+            user-select: none;
+            transition: transform 0.2s ease;
         }
 
-        .content-box {
-            color: var(--sub-color);
-            word-break: break-all;
-        }
+        .word { margin-right: 12px; display: inline-block; }
+        
+        .letter { position: relative; }
 
-        /* Gizli Input (Odağı buraya vereceğiz) */
-        .input-field {
-            position: absolute;
-            z-index: -999;
-            opacity: 0;
-        }
-
-        /* Harf Durumları */
-        .content-box span {
-            position: relative;
-        }
-
-        .content-box span.correct {
-            color: var(--correct-color);
-        }
-
-        .content-box span.incorrect {
-            color: var(--error-color);
-            text-decoration: underline;
-        }
-
-        /* Yanıp sönen imleç (Cursor) */
-        .content-box span.active::before {
-            content: "";
+        .letter.correct { color: var(--correct); } /* Doğru Yeşil */
+        .letter.incorrect { color: var(--error); text-decoration: underline; } /* Yanlış Kırmızı */
+        
+        /* İmleç */
+        .letter.active::before {
+            content: '';
             position: absolute;
             left: 0;
-            bottom: 0;
-            height: 100%;
+            bottom: 2px;
             width: 2px;
-            background: var(--main-color);
+            height: 80%;
+            background-color: var(--cursor);
             animation: blink 1s infinite;
         }
 
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
+        .letter.active.is-space::before { left: 50%; } /* Boşluktayken imleç ortada */
 
-        /* Buton */
-        .restart-btn {
-            background-color: var(--text-color);
-            color: var(--bg-color);
-            border: none;
-            padding: 10px 25px;
-            font-size: 1rem;
-            font-family: inherit;
-            cursor: pointer;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: 0.3s;
-            display: block;
-            margin: 0 auto;
-        }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        .restart-btn:hover {
-            background-color: var(--main-color);
-        }
+        /* Gizli Input */
+        #input-field { position: absolute; opacity: 0; z-index: -99; }
 
-        /* Geçmiş Skor Tablosu */
-        .history-section {
-            margin-top: 3rem;
-            width: 100%;
-            border-top: 2px solid var(--sub-color);
-            padding-top: 1rem;
-        }
-
-        .history-title {
-            color: var(--sub-color);
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-
-        .history-table th, .history-table td {
-            padding: 8px;
-            border-bottom: 1px solid #444;
-            color: var(--sub-color);
-        }
-
-        .history-table th {
-            color: var(--main-color);
-        }
-
-        /* Sonuç Ekranı Overlay */
-        .result-overlay {
-            display: none; /* Başlangıçta gizli */
+        /* --- SONUÇ EKRANI (Modal) --- */
+        .result-modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 100;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none; /* JS ile açılacak */
             justify-content: center;
             align-items: center;
-            flex-direction: column;
+            z-index: 100;
+            backdrop-filter: blur(5px);
         }
 
-        .result-box {
-            background: var(--bg-color);
-            padding: 40px;
-            border-radius: 10px;
+        .result-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             text-align: center;
-            border: 2px solid var(--main-color);
+            border: 1px solid #e5e7eb;
+            max-width: 500px;
+            width: 90%;
         }
 
-        .result-box h2 {
-            color: var(--main-color);
-            margin-bottom: 20px;
+        .result-title { font-size: 1.5rem; color: var(--text-sub); margin-bottom: 1rem; }
+        .result-wpm { font-size: 4rem; color: var(--accent); font-weight: 800; line-height: 1; }
+        .result-acc { font-size: 1.2rem; color: var(--correct); font-weight: 600; margin-bottom: 2rem; }
+        
+        .grid-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 2rem;
+            text-align: left;
         }
 
-        .result-stats {
-            margin-bottom: 20px;
-            font-size: 1.2rem;
+        .stat-item { background: #f3f4f6; padding: 10px; border-radius: 8px; font-size: 0.9rem; }
+        .stat-item b { display: block; font-size: 1.1rem; color: var(--text-main); }
+
+        .restart-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
         }
+        .restart-btn:hover { background: #2563eb; transform: translateY(-2px); }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header">
-            <div>TYPING TEST PRO</div>
-            <div class="stats-bar">
-                <span>Süre: <b id="timeLeft">60</b>s</span>
-                <span>WPM: <b id="wpmTag">0</b></span>
-                <span>Doğruluk: <b id="accuracyTag">100%</b></span>
-            </div>
+    <aside class="sidebar">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Ana Menü</a>
+        
+        <div class="record-box">
+            <div class="record-title">EN İYİ REKORUN</div>
+            <div class="record-score" id="best-wpm">0</div>
+            <div class="record-unit">WPM</div>
         </div>
 
-        <div class="wrapper" onclick="focusInput()">
-            <input type="text" class="input-field" id="inputField">
-            <div class="typing-area">
-                <p class="content-box" id="typingText"></p>
-            </div>
-            <p style="text-align: center; color: var(--sub-color); font-size: 0.8rem; margin-top: 10px;">
-                (Yazmak için ekrana tıkla veya herhangi bir tuşa bas)
-            </p>
+        <div class="tips">
+            <b>İpucu:</b><br>
+            Hızlı yazmak için değil, akıcı yazmak için çalış. Hataları düzeltmek zaman kaybettirir. <br><br>
+            <i>Yeniden başlatmak için <b>TAB</b> tuşuna basabilirsin.</i>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        
+        <div class="config-bar" id="time-options">
+            <button class="time-btn" onclick="setTime(15)">15s</button>
+            <button class="time-btn active" onclick="setTime(30)">30s</button>
+            <button class="time-btn" onclick="setTime(60)">60s</button>
+            <button class="time-btn" onclick="setTime(180)">3dk</button>
         </div>
 
-        <button class="restart-btn" onclick="resetGame()">Yeniden Başlat (Tab)</button>
+        <div class="live-stats" id="timer">30</div>
 
-        <div class="history-section">
-            <h3 class="history-title">Geçmiş Rekorlar (Son 5)</h3>
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>Tarih</th>
-                        <th>WPM</th>
-                        <th>Doğruluk</th>
-                        <th>Hata</th>
-                    </tr>
-                </thead>
-                <tbody id="historyBody">
-                    </tbody>
-            </table>
+        <div class="typing-container" onclick="focusInput()">
+            <div class="words-wrapper" id="words-wrapper">
+                </div>
         </div>
-    </div>
+        
+        <input type="text" id="input-field" autocomplete="off">
+    </main>
 
-    <div class="result-overlay" id="resultOverlay">
-        <div class="result-box">
-            <h2>Süre Doldu!</h2>
-            <div class="result-stats">
-                <p>WPM: <b id="finalWpm" style="color:var(--main-color)">0</b></p>
-                <p>Doğruluk: <b id="finalAcc">0%</b></p>
-                <p>Tuş Vuruşu: <span id="finalCpm">0</span></p>
+    <div class="result-modal" id="result-modal">
+        <div class="result-card">
+            <div class="result-title">Süre Doldu!</div>
+            <div class="result-wpm" id="final-wpm">0</div>
+            <div class="result-acc" id="final-acc">%100 Doğruluk</div>
+            
+            <div class="grid-stats">
+                <div class="stat-item">Doğru Vuruş <b id="stat-correct" style="color:var(--correct)">0</b></div>
+                <div class="stat-item">Yanlış Vuruş <b id="stat-wrong" style="color:var(--error)">0</b></div>
+                <div class="stat-item">Toplam Karakter <b id="stat-total">0</b></div>
+                <div class="stat-item">Tarih <b id="stat-date">--</b></div>
             </div>
-            <button class="restart-btn" onclick="closeResultAndReset()">Tekrar Dene</button>
+
+            <button class="restart-btn" onclick="resetGame()">Tekrar Dene</button>
         </div>
     </div>
 
     <script>
-        /* --- JAVASCRIPT (Mantık ve Kontroller) --- */
-        
-        // Türkçe Kelime Havuzu (Burası genişletilebilir)
-        const paragraphs = [
-            "yazılım geliştirmek sabır ve sürekli pratik gerektirir kod yazarken dikkatli olmak hataları azaltır python ve javascript günümüzün en popüler dilleridir klavye hızını artırmak zaman kazandırır her gün düzenli olarak çalışmak başarıyı getirir bilgisayar başında doğru oturmak sağlık için önemlidir teknolojiyi takip etmek geleceği yakalamaktır yapay zeka hayatımızın her alanına girmeye başladı",
-            "bir fincan kahve eşliğinde kod yazmak gibisi yoktur algoritmalar problemlerin çözüm yoludur veri yapıları programlamanın temel taşlarıdır internet dünyası bilgiye ulaşmayı kolaylaştırdı siber güvenlik gün geçtikçe daha önemli hale geliyor açık kaynak kodlu yazılımlar topluluklar tarafından geliştirilir",
-            "başarı tesadüf değildir çok çalışmanın ürünüdür hata yapmaktan korkma hatayı düzeltmekten kork kitap okumak kelime dağarcığını geliştirir hızlı okuma teknikleri anlamayı güçlendirir sabah erken kalkmak günü verimli kılar spor yapmak zihni açar ve stresi azaltır",
-            "modern web tasarımı kullanıcı deneyimine odaklanır mobil uyumlu siteler artık bir zorunluluktur bulut bilişim verileri her yerden erişilebilir kılar nesnelerin interneti cihazları birbirine bağlar büyük veri analizi şirketlerin stratejilerini belirler blokzincir teknolojisi güvenli veri transferi sağlar"
+        // --- KELİME HAVUZU (300+ Temel Kelime - Sonsuz döngüde kullanılacak) ---
+        const wordPool = [
+            "ben", "sen", "o", "biz", "siz", "onlar", "ve", "ile", "ama", "fakat", "lakin", "çünkü", "veya", "ya", "da", "de",
+            "gelmek", "gitmek", "yapmak", "etmek", "olmak", "almak", "vermek", "sevmek", "bilmek", "görmek", "bakmak", "duymak",
+            "yazmak", "okumak", "konuşmak", "anlamak", "düşünmek", "başlamak", "bitirmek", "çalışmak", "oynamak", "koşmak", "yürümek",
+            "ev", "okul", "iş", "araba", "masa", "sandalye", "kalem", "defter", "kitap", "bilgisayar", "telefon", "internet",
+            "sabah", "öğle", "akşam", "gece", "bugün", "yarın", "dün", "şimdi", "sonra", "önce", "zaman", "saat", "dakika",
+            "güzel", "çirkin", "iyi", "kötü", "büyük", "küçük", "uzun", "kısa", "zor", "kolay", "sıcak", "soğuk", "yeni", "eski",
+            "kırmızı", "mavi", "yeşil", "sarı", "siyah", "beyaz", "turuncu", "mor", "pembe", "gri", "kahverengi", "renk",
+            "insan", "çocuk", "kadın", "erkek", "anne", "baba", "kardeş", "arkadaş", "öğretmen", "doktor", "mühendis", "polis",
+            "elma", "armut", "muz", "çilek", "ekmek", "su", "süt", "çay", "kahve", "yemek", "kahvaltı", "akşam", "lezzetli",
+            "mutlu", "üzgün", "kızgın", "şaşkın", "korkmuş", "heyecanlı", "yorgun", "hızlı", "yavaş", "güçlü", "zayıf",
+            "Türkiye", "İstanbul", "Ankara", "İzmir", "dünya", "güneş", "ay", "yıldız", "deniz", "dağ", "orman", "hava",
+            "proje", "kod", "yazılım", "teknoloji", "veri", "sistem", "klavye", "ekran", "fare", "dosya", "klasör", "uygulama",
+            "başarı", "hata", "kontrol", "sonuç", "rapor", "analiz", "tasarım", "geliştirme", "test", "demo", "versiyon",
+            "lütfen", "teşekkür", "merhaba", "hoşçakal", "evet", "hayır", "belki", "elbette", "tabii", "asla", "daima", "bazen",
+            "bir", "iki", "üç", "dört", "beş", "on", "yüz", "bin", "milyon", "sayı", "rakam", "matematik", "fen", "tarih",
+            "müzik", "resim", "spor", "futbol", "basketbol", "voleybol", "yüzme", "koşu", "antrenman", "maç", "takım", "oyuncu",
+            "film", "dizi", "sinema", "tiyatro", "sanat", "kültür", "gezi", "tatil", "uçak", "otobüs", "tren", "gemi", "yol",
+            "cadde", "sokak", "mahalle", "şehir", "ülke", "kıta", "adres", "konum", "harita", "yön", "sağ", "sol", "ileri", "geri"
         ];
 
-        const typingText = document.querySelector("#typingText");
-        const inpField = document.querySelector("#inputField");
-        const timeTag = document.querySelector("#timeLeft");
-        const wpmTag = document.querySelector("#wpmTag");
-        const accuracyTag = document.querySelector("#accuracyTag");
-        const resultOverlay = document.querySelector("#resultOverlay");
-        const historyBody = document.querySelector("#historyBody");
+        // Değişkenler
+        let timeLeft = 30;
+        let maxTime = 30;
+        let isTyping = false;
+        let timer = null;
+        let words = [];
+        let currentWordIndex = 0;
+        let currentCharIndex = 0;
+        
+        let correctKeystrokes = 0;
+        let wrongKeystrokes = 0;
 
-        let timer,
-            maxTime = 60,
-            timeLeft = maxTime,
-            charIndex = 0,
-            mistakes = 0,
-            isTyping = 0;
+        // HTML Elemanları
+        const wordWrapper = document.getElementById("words-wrapper");
+        const inputField = document.getElementById("input-field");
+        const timerTag = document.getElementById("timer");
+        const resultModal = document.getElementById("result-modal");
+        const timeBtns = document.querySelectorAll(".time-btn");
 
-        // Sayfa yüklendiğinde çalışacaklar
+        // Başlangıç
         window.onload = () => {
-            loadParagraph();
-            loadHistory();
-            document.addEventListener("keydown", () => inpField.focus());
+            loadBestScore();
+            resetGame();
         };
 
-        function loadParagraph() {
-            // Rastgele bir paragraf seç
-            const ranIndex = Math.floor(Math.random() * paragraphs.length);
-            typingText.innerHTML = "";
+        // --- FONKSİYONLAR ---
+
+        // Kelimeleri Karıştır ve Hazırla (Sonsuz hissi için rastgele seçer)
+        function generateWords() {
+            wordWrapper.innerHTML = "";
+            words = [];
+            // Başlangıç için 100 kelime üretelim, bittikçe ekleriz (Logic basitleştirildi: tek seferde 100 yeterli, 
+            // ama aşağıda satır kaydırma mantığı ile yöneteceğiz).
+            // Kullanıcı isteğine göre 2000 kelimeye kadar destekli olması için
+            // rastgele seçim yapıp büyük bir liste oluşturuyoruz.
             
-            // Harfleri span içine alarak ekrana bas
-            paragraphs[ranIndex].split("").forEach(char => {
-                let span = `<span>${char}</span>`;
-                typingText.innerHTML += span;
-            });
-            
-            // İlk harfe imleci koy
-            typingText.querySelectorAll("span")[0].classList.add("active");
-            
-            // Sayfaya tıklayınca input'a odaklan
-            document.addEventListener("keydown", () => inpField.focus());
-            typingText.addEventListener("click", () => inpField.focus());
-        }
-
-        function initTyping() {
-            let characters = typingText.querySelectorAll("span");
-            let typedChar = inpField.value.split("")[charIndex];
-
-            if (charIndex < characters.length - 1 && timeLeft > 0) {
-                if (!isTyping) { // İlk tuşa basıldığında sayacı başlat
-                    timer = setInterval(initTimer, 1000);
-                    isTyping = true;
-                }
-                
-                // Backspace (Silme) Kontrolü
-                if (typedChar == null) {
-                    if (charIndex > 0) {
-                        charIndex--;
-                        if (characters[charIndex].classList.contains("incorrect")) {
-                            mistakes--;
-                        }
-                        characters[charIndex].classList.remove("correct", "incorrect");
-                    }
-                } else {
-                    // Doğru/Yanlış Kontrolü
-                    if (characters[charIndex].innerText === typedChar) {
-                        characters[charIndex].classList.add("correct");
-                    } else {
-                        mistakes++;
-                        characters[charIndex].classList.add("incorrect");
-                    }
-                    charIndex++;
-                }
-
-                // İmleç (Cursor) Kaydırma
-                characters.forEach(span => span.classList.remove("active"));
-                characters[charIndex].classList.add("active");
-
-                // İstatistikleri Güncelle
-                let wpm = Math.round(((charIndex - mistakes) / 5) / (maxTime - timeLeft) * 60);
-                wpm = wpm < 0 || !wpm || wpm === Infinity ? 0 : wpm;
-                
-                let accuracy = Math.floor(((charIndex - mistakes) / charIndex) * 100);
-                accuracy = isNaN(accuracy) ? 100 : accuracy;
-
-                wpmTag.innerText = wpm;
-                accuracyTag.innerText = accuracy + "%";
-            } else {
-                // Metin bittiyse veya süre bittiyse
-                clearInterval(timer);
-                inpField.value = "";
-                finishGame();
+            for (let i = 0; i < 300; i++) {
+                const randomWord = wordPool[Math.floor(Math.random() * wordPool.length)];
+                words.push(randomWord);
             }
+            renderWords();
         }
 
-        function initTimer() {
-            if (timeLeft > 0) {
-                timeLeft--;
-                timeTag.innerText = timeLeft;
-                let wpm = Math.round(((charIndex - mistakes) / 5) / (maxTime - timeLeft) * 60);
-                wpmTag.innerText = wpm;
-            } else {
-                clearInterval(timer);
-                finishGame();
-            }
-        }
+        // Kelimeleri Ekrana Bas (HTML Olarak)
+        function renderWords() {
+            words.forEach(word => {
+                const wordDiv = document.createElement("div");
+                wordDiv.className = "word";
+                
+                // Harfler
+                word.split('').forEach(char => {
+                    const span = document.createElement("span");
+                    span.innerText = char;
+                    span.className = "letter";
+                    wordDiv.appendChild(span);
+                });
+                
+                // Kelime sonu boşluğu (hayali bir karakter gibi davranır)
+                const spaceSpan = document.createElement("span");
+                spaceSpan.innerHTML = "&nbsp;"; // Görünmez boşluk
+                spaceSpan.className = "letter space";
+                wordDiv.appendChild(spaceSpan);
 
-        function finishGame() {
-            // Sonuçları göster
-            resultOverlay.style.display = "flex";
-            
-            // Final WPM Hesapla
-            let wpm = Math.round(((charIndex - mistakes) / 5) / (maxTime - timeLeft > 0 ? maxTime - timeLeft : 60) * 60);
-            if(wpm < 0) wpm = 0;
-
-            let accuracy = Math.floor(((charIndex - mistakes) / (charIndex > 0 ? charIndex : 1)) * 100);
-            
-            document.getElementById("finalWpm").innerText = wpm;
-            document.getElementById("finalAcc").innerText = accuracy + "%";
-            document.getElementById("finalCpm").innerText = charIndex; // Toplam basılan tuş
-
-            saveToHistory(wpm, accuracy, mistakes);
-        }
-
-        function saveToHistory(wpm, acc, err) {
-            let history = JSON.parse(localStorage.getItem('typingRecords')) || [];
-            let date = new Date().toLocaleDateString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-            
-            history.unshift({ date: date, wpm: wpm, acc: acc, err: err });
-            if (history.length > 5) history.pop(); // Sadece son 5 kaydı tut
-            
-            localStorage.setItem('typingRecords', JSON.stringify(history));
-            loadHistory();
-        }
-
-        function loadHistory() {
-            let history = JSON.parse(localStorage.getItem('typingRecords')) || [];
-            historyBody.innerHTML = "";
-            
-            history.forEach(record => {
-                let row = `<tr>
-                    <td>${record.date}</td>
-                    <td><b>${record.wpm}</b></td>
-                    <td>${record.acc}%</td>
-                    <td style="color:var(--error-color)">${record.err}</td>
-                </tr>`;
-                historyBody.innerHTML += row;
+                wordWrapper.appendChild(wordDiv);
             });
+            // İlk harfi aktif yap
+            addClassToCurrentChar("active");
         }
 
-        function resetGame() {
-            loadParagraph();
-            clearInterval(timer);
-            timeLeft = maxTime;
-            charIndex = mistakes = isTyping = 0;
-            inpField.value = "";
-            timeTag.innerText = timeLeft;
-            wpmTag.innerText = 0;
-            accuracyTag.innerText = "100%";
-            resultOverlay.style.display = "none";
-        }
-
-        function closeResultAndReset() {
+        // Süre Ayarlama
+        window.setTime = (time) => {
+            if (isTyping) return; // Oyun sırasındaysa değiştirme
+            maxTime = time;
+            timeLeft = time;
+            timerTag.innerText = timeLeft;
+            
+            // Buton görselliği
+            timeBtns.forEach(btn => btn.classList.remove("active"));
+            event.target.classList.add("active");
+            
             resetGame();
         }
 
-        function focusInput() {
-            inpField.focus();
+        // Oyunu Sıfırla
+        window.resetGame = () => {
+            generateWords();
+            clearInterval(timer);
+            timeLeft = maxTime;
+            timerTag.innerText = timeLeft;
+            isTyping = false;
+            currentWordIndex = 0;
+            currentCharIndex = 0;
+            correctKeystrokes = 0;
+            wrongKeystrokes = 0;
+            inputField.value = "";
+            wordWrapper.style.transform = "translateY(0px)"; // Satır kaydırmayı sıfırla
+            resultModal.style.display = "none";
+            focusInput();
+            
+            // Satır konumunu takip etmek için
+            // İlk kelimeye odaklan
+            const firstWord = wordWrapper.children[0];
+            if(firstWord) firstWord.scrollIntoView({block: "start"});
         }
 
-        inpField.addEventListener("input", initTyping);
-        
-        // Tab tuşuyla hızlı reset
+        // Yazma Mantığı
+        inputField.addEventListener("input", (e) => {
+            if (!isTyping && timeLeft > 0) {
+                isTyping = true;
+                timer = setInterval(initTimer, 1000);
+            }
+
+            const val = inputField.value;
+            const inputChar = val.slice(-1); // Son yazılan karakter
+            const inputType = e.inputType; // "deleteContentBackward" vb.
+
+            const currentWordDiv = wordWrapper.children[currentWordIndex];
+            const chars = currentWordDiv.querySelectorAll(".letter");
+            
+            // --- BACKSPACE (SİLME) ---
+            if (inputType === "deleteContentBackward") {
+                if (currentCharIndex > 0) {
+                    removeClassFromChar(currentWordIndex, currentCharIndex, "active");
+                    currentCharIndex--;
+                    removeClassFromChar(currentWordIndex, currentCharIndex, "correct");
+                    removeClassFromChar(currentWordIndex, currentCharIndex, "incorrect");
+                    addClassToCurrentChar("active");
+                }
+                return;
+            }
+
+            // --- NORMAL YAZMA ---
+            if (currentCharIndex < chars.length) {
+                const targetChar = chars[currentCharIndex].innerText.replace(/\u00a0/g, " "); // &nbsp; 'yi boşluğa çevir
+                
+                // Boşluk Tuşu Kontrolü (Kelime geçişi)
+                if (targetChar === " " && inputChar === " ") {
+                    // Kelime bitti, sonrakine geç
+                    removeClassFromChar(currentWordIndex, currentCharIndex, "active");
+                    currentWordIndex++;
+                    currentCharIndex = 0;
+                    
+                    // Satır Kaydırma Kontrolü
+                    checkScroll();
+                    
+                    if (currentWordIndex < words.length) {
+                        addClassToCurrentChar("active");
+                    }
+                    correctKeystrokes++; // Boşluk da doğru sayılır
+                    inputField.value = ""; // Inputu temizle ki şişmesin
+                } 
+                // Harf Kontrolü
+                else if (targetChar !== " ") {
+                    removeClassFromChar(currentWordIndex, currentCharIndex, "active");
+                    
+                    if (inputChar === targetChar) {
+                        addClassToChar(currentWordIndex, currentCharIndex, "correct");
+                        correctKeystrokes++;
+                    } else {
+                        addClassToChar(currentWordIndex, currentCharIndex, "incorrect");
+                        wrongKeystrokes++;
+                    }
+                    
+                    currentCharIndex++;
+                    if (currentCharIndex < chars.length) {
+                        addClassToCurrentChar("active");
+                    }
+                }
+            }
+        });
+
+        // Sayaç
+        function initTimer() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                timerTag.innerText = timeLeft;
+            } else {
+                finishGame();
+            }
+        }
+
+        // Satır Kaydırma (Scrolling)
+        function checkScroll() {
+            const currentWordDiv = wordWrapper.children[currentWordIndex];
+            const prevWordDiv = wordWrapper.children[currentWordIndex - 1];
+
+            // Eğer şu anki kelimenin "top" değeri (Y konumu), bir önceki kelimeden farklıysa
+            // demek ki yeni bir satıra geçtik.
+            if (prevWordDiv && currentWordDiv.offsetTop > prevWordDiv.offsetTop) {
+                // Kaç piksel aşağı indi?
+                const lineHeight = 40; // CSS line-height ile uyumlu olmalı (2.5rem = 40px)
+                
+                // Şu anki transform değerini al (örn: translateY(-40px))
+                const currentTransform = parseInt(wordWrapper.style.transform.replace("translateY(", "").replace("px)", "") || 0);
+                
+                // Bir satır yukarı kaydır
+                wordWrapper.style.transform = `translateY(${currentTransform - lineHeight}px)`;
+            }
+        }
+
+        // Oyun Bitişi
+        function finishGame() {
+            clearInterval(timer);
+            isTyping = false;
+            
+            // Hesaplamalar
+            const totalChars = correctKeystrokes + wrongKeystrokes;
+            const minutes = (maxTime - timeLeft) / 60; // Geçen süre (aslında süre bitince maxTime/60)
+            
+            // WPM Formülü: (Doğru Karakter / 5) / Dakika
+            // Eğer süre bitmeden bittiyse (imkansız ama olsun)
+            const timeSpent = maxTime - timeLeft;
+            const timeInMin = timeSpent > 0 ? timeSpent / 60 : maxTime / 60;
+
+            let wpm = Math.round((correctKeystrokes / 5) / (maxTime / 60)); 
+            if (wpm < 0 || isNaN(wpm)) wpm = 0;
+
+            let accuracy = Math.round((correctKeystrokes / (totalChars > 0 ? totalChars : 1)) * 100);
+
+            // Sonuçları Yaz
+            document.getElementById("final-wpm").innerText = wpm;
+            document.getElementById("final-acc").innerText = `%${accuracy} Doğruluk`;
+            document.getElementById("stat-correct").innerText = correctKeystrokes;
+            document.getElementById("stat-wrong").innerText = wrongKeystrokes;
+            document.getElementById("stat-total").innerText = totalChars;
+            document.getElementById("stat-date").innerText = new Date().toLocaleDateString('tr-TR');
+
+            resultModal.style.display = "flex";
+
+            // Rekor Kaydet
+            saveScore(wpm);
+        }
+
+        // Helper: Class Ekle/Çıkar
+        function addClassToCurrentChar(className) {
+            addClassToChar(currentWordIndex, currentCharIndex, className);
+        }
+        function addClassToChar(wIdx, cIdx, className) {
+            const w = wordWrapper.children[wIdx];
+            if(w) {
+                const c = w.querySelectorAll(".letter")[cIdx];
+                if(c) c.classList.add(className);
+            }
+        }
+        function removeClassFromChar(wIdx, cIdx, className) {
+            const w = wordWrapper.children[wIdx];
+            if(w) {
+                const c = w.querySelectorAll(".letter")[cIdx];
+                if(c) c.classList.remove(className);
+            }
+        }
+
+        // Odaklanma
+        window.focusInput = () => {
+            inputField.focus();
+        }
+
+        // Rekor İşlemleri (Local Storage)
+        function saveScore(wpm) {
+            let best = localStorage.getItem("hakan_best_wpm") || 0;
+            if (wpm > best) {
+                localStorage.setItem("hakan_best_wpm", wpm);
+                best = wpm;
+            }
+            loadBestScore();
+        }
+
+        function loadBestScore() {
+            let best = localStorage.getItem("hakan_best_wpm") || 0;
+            document.getElementById("best-wpm").innerText = best;
+        }
+
+        // Tab tuşu ile reset
         document.addEventListener("keydown", (e) => {
             if(e.key === "Tab") {
                 e.preventDefault();
                 resetGame();
             }
+            inputField.focus();
         });
 
     </script>
