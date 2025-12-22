@@ -59,12 +59,12 @@
     <main class="main-content">
         <div id="img-to-pdf" class="card">
             <h2>Create PDF from Images</h2>
-            <p style="color:#6b7280; margin-bottom:1.5rem">Drag and drop your images here or select files.</p>
+            <p style="color:#6b7280; margin-bottom:1.5rem">Support: JPG, PNG, WebP, BMP, GIF</p>
             
             <div class="drop-zone" id="img-drop-zone">
                 <i class="fas fa-file-image"></i>
                 <p>Drag images here or <b>click</b></p>
-                <input type="file" id="img-input" multiple accept="image/*" style="display:none">
+                <input type="file" id="img-input" multiple accept="image/jpeg, image/png, image/webp, image/bmp, image/gif" style="display:none">
             </div>
             
             <div class="file-list" id="img-file-list"></div>
@@ -88,7 +88,6 @@
         let imgFiles = [];
         let pdfFiles = [];
 
-        // Switch tools
         function showTool(toolId) {
             document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
@@ -97,26 +96,31 @@
             else document.getElementById('btn-merge').classList.add('active');
         }
 
-        // --- Drag & Drop and Selection Logic ---
-        function setupDropZone(zoneId, inputId, fileArray, listId, btnId) {
+        function setupDropZone(zoneId, inputId, fileArray, listId, btnId, isImg) {
             const zone = document.getElementById(zoneId);
             const input = document.getElementById(inputId);
-
             zone.onclick = () => input.click();
-
             zone.ondragover = (e) => { e.preventDefault(); e.stopPropagation(); zone.classList.add('drag-over'); };
             zone.ondragleave = (e) => { e.preventDefault(); e.stopPropagation(); zone.classList.remove('drag-over'); };
             zone.ondrop = (e) => {
                 e.preventDefault(); e.stopPropagation();
                 zone.classList.remove('drag-over');
-                handleFiles(e.dataTransfer.files, fileArray, listId, btnId);
+                handleFiles(e.dataTransfer.files, fileArray, listId, btnId, isImg);
             };
-
-            input.onchange = (e) => handleFiles(e.target.files, fileArray, listId, btnId);
+            input.onchange = (e) => handleFiles(e.target.files, fileArray, listId, btnId, isImg);
         }
 
-        function handleFiles(files, fileArray, listId, btnId) {
+        function handleFiles(files, fileArray, listId, btnId, isImg) {
+            const validImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/gif'];
             Array.from(files).forEach(file => {
+                if (isImg && !validImageTypes.includes(file.type)) {
+                    alert(`Invalid file: ${file.name}. Please upload supported images.`);
+                    return;
+                }
+                if (!isImg && file.type !== 'application/pdf') {
+                    alert(`Invalid file: ${file.name}. Please upload PDF files.`);
+                    return;
+                }
                 fileArray.push(file);
                 renderFileList(fileArray, listId, btnId);
             });
@@ -140,7 +144,6 @@
             else { pdfFiles.splice(index, 1); renderFileList(pdfFiles, 'pdf-file-list', 'process-pdf-btn'); }
         }
 
-        // --- PDF Creation Logic ---
         async function createPdfFromImages() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -148,28 +151,49 @@
             btn.innerText = "Processing..."; btn.disabled = true;
 
             try {
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
                 for (let i = 0; i < imgFiles.length; i++) {
-                    const imgData = await new Promise(resolve => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => resolve(e.target.result);
-                        reader.readAsDataURL(imgFiles[i]);
-                    });
+                    const imgData = await convertToJpeg(imgFiles[i]);
                     if (i > 0) doc.addPage();
                     const imgProps = doc.getImageProperties(imgData);
-                    const width = doc.internal.pageSize.getWidth();
-                    const height = (imgProps.height * width) / imgProps.width;
-                    doc.addImage(imgData, 'JPEG', 0, 0, width, height);
+                    let finalWidth = pageWidth - 20;
+                    let finalHeight = (imgProps.height * finalWidth) / imgProps.width;
+                    if (finalHeight > (pageHeight - 20)) {
+                        finalHeight = pageHeight - 20;
+                        finalWidth = (imgProps.width * finalHeight) / imgProps.height;
+                    }
+                    const xOffset = (pageWidth - finalWidth) / 2;
+                    const yOffset = (pageHeight - finalHeight) / 2;
+                    doc.addImage(imgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight);
                 }
                 doc.save("HakanTools_Images.pdf");
-            } catch (err) { alert("An error occurred, please check your images."); } 
+            } catch (err) { alert("An error occurred during conversion."); } 
             finally { btn.innerText = "Download PDF"; btn.disabled = false; }
         }
 
-        // --- PDF Merge Logic ---
+        function convertToJpeg(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width; canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        resolve(canvas.toDataURL('image/jpeg', 0.9));
+                    };
+                    img.onerror = reject; img.src = e.target.result;
+                };
+                reader.onerror = reject; reader.readAsDataURL(file);
+            });
+        }
+
         async function mergeSelectedPdfs() {
             const btn = document.getElementById('process-pdf-btn');
             btn.innerText = "Merging..."; btn.disabled = true;
-
             try {
                 const mergedPdf = await PDFLib.PDFDocument.create();
                 for (const file of pdfFiles) {
@@ -179,15 +203,13 @@
                     copiedPages.forEach((page) => mergedPdf.addPage(page));
                 }
                 const pdfBytes = await mergedPdf.save();
-                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-                saveAs(blob, "HakanTools_Merged.pdf");
-            } catch (err) { alert("Error merging PDFs. Ensure files are valid."); } 
+                saveAs(new Blob([pdfBytes], { type: 'application/pdf' }), "HakanTools_Merged.pdf");
+            } catch (err) { alert("Error merging PDFs."); } 
             finally { btn.innerText = "Merge and Download"; btn.disabled = false; }
         }
 
-        // Start
-        setupDropZone('img-drop-zone', 'img-input', imgFiles, 'img-file-list', 'process-img-btn');
-        setupDropZone('pdf-drop-zone', 'pdf-input', pdfFiles, 'pdf-file-list', 'process-pdf-btn');
+        setupDropZone('img-drop-zone', 'img-input', imgFiles, 'img-file-list', 'process-img-btn', true);
+        setupDropZone('pdf-drop-zone', 'pdf-input', pdfFiles, 'pdf-file-list', 'process-pdf-btn', false);
     </script>
 </body>
 </html>
