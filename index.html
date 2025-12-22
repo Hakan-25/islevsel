@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HakanTools | Hepsi Bir Arada</title>
+    <title>HakanTools | All-in-One Utility Hub</title>
     <style>
+        /* Import global modern font */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
         * {
@@ -15,7 +16,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Açık gri arka plan */
+            background-color: #f3f4f6; /* Light gray background */
             color: #1f2937;
             display: flex;
             flex-direction: column;
@@ -39,10 +40,10 @@
         }
 
         .logo span {
-            color: #3b82f6; /* Tools kısmı mavi olsun */
+            color: #3b82f6; /* Accent color for 'Tools' */
         }
 
-        /* --- Ana İçerik --- */
+        /* --- Main Content --- */
         .main-container {
             flex: 1;
             display: flex;
@@ -59,13 +60,13 @@
             max-width: 1200px;
         }
 
-        /* --- Kart Tasarımı --- */
+        /* --- Card Design --- */
         .card {
             background-color: #ffffff;
             border-radius: 1rem;
             padding: 3rem 2rem;
             text-align: center;
-            text-decoration: none; /* Link alt çizgisini kaldır */
+            text-decoration: none; /* Remove underlines */
             color: inherit;
             transition: all 0.3s ease;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -79,7 +80,7 @@
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border-color: #e5e7eb;
+            border-color: #3b82f6; /* Blue border on hover */
         }
 
         .icon-box {
@@ -127,29 +128,28 @@
 
             <a href="pdf.html" class="card">
                 <div class="icon-box">📄</div>
-                <h2>PDF Dönüştürücü</h2>
-                <p>Resimlerini saniyeler içinde birleştirip PDF yap. Sunucu yok, %100 güvenli.</p>
+                <h2>PDF Converter</h2>
+                <p>Merge images into a PDF in seconds. No server, 100% private and secure.</p>
             </a>
 
             <a href="typing.html" class="card">
                 <div class="icon-box">⌨️</div>
-                <h2>Klavye Hız Testi</h2>
-                <p>Parmakların ne kadar hızlı? Profesyonel analiz ve detaylı sonuçlar.</p>
+                <h2>Typing Speed Test</h2>
+                <p>How fast are your fingers? Professional analysis and detailed results.</p>
             </a>
 
-            <a href="#" class="card" onclick="alert('Oyun yapım aşamasında!')">
+            <a href="game.html" class="card">
                 <div class="icon-box">🐦</div>
                 <h2>Flappy Bird</h2>
-                <p>Canın mı sıkıldı? Klasik oyunun modern haliyle stres at.</p>
+                <p>Feeling bored? Relieve stress with this modern version of the classic game.</p>
             </a>
 
         </div>
     </div>
 
     <footer>
-        &copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.
+        &copy; 2025 Hakan Tools. All Rights Reserved.
     </footer>
 
 </body>
 </html>
-
