@@ -1,206 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HakanTools | Ücretsiz PDF Birleştirme ve Klavye Hız Testi</title>
-    
-    <meta name="description" content="HakanTools ile ücretsiz PDF birleştirin, resimlerinizi PDF'e dönüştürün ve klavye yazma hızınızı TR/EN dillerinde test edin. Hızlı ve güvenli online araçlar.">
-    <meta name="keywords" content="pdf birleştirme, resim pdf yapma, klavye hız testi, typing test tr, ücretsiz online araçlar">
-    <meta name="author" content="HakanTools">
-
-    <meta property="og:title" content="HakanTools - Pratik Online Araçlar">
-    <meta property="og:description" content="PDF araçları ve Yazma hızı testi bir arada. Hemen ücretsiz kullanmaya başla!">
-    <meta property="og:type" content="website">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HakanTools | Flappy Hakan Flat</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
-        /* Import global modern font */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Light gray background */
-            color: #1f2937;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* --- Navbar --- */
-        .navbar {
-            background-color: #ffffff;
-            padding: 1.5rem 5%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #111827;
-            text-decoration: none;
-        }
-
-        .logo span {
-            color: #3b82f6; /* Accent color for 'Tools' */
-        }
-
-        /* --- Hero Header Section --- */
-        .hero-section {
-            padding: 3rem 1rem 1rem 1rem;
-            text-align: center;
-        }
-
-        .hero-section h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #111827;
-            margin-bottom: 1rem;
-            letter-spacing: -0.025em;
-        }
-
-        .hero-section p {
-            font-size: 1.1rem;
-            color: #6b7280;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        /* --- Main Content --- */
-        .main-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            width: 100%;
-            max-width: 1200px;
-        }
-
-        /* --- Card Design --- */
-        .card {
-            background-color: #ffffff;
-            border-radius: 1rem;
-            padding: 3rem 2rem;
-            text-align: center;
-            text-decoration: none; /* Remove underlines */
-            color: inherit;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border: 1px solid transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -33px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border-color: #3b82f6; /* Blue border on hover */
-        }
-
-        .icon-box {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-            background-color: #f3f4f6;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .card h2 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            color: #111827;
-        }
-
-        .card p {
-            font-size: 0.95rem;
-            color: #6b7280;
-            line-height: 1.5;
-        }
-
-        /* --- Footer --- */
-        footer {
-            text-align: center;
-            padding: 1.5rem;
-            color: #9ca3af;
-            font-size: 0.875rem;
-        }
-
-        @media (max-width: 768px) {
-            .hero-section h1 { font-size: 2rem; }
-            .hero-section p { font-size: 1rem; }
-        }
+        /* Arka plan rengini resimdeki gökyüzü mavisiyle eşleştirdik */
+        body { margin: 0; padding: 0; background-color: #4EC0CA; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; }
+        #ui-layer { position: fixed; top: 40px; width: 100%; text-align: center; pointer-events: none; color: white; text-shadow: 2px 2px 0 rgba(0,0,0,0.3); z-index: 10; font-weight: bold; }
+        .back-btn { position: fixed; bottom: 20px; left: 20px; padding: 12px 24px; background: #ffffff; color: #4EC0CA; text-decoration: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 0 #3da0a9; transition: 0.1s; z-index: 20; }
+        .back-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #3da0a9; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <a href="index.html" class="logo">Hakan<span>Tools</span></a>
-    </nav>
-
-    <header class="hero-section">
-        <h1>Pratik ve Ücretsiz Online Araçlar</h1>
-        <p>Dosyalarınızı düzenleyin, yazma hızınızı test edin veya küçük bir mola verin. Her şey tamamen ücretsiz ve güvenli.</p>
-    </header>
-
-    <div class="main-container">
-        <div class="grid-container">
-    <div class="card" onclick="location.href='flaapy.html'">
-    <div class="card-icon">
-        <i class="fas fa-dove" style="color: #f1c40f;"></i>
-    </div>
-    <div class="card-title">Flappy Hakan</div>
-    <div class="card-description">
-        Engellere çarpmadan ne kadar ilerleyebilirsin? Profesyonel fizik motoru ile hazırlandı.
-    </div>
-    <div class="card-badge">YENİ</div>
-</div>
-            <a href="pdf.html" class="card">
-                <div class="icon-box">📄</div>
-                <h2>PDF Converter</h2>
-                <p>Merge images into a PDF in seconds. No server, 100% private and secure.</p>
-            </a>
-
-            <a href="typing.html" class="card">
-                <div class="icon-box">⌨️</div>
-                <h2>Typing Speed Test</h2>
-                <p>How fast are your fingers? Professional analysis and detailed results.</p>
-            </a>
-
-            <a href="game.html" class="card">
-                <div class="icon-box">🐦</div>
-                <h2>Flappy Bird</h2>
-                <p>Feeling bored? Relieve stress with this modern version of the classic game.</p>
-            </a>
-
-        </div>
+    <div id="ui-layer">
+        <div style="font-size: 60px;" id="current-score">0</div>
+        <div style="font-size: 18px; letter-spacing: 1px;">EN İYİ: <span id="best-score">0</span></div>
     </div>
 
-    <footer>
-        &copy; 2025 Hakan Tools. All Rights Reserved.
-    </footer>
+    <a href="index.html" class="back-btn">← ÇIKIŞ</a>
 
+    <script>
+    const isMobile = window.innerWidth < 768;
+    const config = {
+        type: Phaser.AUTO,
+        width: isMobile ? window.innerWidth : 400,
+        height: isMobile ? window.innerHeight : 600,
+        // Şeffaf canvas, arka plan rengini body'den alacak
+        transparent: true,
+        physics: {
+            default: 'arcade',
+            arcade: { 
+                gravity: { y: 1100 }, // Senin sevdiğin fizik ayarı
+                debug: false 
+            }
+        },
+        scene: { preload: preload, create: create, update: update }
+    };
+
+    let bird, pipes, score = 0, bestScore = localStorage.getItem('flappy_best') || 0;
+    let gameHasStarted = false;
+    const game = new Phaser.Game(config);
+    document.getElementById('best-score').innerText = bestScore;
+
+    function preload() {
+        // --- YENİ FLAT DESIGN GÖRSELLER ---
+        // Resimdeki gibi temiz, modern ve vektörel varlıklar
+        this.load.image('bird', 'https://i.imgur.com/5s8L9YI.png'); // Flat sarı kuş
+        this.load.image('pipe', 'https://i.imgur.com/4x5Y6zT.png'); // Düz yeşil boru
+        this.load.image('ground', 'https://i.imgur.com/q3X2Y8A.png'); // Flat zemin
+        this.load.image('cloud', 'https://i.imgur.com/8W4X7dZ.png'); // Flat bulut
+    }
+
+    function create() {
+        // Arka plana birkaç dekoratif bulut ekleyelim
+        this.add.image(config.width * 0.2, config.height * 0.2, 'cloud').setScale(0.5).setAlpha(0.8);
+        this.add.image(config.width * 0.8, config.height * 0.3, 'cloud').setScale(0.3).setAlpha(0.6);
+
+        pipes = this.physics.add.group();
+
+        // Kuş ayarları (Resimdeki gibi tombul ve net)
+        bird = this.physics.add.sprite(config.width / 4, config.height / 2, 'bird');
+        bird.setScale(0.12); // Görselin boyutuna göre ölçekleme
+        // Kuşun çarpışma kutusunu görselle eşitle (Milimetrik ayar)
+        bird.body.setCircle(bird.width * 0.4, bird.width * 0.1, bird.height * 0.1); 
+        bird.setDepth(10);
+
+        // Zemin (Resimdeki gibi düz ve net)
+        this.ground = this.add.tileSprite(config.width/2, config.height, config.width, 100, 'ground').setOrigin(0.5, 1).setDepth(20);
+        this.physics.add.existing(this.ground, true); // Zemini katı yap
+
+        this.input.on('pointerdown', jump, this);
+        this.input.keyboard.on('keydown-SPACE', jump, this);
+
+        this.pipeTimer = this.time.addEvent({
+            delay: 1500,
+            callback: addPipeColumn,
+            callbackScope: this,
+            loop: true,
+            paused: true
+        });
+
+        this.physics.add.collider(bird, pipes, gameOver, null, this);
+        this.physics.add.collider(bird, this.ground, gameOver, null, this);
+    }
+
+    function update() {
+        if (!gameHasStarted) {
+            bird.body.allowGravity = false;
+            // Başlamadan önce hafifçe süzülme efekti
+            bird.y = (config.height / 2) + Math.sin(this.time.now / 500) * 10;
+            return;
+        }
+
+        this.ground.tilePositionX += 2.5; // Zemin akış hızı
+
+        if (bird.angle < 30) bird.angle += 2;
+        
+        if (bird.y < -50) gameOver.call(this);
+    }
+
+    function jump() {
+        if (!gameHasStarted) {
+            gameHasStarted = true;
+            bird.body.allowGravity = true;
+            this.pipeTimer.paused = false;
+        }
+        bird.setVelocityY(-350); // Senin sevdiğin zıplama gücü
+        this.tweens.add({
+            targets: bird,
+            angle: -20,
+            duration: 100
+        });
+    }
+
+    function addPipeColumn() {
+        const gap = 170; // Boru aralığı (Biraz daha rahat)
+        const pipeY = Phaser.Math.Between(100, config.height - gap - 150);
+
+        // Üst Boru
+        let topPipe = pipes.create(config.width + 50, pipeY, 'pipe').setOrigin(0.5, 1).setFlipY(true);
+        topPipe.setScale(0.6); // Boru kalınlık ayarı
+        
+        // Alt Boru
+        let bottomPipe = pipes.create(config.width + 50, pipeY + gap, 'pipe').setOrigin(0.5, 0);
+        bottomPipe.setScale(0.6);
+
+        pipes.getChildren().forEach(p => {
+            p.body.allowGravity = false;
+            p.setVelocityX(-200); // Boru geliş hızı
+            p.body.setSize(p.width * 0.9, p.height); // Çarpışma kutusu ayarı
+        });
+
+        this.time.delayedCall(1500, () => {
+             if(gameHasStarted) {
+                score += 0.5; 
+                document.getElementById('current-score').innerText = Math.floor(score);
+             }
+        });
+    }
+
+    function gameOver() {
+        if (Math.floor(score) > bestScore) {
+            bestScore = Math.floor(score);
+            localStorage.setItem('flappy_best', bestScore);
+            document.getElementById('best-score').innerText = bestScore;
+        }
+        gameHasStarted = false;
+        score = 0;
+        document.getElementById('current-score').innerText = "0";
+        this.scene.restart();
+    }
+    </script>
 </body>
 </html>
-
