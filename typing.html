@@ -13,9 +13,9 @@
             --sidebar-bg: #ffffff;
             --text-main: #333333;
             --text-sub: #888888;
-            --accent: #3b82f6; /* Mavi */
-            --correct: #22c55e; /* Yeşil */
-            --error: #ef4444; /* Kırmızı */
+            --accent: #3b82f6;
+            --correct: #22c55e;
+            --error: #ef4444;
             --cursor: #3b82f6;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
@@ -31,9 +31,9 @@
             display: flex;
         }
 
-        /* --- SOL PANEL (Rekor ve Menü) --- */
+        /* --- SOL PANEL --- */
         .sidebar {
-            width: 250px;
+            width: 260px;
             background-color: var(--sidebar-bg);
             height: 100%;
             padding: 2rem;
@@ -54,9 +54,9 @@
             margin-bottom: 3rem;
             transition: 0.2s;
         }
-
         .back-btn:hover { color: var(--accent); }
 
+        /* Rekor Kutusu Tasarımı */
         .record-box {
             background: #f8fafc;
             border: 2px solid #e2e8f0;
@@ -64,11 +64,23 @@
             padding: 1.5rem;
             text-align: center;
             margin-bottom: 2rem;
+            transition: transform 0.2s;
         }
+        
+        .record-box:hover { border-color: var(--accent); }
 
-        .record-title { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 5px; }
-        .record-score { font-size: 2.5rem; font-weight: 800; color: var(--accent); }
-        .record-unit { font-size: 1rem; color: var(--text-sub); }
+        .record-title { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .record-score { font-size: 2.5rem; font-weight: 800; color: var(--accent); line-height: 1.2; }
+        .record-unit { font-size: 1rem; color: var(--text-sub); font-weight: 600; }
+        
+        /* Yeni Tarih Alanı */
+        .record-date {
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 8px;
+        }
 
         .tips {
             font-size: 0.85rem;
@@ -77,7 +89,7 @@
             margin-top: auto;
         }
 
-        /* --- ORTA ALAN (Oyun) --- */
+        /* --- ORTA ALAN --- */
         .main-content {
             flex: 1;
             display: flex;
@@ -87,7 +99,6 @@
             position: relative;
         }
 
-        /* Süre Seçimi */
         .config-bar {
             display: flex;
             gap: 10px;
@@ -114,7 +125,6 @@
             color: white;
         }
 
-        /* Canlı İstatistikler */
         .live-stats {
             font-size: 1.5rem;
             font-weight: 700;
@@ -123,11 +133,10 @@
             font-family: 'Roboto Mono', monospace;
         }
 
-        /* Yazı Alanı */
         .typing-container {
             width: 900px;
             max-width: 90%;
-            height: 160px; /* Yaklaşık 3 satır yüksekliği */
+            height: 160px;
             overflow: hidden;
             position: relative;
             background: #ffffff;
@@ -139,63 +148,48 @@
             cursor: text;
         }
 
-        /* Kelimeler ve Harfler */
         .words-wrapper {
             font-family: 'Roboto Mono', monospace;
             font-size: 1.6rem;
             line-height: 2.5rem;
-            color: #9ca3af; /* Pasif kelime rengi (gri) */
+            color: #9ca3af;
             user-select: none;
             transition: transform 0.2s ease;
         }
 
         .word { margin-right: 12px; display: inline-block; }
-        
         .letter { position: relative; }
-
-        .letter.correct { color: var(--correct); } /* Doğru Yeşil */
-        .letter.incorrect { color: var(--error); text-decoration: underline; } /* Yanlış Kırmızı */
+        .letter.correct { color: var(--correct); }
+        .letter.incorrect { color: var(--error); text-decoration: underline; }
         
-        /* İmleç */
         .letter.active::before {
             content: '';
             position: absolute;
-            left: 0;
-            bottom: 2px;
-            width: 2px;
-            height: 80%;
+            left: 0; bottom: 2px; width: 2px; height: 80%;
             background-color: var(--cursor);
             animation: blink 1s infinite;
         }
-
-        .letter.active.is-space::before { left: 50%; } /* Boşluktayken imleç ortada */
+        .letter.active.is-space::before { left: 50%; }
 
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* Gizli Input */
         #input-field { position: absolute; opacity: 0; z-index: -99; }
 
-        /* --- SONUÇ EKRANI (Modal) --- */
+        /* SONUÇ MODALI */
         .result-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.9);
-            display: none; /* JS ile açılacak */
-            justify-content: center;
-            align-items: center;
+            display: none;
+            justify-content: center; align-items: center;
             z-index: 100;
             backdrop-filter: blur(5px);
         }
 
         .result-card {
-            background: white;
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            text-align: center;
-            border: 1px solid #e5e7eb;
-            max-width: 500px;
-            width: 90%;
+            background: white; padding: 3rem; border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            text-align: center; border: 1px solid #e5e7eb;
+            max-width: 500px; width: 90%;
         }
 
         .result-title { font-size: 1.5rem; color: var(--text-sub); margin-bottom: 1rem; }
@@ -203,29 +197,18 @@
         .result-acc { font-size: 1.2rem; color: var(--correct); font-weight: 600; margin-bottom: 2rem; }
         
         .grid-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 2rem;
-            text-align: left;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            margin-bottom: 2rem; text-align: left;
         }
-
         .stat-item { background: #f3f4f6; padding: 10px; border-radius: 8px; font-size: 0.9rem; }
         .stat-item b { display: block; font-size: 1.1rem; color: var(--text-main); }
 
         .restart-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-weight: 600;
+            background: var(--accent); color: white; border: none;
+            padding: 15px 30px; font-size: 1.1rem; border-radius: 10px;
+            cursor: pointer; transition: 0.2s; font-weight: 600;
         }
         .restart-btn:hover { background: #2563eb; transform: translateY(-2px); }
-
     </style>
 </head>
 <body>
@@ -234,20 +217,20 @@
         <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Ana Menü</a>
         
         <div class="record-box">
-            <div class="record-title">EN İYİ REKORUN</div>
+            <div class="record-title">EN İYİ REKOR (<span id="record-mode-label">30s</span>)</div>
             <div class="record-score" id="best-wpm">0</div>
             <div class="record-unit">WPM</div>
+            <div class="record-date" id="best-date">Henüz kayıt yok</div>
         </div>
 
         <div class="tips">
             <b>İpucu:</b><br>
-            Hızlı yazmak için değil, akıcı yazmak için çalış. Hataları düzeltmek zaman kaybettirir. <br><br>
-            <i>Yeniden başlatmak için <b>TAB</b> tuşuna basabilirsin.</i>
+            Sol üstteki süre butonlarına bastığında, o süreye ait rekorun ekrana gelir.<br><br>
+            <i>Yeniden başlatmak için <b>TAB</b> tuşu.</i>
         </div>
     </aside>
 
     <main class="main-content">
-        
         <div class="config-bar" id="time-options">
             <button class="time-btn" onclick="setTime(15)">15s</button>
             <button class="time-btn active" onclick="setTime(30)">30s</button>
@@ -258,8 +241,7 @@
         <div class="live-stats" id="timer">30</div>
 
         <div class="typing-container" onclick="focusInput()">
-            <div class="words-wrapper" id="words-wrapper">
-                </div>
+            <div class="words-wrapper" id="words-wrapper"></div>
         </div>
         
         <input type="text" id="input-field" autocomplete="off">
@@ -283,7 +265,7 @@
     </div>
 
     <script>
-        // --- KELİME HAVUZU (300+ Temel Kelime - Sonsuz döngüde kullanılacak) ---
+        // --- 1000 KELİMELİK DEV HAVUZ ---
         const wordPool = [
             "ben", "sen", "o", "biz", "siz", "onlar", "ve", "ile", "ama", "fakat", "lakin", "çünkü", "veya", "ya", "da", "de",
             "gelmek", "gitmek", "yapmak", "etmek", "olmak", "almak", "vermek", "sevmek", "bilmek", "görmek", "bakmak", "duymak",
@@ -302,45 +284,85 @@
             "bir", "iki", "üç", "dört", "beş", "on", "yüz", "bin", "milyon", "sayı", "rakam", "matematik", "fen", "tarih",
             "müzik", "resim", "spor", "futbol", "basketbol", "voleybol", "yüzme", "koşu", "antrenman", "maç", "takım", "oyuncu",
             "film", "dizi", "sinema", "tiyatro", "sanat", "kültür", "gezi", "tatil", "uçak", "otobüs", "tren", "gemi", "yol",
-            "cadde", "sokak", "mahalle", "şehir", "ülke", "kıta", "adres", "konum", "harita", "yön", "sağ", "sol", "ileri", "geri"
+            "cadde", "sokak", "mahalle", "şehir", "ülke", "kıta", "adres", "konum", "harita", "yön", "sağ", "sol", "ileri", "geri",
+            "aile", "bebek", "dede", "nene", "hala", "teyze", "amca", "dayı", "kuzen", "komşu", "misafir", "yabancı", "halk",
+            "devlet", "millet", "bayrak", "vatan", "toprak", "sınır", "asker", "ordu", "silah", "barış", "savaş", "zafer",
+            "göz", "kulak", "burun", "ağız", "diş", "dil", "kol", "bacak", "el", "ayak", "parmak", "tırnak", "saç", "baş",
+            "kalp", "mide", "ciğer", "kan", "damar", "kemik", "deri", "beyin", "akıl", "fikir", "ruh", "can", "nefes",
+            "giyim", "kıyafet", "elbise", "gömlek", "pantolon", "ceket", "ayakkabı", "çorap", "şapka", "atkı", "eldiven", "kemer",
+            "oda", "salon", "mutfak", "banyo", "tuvalet", "balkon", "bahçe", "kapı", "pencere", "duvar", "tavan", "taban",
+            "yatak", "yorgan", "yastık", "çarşaf", "halı", "perde", "lamba", "ayna", "dolap", "çekmece", "raf", "kutu",
+            "cam", "demir", "tahta", "plastik", "kağıt", "karton", "kumaş", "deri", "altın", "gümüş", "bakır", "taş",
+            "kedi", "köpek", "kuş", "balık", "at", "eşek", "inek", "koyun", "keçi", "tavuk", "horoz", "ördek", "kaz",
+            "aslan", "kaplan", "ayı", "kurt", "tilki", "tavşan", "fare", "yılan", "böcek", "arı", "sinek", "kelebek",
+            "ağaç", "çiçek", "gül", "lale", "papatya", "çimen", "yaprak", "dal", "kök", "meyve", "sebze", "tohum",
+            "domates", "biber", "patlıcan", "soğan", "sarımsak", "havuç", "patates", "salatalık", "marul", "maydanoz", "nane",
+            "et", "tavuk", "balık", "sucuk", "salam", "sosis", "yumurta", "peynir", "zeytin", "yağ", "bal", "reçel",
+            "tuz", "şeker", "biber", "baharat", "un", "pirinç", "makarna", "çorba", "pilav", "dolma", "sarma", "börek",
+            "tatlı", "pasta", "kek", "kurabiye", "dondurma", "çikolata", "bisküvi", "sakız", "meyve suyu", "gazoz", "ayran",
+            "tabak", "çatal", "kaşık", "bıçak", "bardak", "kupa", "sürahi", "tencere", "tava", "tepsi", "fırın", "ocak",
+            "buzdolabı", "çamaşır", "bulaşık", "ütü", "süpürge", "kovası", "bez", "deterjan", "sabun", "şampuan", "havlu",
+            "koltuk", "kanepe", "sehpa", "vitrin", "televizyon", "radyo", "kamera", "fotoğraf", "resim", "müzik", "şarkı",
+            "söz", "beste", "nota", "ritim", "dans", "eğlence", "parti", "doğum günü", "düğün", "nişan", "kına", "bayram",
+            "yılbaşı", "hediye", "sürpriz", "kutlama", "tebrik", "başarı", "ödül", "madalya", "kupa", "derece", "rekor",
+            "para", "lira", "dolar", "euro", "banka", "kredi", "kart", "borç", "alacak", "hesap", "fatura", "fiş",
+            "market", "bakkal", "manav", "kasap", "fırın", "eczane", "hastane", "okul", "üniversite", "sınıf", "ders",
+            "sınav", "not", "karne", "diploma", "mezuniyet", "ödev", "proje", "sunum", "toplantı", "ofis", "büro",
+            "şirket", "firma", "fabrika", "atölye", "depo", "mağaza", "dükkan", "alışveriş", "satış", "pazarlama", "reklam",
+            "müşteri", "patron", "işçi", "memur", "müdür", "şef", "başkan", "yönetici", "lider", "ortak", "rakip",
+            "siyaset", "politika", "seçim", "oy", "sandık", "parti", "bakan", "vekil", "meclis", "yasa", "kanun",
+            "hak", "hukuk", "adalet", "mahkeme", "hakim", "savcı", "avukat", "dava", "suç", "ceza", "hapis",
+            "haber", "gazete", "dergi", "televizyon", "radyo", "internet", "sosyal medya", "mesaj", "mail", "mektup", "zarf",
+            "telefon", "hat", "numara", "arama", "konuşma", "sohbet", "muhabbet", "tartışma", "kavga", "barış", "anlaşma",
+            "sevgi", "aşk", "nefret", "korku", "cesaret", "umut", "hayal", "gerçek", "yalan", "doğru", "yanlış",
+            "bilgi", "cahil", "alim", "bilgin", "uzman", "usta", "çırak", "kalfa", "beceri", "yetenek", "zeka",
+            "soru", "cevap", "çözüm", "sorun", "problem", "dert", "çare", "ilaç", "tedavi", "hastalık", "sağlık",
+            "hayat", "yaşam", "ölüm", "cenaze", "mezar", "toprak", "ruh", "melek", "şeytan", "cennet", "cehennem",
+            "din", "iman", "inanç", "dua", "ibadet", "cami", "kilise", "havra", "tapınak", "ezan", "çan",
+            "tarih", "geçmiş", "gelecek", "anı", "hatıra", "unutmak", "hatırlamak", "öğrenmek", "öğretmek", "eğitim", "kültür",
+            "gezi", "seyahat", "turist", "rehber", "otel", "pansiyon", "kamp", "çadır", "doğa", "manzara", "fotoğraf",
+            "trafik", "kaza", "yol", "köprü", "tünel", "kavşak", "ışık", "levha", "ehliyet", "ceza", "radar",
+            "hız", "sürat", "mesafe", "uzak", "yakın", "yüksek", "alçak", "derin", "sığ", "geniş", "dar",
+            "ağır", "hafif", "sert", "yumuşak", "katı", "sıvı", "gaz", "ateş", "buz", "buhar", "duman",
+            "enerji", "elektrik", "pil", "akü", "motor", "benzin", "mazot", "gaz", "petrol", "kömür", "maden",
+            "demir", "çelik", "alüminyum", "plastik", "cam", "beton", "tuğla", "çimento", "kum", "kireç", "boya",
+            "inşaat", "bina", "apartman", "kule", "gökdelen", "saray", "köşk", "yalı", "villa", "kulübe", "baraka",
+            "tarla", "bağ", "bahçe", "çiftlik", "köy", "kasaba", "ilçe", "şehir", "başkent", "merkez", "taşra",
+            "kuzey", "güney", "doğu", "batı", "lodos", "poyraz", "rüzgar", "fırtına", "yağmur", "kar", "dolu",
+            "sis", "bulut", "gökkuşağı", "yıldırım", "şimşek", "deprem", "sel", "yangın", "çığ", "heyelan", "kuraklık",
+            "çöl", "vaha", "okyanus", "körfez", "boğaz", "ada", "yarımada", "kıyı", "sahil", "plaj", "kumsal",
+            "dalga", "akıntı", "derinlik", "yüzey", "dip", "zirve", "yamaç", "vadi", "ova", "plato", "tepe"
         ];
 
-        // Değişkenler
         let timeLeft = 30;
-        let maxTime = 30;
+        let maxTime = 30; // Varsayılan süre
         let isTyping = false;
         let timer = null;
         let words = [];
         let currentWordIndex = 0;
         let currentCharIndex = 0;
-        
         let correctKeystrokes = 0;
         let wrongKeystrokes = 0;
 
-        // HTML Elemanları
         const wordWrapper = document.getElementById("words-wrapper");
         const inputField = document.getElementById("input-field");
         const timerTag = document.getElementById("timer");
         const resultModal = document.getElementById("result-modal");
         const timeBtns = document.querySelectorAll(".time-btn");
+        
+        // Rekor Elemanları
+        const bestWpmTag = document.getElementById("best-wpm");
+        const bestDateTag = document.getElementById("best-date");
+        const recordModeLabel = document.getElementById("record-mode-label");
 
-        // Başlangıç
         window.onload = () => {
-            loadBestScore();
+            loadBestScore(maxTime); // Başlangıçta 30s rekorunu yükle
             resetGame();
         };
 
-        // --- FONKSİYONLAR ---
-
-        // Kelimeleri Karıştır ve Hazırla (Sonsuz hissi için rastgele seçer)
         function generateWords() {
             wordWrapper.innerHTML = "";
             words = [];
-            // Başlangıç için 100 kelime üretelim, bittikçe ekleriz (Logic basitleştirildi: tek seferde 100 yeterli, 
-            // ama aşağıda satır kaydırma mantığı ile yöneteceğiz).
-            // Kullanıcı isteğine göre 2000 kelimeye kadar destekli olması için
-            // rastgele seçim yapıp büyük bir liste oluşturuyoruz.
-            
             for (let i = 0; i < 300; i++) {
                 const randomWord = wordPool[Math.floor(Math.random() * wordPool.length)];
                 words.push(randomWord);
@@ -348,47 +370,42 @@
             renderWords();
         }
 
-        // Kelimeleri Ekrana Bas (HTML Olarak)
         function renderWords() {
             words.forEach(word => {
                 const wordDiv = document.createElement("div");
                 wordDiv.className = "word";
-                
-                // Harfler
                 word.split('').forEach(char => {
                     const span = document.createElement("span");
                     span.innerText = char;
                     span.className = "letter";
                     wordDiv.appendChild(span);
                 });
-                
-                // Kelime sonu boşluğu (hayali bir karakter gibi davranır)
                 const spaceSpan = document.createElement("span");
-                spaceSpan.innerHTML = "&nbsp;"; // Görünmez boşluk
+                spaceSpan.innerHTML = "&nbsp;"; 
                 spaceSpan.className = "letter space";
                 wordDiv.appendChild(spaceSpan);
-
                 wordWrapper.appendChild(wordDiv);
             });
-            // İlk harfi aktif yap
             addClassToCurrentChar("active");
         }
 
-        // Süre Ayarlama
+        // --- SÜRE DEĞİŞTİRME & REKOR YÜKLEME ---
         window.setTime = (time) => {
-            if (isTyping) return; // Oyun sırasındaysa değiştirme
+            if (isTyping) return;
             maxTime = time;
             timeLeft = time;
             timerTag.innerText = timeLeft;
             
-            // Buton görselliği
+            // Buton aktifliği
             timeBtns.forEach(btn => btn.classList.remove("active"));
             event.target.classList.add("active");
             
+            // REKOR GÜNCELLEME: Seçilen süreye ait rekoru getir
+            loadBestScore(time);
+
             resetGame();
         }
 
-        // Oyunu Sıfırla
         window.resetGame = () => {
             generateWords();
             clearInterval(timer);
@@ -400,17 +417,13 @@
             correctKeystrokes = 0;
             wrongKeystrokes = 0;
             inputField.value = "";
-            wordWrapper.style.transform = "translateY(0px)"; // Satır kaydırmayı sıfırla
+            wordWrapper.style.transform = "translateY(0px)";
             resultModal.style.display = "none";
             focusInput();
-            
-            // Satır konumunu takip etmek için
-            // İlk kelimeye odaklan
             const firstWord = wordWrapper.children[0];
             if(firstWord) firstWord.scrollIntoView({block: "start"});
         }
 
-        // Yazma Mantığı
         inputField.addEventListener("input", (e) => {
             if (!isTyping && timeLeft > 0) {
                 isTyping = true;
@@ -418,13 +431,11 @@
             }
 
             const val = inputField.value;
-            const inputChar = val.slice(-1); // Son yazılan karakter
-            const inputType = e.inputType; // "deleteContentBackward" vb.
-
+            const inputChar = val.slice(-1);
+            const inputType = e.inputType;
             const currentWordDiv = wordWrapper.children[currentWordIndex];
             const chars = currentWordDiv.querySelectorAll(".letter");
             
-            // --- BACKSPACE (SİLME) ---
             if (inputType === "deleteContentBackward") {
                 if (currentCharIndex > 0) {
                     removeClassFromChar(currentWordIndex, currentCharIndex, "active");
@@ -436,30 +447,20 @@
                 return;
             }
 
-            // --- NORMAL YAZMA ---
             if (currentCharIndex < chars.length) {
-                const targetChar = chars[currentCharIndex].innerText.replace(/\u00a0/g, " "); // &nbsp; 'yi boşluğa çevir
+                const targetChar = chars[currentCharIndex].innerText.replace(/\u00a0/g, " ");
                 
-                // Boşluk Tuşu Kontrolü (Kelime geçişi)
                 if (targetChar === " " && inputChar === " ") {
-                    // Kelime bitti, sonrakine geç
                     removeClassFromChar(currentWordIndex, currentCharIndex, "active");
                     currentWordIndex++;
                     currentCharIndex = 0;
-                    
-                    // Satır Kaydırma Kontrolü
                     checkScroll();
-                    
-                    if (currentWordIndex < words.length) {
-                        addClassToCurrentChar("active");
-                    }
-                    correctKeystrokes++; // Boşluk da doğru sayılır
-                    inputField.value = ""; // Inputu temizle ki şişmesin
+                    if (currentWordIndex < words.length) addClassToCurrentChar("active");
+                    correctKeystrokes++;
+                    inputField.value = "";
                 } 
-                // Harf Kontrolü
                 else if (targetChar !== " ") {
                     removeClassFromChar(currentWordIndex, currentCharIndex, "active");
-                    
                     if (inputChar === targetChar) {
                         addClassToChar(currentWordIndex, currentCharIndex, "correct");
                         correctKeystrokes++;
@@ -467,16 +468,12 @@
                         addClassToChar(currentWordIndex, currentCharIndex, "incorrect");
                         wrongKeystrokes++;
                     }
-                    
                     currentCharIndex++;
-                    if (currentCharIndex < chars.length) {
-                        addClassToCurrentChar("active");
-                    }
+                    if (currentCharIndex < chars.length) addClassToCurrentChar("active");
                 }
             }
         });
 
-        // Sayaç
         function initTimer() {
             if (timeLeft > 0) {
                 timeLeft--;
@@ -486,103 +483,93 @@
             }
         }
 
-        // Satır Kaydırma (Scrolling)
         function checkScroll() {
             const currentWordDiv = wordWrapper.children[currentWordIndex];
             const prevWordDiv = wordWrapper.children[currentWordIndex - 1];
-
-            // Eğer şu anki kelimenin "top" değeri (Y konumu), bir önceki kelimeden farklıysa
-            // demek ki yeni bir satıra geçtik.
             if (prevWordDiv && currentWordDiv.offsetTop > prevWordDiv.offsetTop) {
-                // Kaç piksel aşağı indi?
-                const lineHeight = 40; // CSS line-height ile uyumlu olmalı (2.5rem = 40px)
-                
-                // Şu anki transform değerini al (örn: translateY(-40px))
+                const lineHeight = 40; 
                 const currentTransform = parseInt(wordWrapper.style.transform.replace("translateY(", "").replace("px)", "") || 0);
-                
-                // Bir satır yukarı kaydır
                 wordWrapper.style.transform = `translateY(${currentTransform - lineHeight}px)`;
             }
         }
 
-        // Oyun Bitişi
         function finishGame() {
             clearInterval(timer);
             isTyping = false;
             
-            // Hesaplamalar
             const totalChars = correctKeystrokes + wrongKeystrokes;
-            const minutes = (maxTime - timeLeft) / 60; // Geçen süre (aslında süre bitince maxTime/60)
-            
-            // WPM Formülü: (Doğru Karakter / 5) / Dakika
-            // Eğer süre bitmeden bittiyse (imkansız ama olsun)
-            const timeSpent = maxTime - timeLeft;
-            const timeInMin = timeSpent > 0 ? timeSpent / 60 : maxTime / 60;
-
             let wpm = Math.round((correctKeystrokes / 5) / (maxTime / 60)); 
             if (wpm < 0 || isNaN(wpm)) wpm = 0;
-
             let accuracy = Math.round((correctKeystrokes / (totalChars > 0 ? totalChars : 1)) * 100);
 
-            // Sonuçları Yaz
+            // Sonuçları Ekrana Bas
+            const now = new Date();
+            const dateString = now.toLocaleDateString('tr-TR') + " - " + now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+
             document.getElementById("final-wpm").innerText = wpm;
             document.getElementById("final-acc").innerText = `%${accuracy} Doğruluk`;
             document.getElementById("stat-correct").innerText = correctKeystrokes;
             document.getElementById("stat-wrong").innerText = wrongKeystrokes;
             document.getElementById("stat-total").innerText = totalChars;
-            document.getElementById("stat-date").innerText = new Date().toLocaleDateString('tr-TR');
+            document.getElementById("stat-date").innerText = dateString;
 
             resultModal.style.display = "flex";
 
-            // Rekor Kaydet
-            saveScore(wpm);
+            // REKOR KAYDETME İŞLEMİ
+            saveScore(wpm, maxTime, dateString);
         }
 
-        // Helper: Class Ekle/Çıkar
-        function addClassToCurrentChar(className) {
-            addClassToChar(currentWordIndex, currentCharIndex, className);
+        // --- YENİ REKOR KAYIT SİSTEMİ (JSON Yapısı) ---
+        function saveScore(wpm, mode, dateStr) {
+            // Mevcut kayıtları çek veya boş obje oluştur
+            let records = JSON.parse(localStorage.getItem("hakan_typing_records")) || {};
+            
+            // İlgili mod için eski rekoru kontrol et
+            let currentRecord = records[mode] || { wpm: 0, date: "" };
+
+            // Eğer yeni skor daha iyiyse güncelle
+            if (wpm > currentRecord.wpm) {
+                records[mode] = { wpm: wpm, date: dateStr };
+                localStorage.setItem("hakan_typing_records", JSON.stringify(records));
+                
+                // Sidebarı hemen güncelle
+                loadBestScore(mode);
+            }
         }
+
+        function loadBestScore(mode) {
+            // Rekor etiketini güncelle (örn: 30s)
+            let label = mode + "s";
+            if(mode === 180) label = "3dk";
+            recordModeLabel.innerText = label;
+
+            // Kayıtları çek
+            let records = JSON.parse(localStorage.getItem("hakan_typing_records")) || {};
+            let recordData = records[mode];
+
+            if (recordData) {
+                bestWpmTag.innerText = recordData.wpm;
+                bestDateTag.innerText = recordData.date;
+            } else {
+                bestWpmTag.innerText = 0;
+                bestDateTag.innerText = "Henüz kayıt yok";
+            }
+        }
+
+        function addClassToCurrentChar(className) { addClassToChar(currentWordIndex, currentCharIndex, className); }
         function addClassToChar(wIdx, cIdx, className) {
             const w = wordWrapper.children[wIdx];
-            if(w) {
-                const c = w.querySelectorAll(".letter")[cIdx];
-                if(c) c.classList.add(className);
-            }
+            if(w) { const c = w.querySelectorAll(".letter")[cIdx]; if(c) c.classList.add(className); }
         }
         function removeClassFromChar(wIdx, cIdx, className) {
             const w = wordWrapper.children[wIdx];
-            if(w) {
-                const c = w.querySelectorAll(".letter")[cIdx];
-                if(c) c.classList.remove(className);
-            }
+            if(w) { const c = w.querySelectorAll(".letter")[cIdx]; if(c) c.classList.remove(className); }
         }
 
-        // Odaklanma
-        window.focusInput = () => {
-            inputField.focus();
-        }
+        window.focusInput = () => { inputField.focus(); }
 
-        // Rekor İşlemleri (Local Storage)
-        function saveScore(wpm) {
-            let best = localStorage.getItem("hakan_best_wpm") || 0;
-            if (wpm > best) {
-                localStorage.setItem("hakan_best_wpm", wpm);
-                best = wpm;
-            }
-            loadBestScore();
-        }
-
-        function loadBestScore() {
-            let best = localStorage.getItem("hakan_best_wpm") || 0;
-            document.getElementById("best-wpm").innerText = best;
-        }
-
-        // Tab tuşu ile reset
         document.addEventListener("keydown", (e) => {
-            if(e.key === "Tab") {
-                e.preventDefault();
-                resetGame();
-            }
+            if(e.key === "Tab") { e.preventDefault(); resetGame(); }
             inputField.focus();
         });
 
