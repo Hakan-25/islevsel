@@ -171,6 +171,30 @@
             }
         }
 
+        // --- PDF Merge Logic ---
+        async function mergeSelectedPdfs() {
+            const btn = document.getElementById('process-pdf-btn');
+            btn.innerText = "Merging...";
+            btn.disabled = true;
+
+            try {
+                const mergedPdf = await PDFLib.PDFDocument.create();
+                for (const file of pdfFiles) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+                    copiedPages.forEach((page) => mergedPdf.addPage(page));
+                }
+                const pdfBytes = await mergedPdf.save();
+                saveAs(new Blob([pdfBytes]), "HakanTools_Merged.pdf");
+            } catch (err) {
+                alert("Error merging PDFs. Ensure files are valid.");
+            } finally {
+                btn.innerText = "Merge and Download";
+                btn.disabled = false;
+            }
+        }
+
         // Start
         setupDropZone('img-drop-zone', 'img-input', imgFiles, 'img-file-list', 'process-img-btn');
         setupDropZone('pdf-drop-zone', 'pdf-input', pdfFiles, 'pdf-file-list', 'process-pdf-btn');
