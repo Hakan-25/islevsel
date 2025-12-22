@@ -496,7 +496,12 @@
         const bestDateTag = document.getElementById("best-date");
         const recordModeLabel = document.getElementById("record-mode-label");
 
-        window.onload = () => { loadBestScore(maxTime); resetGame(); };
+        window.onload = () => { 
+    // Sayfa ilk açıldığında hafızadaki rekoru çek ve her yere (mobil dahil) yaz
+    loadBestScore(maxTime); 
+    setLanguage(currentLang); 
+    resetGame(); 
+};
 
         function setLanguage(lang) {
             if (isTyping) return;
@@ -728,3 +733,4 @@
     </script>
 </body>
 </html>
+
