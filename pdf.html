@@ -47,7 +47,7 @@
         }
     </style>
 </head>
-<body>
+<body ondragover="event.preventDefault()" ondrop="event.preventDefault()">
 
     <aside class="sidebar">
         <h2 style="margin-bottom:1.5rem; font-size:1.2rem; color:var(--accent)"><i class="fas fa-file-pdf"></i> PDF Tools</h2>
@@ -104,10 +104,10 @@
 
             zone.onclick = () => input.click();
 
-            zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('drag-over'); };
-            zone.ondragleave = () => zone.classList.remove('drag-over');
+            zone.ondragover = (e) => { e.preventDefault(); e.stopPropagation(); zone.classList.add('drag-over'); };
+            zone.ondragleave = (e) => { e.preventDefault(); e.stopPropagation(); zone.classList.remove('drag-over'); };
             zone.ondrop = (e) => {
-                e.preventDefault();
+                e.preventDefault(); e.stopPropagation();
                 zone.classList.remove('drag-over');
                 handleFiles(e.dataTransfer.files, fileArray, listId, btnId);
             };
@@ -145,8 +145,7 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const btn = document.getElementById('process-img-btn');
-            btn.innerText = "Processing...";
-            btn.disabled = true;
+            btn.innerText = "Processing..."; btn.disabled = true;
 
             try {
                 for (let i = 0; i < imgFiles.length; i++) {
@@ -155,7 +154,6 @@
                         reader.onload = (e) => resolve(e.target.result);
                         reader.readAsDataURL(imgFiles[i]);
                     });
-
                     if (i > 0) doc.addPage();
                     const imgProps = doc.getImageProperties(imgData);
                     const width = doc.internal.pageSize.getWidth();
@@ -163,19 +161,14 @@
                     doc.addImage(imgData, 'JPEG', 0, 0, width, height);
                 }
                 doc.save("HakanTools_Images.pdf");
-            } catch (err) {
-                alert("An error occurred, please check your images.");
-            } finally {
-                btn.innerText = "Download PDF";
-                btn.disabled = false;
-            }
+            } catch (err) { alert("An error occurred, please check your images."); } 
+            finally { btn.innerText = "Download PDF"; btn.disabled = false; }
         }
 
         // --- PDF Merge Logic ---
         async function mergeSelectedPdfs() {
             const btn = document.getElementById('process-pdf-btn');
-            btn.innerText = "Merging...";
-            btn.disabled = true;
+            btn.innerText = "Merging..."; btn.disabled = true;
 
             try {
                 const mergedPdf = await PDFLib.PDFDocument.create();
@@ -186,13 +179,10 @@
                     copiedPages.forEach((page) => mergedPdf.addPage(page));
                 }
                 const pdfBytes = await mergedPdf.save();
-                saveAs(new Blob([pdfBytes]), "HakanTools_Merged.pdf");
-            } catch (err) {
-                alert("Error merging PDFs. Ensure files are valid.");
-            } finally {
-                btn.innerText = "Merge and Download";
-                btn.disabled = false;
-            }
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                saveAs(blob, "HakanTools_Merged.pdf");
+            } catch (err) { alert("Error merging PDFs. Ensure files are valid."); } 
+            finally { btn.innerText = "Merge and Download"; btn.disabled = false; }
         }
 
         // Start
