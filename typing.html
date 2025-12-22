@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HakanTools | Pro Typing</title>
+    <title>HakanTools | Kelime Avcısı</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Inter:wght@400;600&display=swap');
@@ -13,7 +13,7 @@
             --sidebar-bg: #ffffff;
             --text-main: #333333;
             --text-sub: #888888;
-            --accent: #3b82f6;
+            --accent: #3b82f6; /* Ana Renk */
             --correct: #22c55e;
             --error: #ef4444;
             --cursor: #3b82f6;
@@ -33,7 +33,7 @@
 
         /* --- SOL PANEL --- */
         .sidebar {
-            width: 260px;
+            width: 280px;
             background-color: var(--sidebar-bg);
             height: 100%;
             padding: 2rem;
@@ -56,7 +56,7 @@
         }
         .back-btn:hover { color: var(--accent); }
 
-        /* Rekor Kutusu Tasarımı */
+        /* Rekor Kutusu */
         .record-box {
             background: #f8fafc;
             border: 2px solid #e2e8f0;
@@ -64,16 +64,14 @@
             padding: 1.5rem;
             text-align: center;
             margin-bottom: 2rem;
-            transition: transform 0.2s;
+            transition: 0.3s;
         }
-        
-        .record-box:hover { border-color: var(--accent); }
+        .record-box:hover { border-color: var(--accent); transform: translateY(-2px); }
 
-        .record-title { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        .record-score { font-size: 2.5rem; font-weight: 800; color: var(--accent); line-height: 1.2; }
-        .record-unit { font-size: 1rem; color: var(--text-sub); font-weight: 600; }
+        .record-title { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
+        .record-score { font-size: 3rem; font-weight: 800; color: var(--accent); line-height: 1; margin: 10px 0; }
+        .record-unit { font-size: 0.9rem; color: var(--text-sub); font-weight: 600; }
         
-        /* Yeni Tarih Alanı */
         .record-date {
             margin-top: 10px;
             font-size: 0.75rem;
@@ -87,6 +85,8 @@
             color: var(--text-sub);
             line-height: 1.6;
             margin-top: auto;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1rem;
         }
 
         /* --- ORTA ALAN --- */
@@ -103,7 +103,7 @@
             display: flex;
             gap: 10px;
             background: #ffffff;
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 50px;
             box-shadow: var(--shadow);
             margin-bottom: 2rem;
@@ -112,12 +112,13 @@
         .time-btn {
             background: none;
             border: none;
-            padding: 5px 15px;
+            padding: 8px 16px;
             cursor: pointer;
             color: var(--text-sub);
             font-weight: 600;
             border-radius: 20px;
             transition: 0.2s;
+            font-size: 0.9rem;
         }
 
         .time-btn.active, .time-btn:hover {
@@ -126,11 +127,15 @@
         }
 
         .live-stats {
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: 700;
             color: var(--accent);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             font-family: 'Roboto Mono', monospace;
+            background: white;
+            padding: 10px 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
         }
 
         .typing-container {
@@ -146,6 +151,12 @@
             display: flex;
             flex-direction: column;
             cursor: text;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        
+        .typing-container:focus-within {
+            border-color: var(--accent); /* Yazarken çerçeve mavi olsun */
         }
 
         .words-wrapper {
@@ -157,10 +168,13 @@
             transition: transform 0.2s ease;
         }
 
-        .word { margin-right: 12px; display: inline-block; }
+        .word { margin-right: 12px; display: inline-block; border-bottom: 2px solid transparent; }
+        /* Hata yapılan kelimenin altını kırmızı çizelim ki belli olsun */
+        .word.error-word { border-bottom-color: var(--error); }
+
         .letter { position: relative; }
         .letter.correct { color: var(--correct); }
-        .letter.incorrect { color: var(--error); text-decoration: underline; }
+        .letter.incorrect { color: var(--error); }
         
         .letter.active::before {
             content: '';
@@ -178,7 +192,7 @@
         /* SONUÇ MODALI */
         .result-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             display: none;
             justify-content: center; align-items: center;
             z-index: 100;
@@ -189,24 +203,26 @@
             background: white; padding: 3rem; border-radius: 20px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             text-align: center; border: 1px solid #e5e7eb;
-            max-width: 500px; width: 90%;
+            max-width: 450px; width: 90%;
         }
 
-        .result-title { font-size: 1.5rem; color: var(--text-sub); margin-bottom: 1rem; }
-        .result-wpm { font-size: 4rem; color: var(--accent); font-weight: 800; line-height: 1; }
-        .result-acc { font-size: 1.2rem; color: var(--correct); font-weight: 600; margin-bottom: 2rem; }
+        .result-title { font-size: 1.5rem; color: var(--text-sub); margin-bottom: 0.5rem; }
+        .result-score { font-size: 5rem; color: var(--accent); font-weight: 800; line-height: 1; margin-bottom: 0.5rem; }
+        .result-label { font-size: 1.2rem; color: var(--text-main); font-weight: 600; margin-bottom: 2rem; }
         
         .grid-stats {
             display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
             margin-bottom: 2rem; text-align: left;
         }
-        .stat-item { background: #f3f4f6; padding: 10px; border-radius: 8px; font-size: 0.9rem; }
+        .stat-item { background: #f3f4f6; padding: 12px; border-radius: 8px; font-size: 0.9rem; }
+        .stat-item span { display: block; color: var(--text-sub); font-size: 0.8rem; margin-bottom: 3px;}
         .stat-item b { display: block; font-size: 1.1rem; color: var(--text-main); }
 
         .restart-btn {
             background: var(--accent); color: white; border: none;
-            padding: 15px 30px; font-size: 1.1rem; border-radius: 10px;
+            padding: 15px 40px; font-size: 1.1rem; border-radius: 10px;
             cursor: pointer; transition: 0.2s; font-weight: 600;
+            width: 100%;
         }
         .restart-btn:hover { background: #2563eb; transform: translateY(-2px); }
     </style>
@@ -218,24 +234,24 @@
         
         <div class="record-box">
             <div class="record-title">EN İYİ REKOR (<span id="record-mode-label">30s</span>)</div>
-            <div class="record-score" id="best-wpm">0</div>
-            <div class="record-unit">WPM</div>
-            <div class="record-date" id="best-date">Henüz kayıt yok</div>
+            <div class="record-score" id="best-score">0</div>
+            <div class="record-unit">DOĞRU KELİME</div>
+            <div class="record-date" id="best-date">Kayıt Yok</div>
         </div>
 
         <div class="tips">
-            <b>İpucu:</b><br>
-            Sol üstteki süre butonlarına bastığında, o süreye ait rekorun ekrana gelir.<br><br>
-            <i>Yeniden başlatmak için <b>TAB</b> tuşu.</i>
+            <b>Nasıl Çalışır?</b><br>
+            Yanlış yazdığın kelimeler puana eklenmez. Sadece <u>hatasız</u> bitirdiğin kelimeler sayılır.<br><br>
+            <i>Hızlı reset: <b>TAB</b></i>
         </div>
     </aside>
 
     <main class="main-content">
         <div class="config-bar" id="time-options">
-            <button class="time-btn" onclick="setTime(15)">15s</button>
-            <button class="time-btn active" onclick="setTime(30)">30s</button>
-            <button class="time-btn" onclick="setTime(60)">60s</button>
-            <button class="time-btn" onclick="setTime(180)">3dk</button>
+            <button class="time-btn" onclick="setTime(15)">15 sn</button>
+            <button class="time-btn active" onclick="setTime(30)">30 sn</button>
+            <button class="time-btn" onclick="setTime(60)">60 sn</button>
+            <button class="time-btn" onclick="setTime(180)">3 dk</button>
         </div>
 
         <div class="live-stats" id="timer">30</div>
@@ -250,14 +266,22 @@
     <div class="result-modal" id="result-modal">
         <div class="result-card">
             <div class="result-title">Süre Doldu!</div>
-            <div class="result-wpm" id="final-wpm">0</div>
-            <div class="result-acc" id="final-acc">%100 Doğruluk</div>
+            <div class="result-score" id="final-score">0</div>
+            <div class="result-label">Doğru Kelime</div>
             
             <div class="grid-stats">
-                <div class="stat-item">Doğru Vuruş <b id="stat-correct" style="color:var(--correct)">0</b></div>
-                <div class="stat-item">Yanlış Vuruş <b id="stat-wrong" style="color:var(--error)">0</b></div>
-                <div class="stat-item">Toplam Karakter <b id="stat-total">0</b></div>
-                <div class="stat-item">Tarih <b id="stat-date">--</b></div>
+                <div class="stat-item">
+                    <span>Toplam Vuruş</span>
+                    <b id="stat-keystrokes">0</b>
+                </div>
+                <div class="stat-item">
+                    <span>Doğruluk</span>
+                    <b id="stat-acc">%0</b>
+                </div>
+                <div class="stat-item" style="grid-column: span 2;">
+                    <span>Tarih</span>
+                    <b id="stat-date">--</b>
+                </div>
             </div>
 
             <button class="restart-btn" onclick="resetGame()">Tekrar Dene</button>
@@ -265,7 +289,7 @@
     </div>
 
     <script>
-        // --- 1000 KELİMELİK DEV HAVUZ ---
+        // --- 1000 KELİME HAVUZU ---
         const wordPool = [
             "ben", "sen", "o", "biz", "siz", "onlar", "ve", "ile", "ama", "fakat", "lakin", "çünkü", "veya", "ya", "da", "de",
             "gelmek", "gitmek", "yapmak", "etmek", "olmak", "almak", "vermek", "sevmek", "bilmek", "görmek", "bakmak", "duymak",
@@ -335,14 +359,17 @@
         ];
 
         let timeLeft = 30;
-        let maxTime = 30; // Varsayılan süre
+        let maxTime = 30;
         let isTyping = false;
         let timer = null;
         let words = [];
         let currentWordIndex = 0;
         let currentCharIndex = 0;
-        let correctKeystrokes = 0;
-        let wrongKeystrokes = 0;
+        
+        // Yeni sayaçlar
+        let completedCorrectWords = 0; // Sadece tamamen doğru bitenler
+        let totalKeystrokes = 0;
+        let correctKeystrokes = 0; // Doğruluk yüzdesi için
 
         const wordWrapper = document.getElementById("words-wrapper");
         const inputField = document.getElementById("input-field");
@@ -351,12 +378,12 @@
         const timeBtns = document.querySelectorAll(".time-btn");
         
         // Rekor Elemanları
-        const bestWpmTag = document.getElementById("best-wpm");
+        const bestScoreTag = document.getElementById("best-score");
         const bestDateTag = document.getElementById("best-date");
         const recordModeLabel = document.getElementById("record-mode-label");
 
         window.onload = () => {
-            loadBestScore(maxTime); // Başlangıçta 30s rekorunu yükle
+            loadBestScore(maxTime);
             resetGame();
         };
 
@@ -389,20 +416,16 @@
             addClassToCurrentChar("active");
         }
 
-        // --- SÜRE DEĞİŞTİRME & REKOR YÜKLEME ---
         window.setTime = (time) => {
             if (isTyping) return;
             maxTime = time;
             timeLeft = time;
             timerTag.innerText = timeLeft;
             
-            // Buton aktifliği
             timeBtns.forEach(btn => btn.classList.remove("active"));
             event.target.classList.add("active");
             
-            // REKOR GÜNCELLEME: Seçilen süreye ait rekoru getir
             loadBestScore(time);
-
             resetGame();
         }
 
@@ -412,10 +435,14 @@
             timeLeft = maxTime;
             timerTag.innerText = timeLeft;
             isTyping = false;
+            
+            // Sayaçları Sıfırla
             currentWordIndex = 0;
             currentCharIndex = 0;
+            completedCorrectWords = 0;
+            totalKeystrokes = 0;
             correctKeystrokes = 0;
-            wrongKeystrokes = 0;
+            
             inputField.value = "";
             wordWrapper.style.transform = "translateY(0px)";
             resultModal.style.display = "none";
@@ -447,18 +474,35 @@
                 return;
             }
 
+            // Normal yazma
             if (currentCharIndex < chars.length) {
+                totalKeystrokes++;
                 const targetChar = chars[currentCharIndex].innerText.replace(/\u00a0/g, " ");
                 
+                // BOŞLUK (Kelime Tamamlama)
                 if (targetChar === " " && inputChar === " ") {
                     removeClassFromChar(currentWordIndex, currentCharIndex, "active");
+                    
+                    // KELİME KONTROLÜ: Kelime tamamen doğru mu?
+                    // Kelimenin içinde hiç 'incorrect' class'ı var mı bakıyoruz.
+                    const hasMistake = currentWordDiv.querySelector(".incorrect");
+                    
+                    if (!hasMistake) {
+                        // Hata yoksa puanı artır
+                        completedCorrectWords++;
+                    } else {
+                        // Hata varsa kelimenin altını kırmızı çiz (Görsel geri bildirim)
+                        currentWordDiv.classList.add("error-word");
+                    }
+
+                    // Sonraki kelimeye geç
                     currentWordIndex++;
                     currentCharIndex = 0;
                     checkScroll();
                     if (currentWordIndex < words.length) addClassToCurrentChar("active");
-                    correctKeystrokes++;
                     inputField.value = "";
                 } 
+                // HARF KONTROLÜ
                 else if (targetChar !== " ") {
                     removeClassFromChar(currentWordIndex, currentCharIndex, "active");
                     if (inputChar === targetChar) {
@@ -466,7 +510,6 @@
                         correctKeystrokes++;
                     } else {
                         addClassToChar(currentWordIndex, currentCharIndex, "incorrect");
-                        wrongKeystrokes++;
                     }
                     currentCharIndex++;
                     if (currentCharIndex < chars.length) addClassToCurrentChar("active");
@@ -497,62 +540,54 @@
             clearInterval(timer);
             isTyping = false;
             
-            const totalChars = correctKeystrokes + wrongKeystrokes;
-            let wpm = Math.round((correctKeystrokes / 5) / (maxTime / 60)); 
-            if (wpm < 0 || isNaN(wpm)) wpm = 0;
-            let accuracy = Math.round((correctKeystrokes / (totalChars > 0 ? totalChars : 1)) * 100);
+            // Doğruluk Yüzdesi (Basılan tuşların kaçı doğruydu?)
+            let accuracy = 0;
+            if (totalKeystrokes > 0) {
+                accuracy = Math.round((correctKeystrokes / totalKeystrokes) * 100);
+            }
 
             // Sonuçları Ekrana Bas
             const now = new Date();
             const dateString = now.toLocaleDateString('tr-TR') + " - " + now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
 
-            document.getElementById("final-wpm").innerText = wpm;
-            document.getElementById("final-acc").innerText = `%${accuracy} Doğruluk`;
-            document.getElementById("stat-correct").innerText = correctKeystrokes;
-            document.getElementById("stat-wrong").innerText = wrongKeystrokes;
-            document.getElementById("stat-total").innerText = totalChars;
+            // Puan artık "completedCorrectWords" (Tamamlanan Doğru Kelime)
+            document.getElementById("final-score").innerText = completedCorrectWords;
+            document.getElementById("stat-keystrokes").innerText = totalKeystrokes;
+            document.getElementById("stat-acc").innerText = `%${accuracy}`;
             document.getElementById("stat-date").innerText = dateString;
 
             resultModal.style.display = "flex";
 
-            // REKOR KAYDETME İŞLEMİ
-            saveScore(wpm, maxTime, dateString);
+            // REKOR KAYDETME (Kelime sayısı olarak)
+            saveScore(completedCorrectWords, maxTime, dateString);
         }
 
-        // --- YENİ REKOR KAYIT SİSTEMİ (JSON Yapısı) ---
-        function saveScore(wpm, mode, dateStr) {
-            // Mevcut kayıtları çek veya boş obje oluştur
-            let records = JSON.parse(localStorage.getItem("hakan_typing_records")) || {};
-            
-            // İlgili mod için eski rekoru kontrol et
-            let currentRecord = records[mode] || { wpm: 0, date: "" };
+        // --- YENİ REKOR KAYIT SİSTEMİ (Kelime Bazlı) ---
+        function saveScore(score, mode, dateStr) {
+            let records = JSON.parse(localStorage.getItem("hakan_typing_words_records")) || {};
+            let currentRecord = records[mode] || { score: 0, date: "" };
 
-            // Eğer yeni skor daha iyiyse güncelle
-            if (wpm > currentRecord.wpm) {
-                records[mode] = { wpm: wpm, date: dateStr };
-                localStorage.setItem("hakan_typing_records", JSON.stringify(records));
-                
-                // Sidebarı hemen güncelle
+            if (score > currentRecord.score) {
+                records[mode] = { score: score, date: dateStr };
+                localStorage.setItem("hakan_typing_words_records", JSON.stringify(records));
                 loadBestScore(mode);
             }
         }
 
         function loadBestScore(mode) {
-            // Rekor etiketini güncelle (örn: 30s)
             let label = mode + "s";
             if(mode === 180) label = "3dk";
             recordModeLabel.innerText = label;
 
-            // Kayıtları çek
-            let records = JSON.parse(localStorage.getItem("hakan_typing_records")) || {};
+            let records = JSON.parse(localStorage.getItem("hakan_typing_words_records")) || {};
             let recordData = records[mode];
 
             if (recordData) {
-                bestWpmTag.innerText = recordData.wpm;
+                bestScoreTag.innerText = recordData.score;
                 bestDateTag.innerText = recordData.date;
             } else {
-                bestWpmTag.innerText = 0;
-                bestDateTag.innerText = "Henüz kayıt yok";
+                bestScoreTag.innerText = 0;
+                bestDateTag.innerText = "Kayıt Yok";
             }
         }
 
