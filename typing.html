@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Kelime Avcısı</title>
+    <title>HakanTools | Word Hunter</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Inter:wght@400;600&display=swap');
@@ -27,11 +27,11 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             height: 100vh;
-            overflow: hidden; /* PC'de scroll olmasın */
+            overflow: hidden; /* No scroll on PC */
             display: flex;
         }
 
-        /* --- SOL PANEL --- */
+        /* --- LEFT PANEL --- */
         .sidebar {
             width: 280px;
             background-color: var(--sidebar-bg);
@@ -90,7 +90,7 @@
             padding-top: 1rem;
         }
 
-        /* --- ORTA ALAN --- */
+        /* --- MIDDLE AREA --- */
         .main-content {
             flex: 1;
             display: flex;
@@ -190,7 +190,7 @@
 
         #input-field { position: absolute; opacity: 0; z-index: -99; }
 
-        /* SONUÇ MODALI */
+        /* RESULT MODAL */
         .result-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.95);
@@ -226,19 +226,19 @@
         }
         .restart-btn:hover { background: #2563eb; transform: translateY(-2px); }
 
-        /* --- MOBİL UYUMLULUK (RESPONSIVE) --- */
+        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
             body {
-                flex-direction: column; /* Yan yana değil, alt alta diz */
+                flex-direction: column; /* stacked instead of side-by-side */
                 height: 100vh;
-                overflow: hidden; /* Sayfa kaymasını engelle */
+                overflow: hidden; /* prevent page scrolling */
             }
 
-            /* Mobilde Sidebar'ı Üst Menü Yap */
+            /* Make Sidebar a Top Menu on Mobile */
             .sidebar {
                 width: 100%;
                 height: auto;
-                flex-direction: row; /* İçindekileri yan yana diz */
+                flex-direction: row; /* content side-by-side */
                 align-items: center;
                 justify-content: space-between;
                 padding: 10px 15px;
@@ -248,10 +248,10 @@
             }
 
             .back-btn { margin-bottom: 0; font-size: 0.9rem; }
-            .back-btn span { display: none; } /* "Ana Menü" yazısını gizle, sadece ok kalsın */
+            .back-btn span { display: none; } /* Hide "Main Menu" text, keep icon */
             .back-btn i { font-size: 1.2rem; }
 
-            /* Mobilde Rekor Kutusunu Küçült */
+            /* Shrink Record Box on Mobile */
             .record-box {
                 margin-bottom: 0;
                 padding: 5px 10px;
@@ -261,11 +261,11 @@
                 border: none;
                 background: transparent;
             }
-            .record-title, .record-date, .record-unit, .tips { display: none; } /* Fazlalıkları gizle */
+            .record-title, .record-date, .record-unit, .tips { display: none; } /* hide extras */
             .record-score { font-size: 1.5rem; margin: 0; }
-            .record-box::before { content: "🏆 "; font-size: 1.2rem; } /* Kupa ikonu ekle */
+            .record-box::before { content: "🏆 "; font-size: 1.2rem; } /* add trophy icon */
 
-            /* Orta Alan Ayarları */
+            /* Middle Area Settings */
             .main-content { justify-content: start; padding-top: 20px; }
             
             .config-bar { margin-bottom: 1rem; padding: 5px; }
@@ -275,16 +275,16 @@
 
             .typing-container {
                 width: 95%;
-                height: 120px; /* Mobilde daha az yer kaplasın */
+                height: 120px; /* less space on mobile */
                 padding: 15px;
             }
 
             .words-wrapper {
-                font-size: 1.3rem; /* Yazıları biraz küçült */
+                font-size: 1.3rem; /* slightly smaller text */
                 line-height: 2rem;
             }
 
-            /* Sonuç Ekranı */
+            /* Result Screen */
             .result-card { padding: 1.5rem; width: 95%; }
             .result-score { font-size: 3.5rem; }
         }
@@ -293,18 +293,18 @@
 <body>
 
     <aside class="sidebar">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> <span>Ana Menü</span></a>
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> <span>Main Menu</span></a>
         
         <div class="record-box">
-            <div class="record-title">EN İYİ (<span id="record-mode-label">30s</span>)</div>
+            <div class="record-title">BEST RECORD (<span id="record-mode-label">30s</span>)</div>
             <div class="record-score" id="best-score">0</div>
-            <div class="record-unit">DOĞRU KELİME</div>
-            <div class="record-date" id="best-date">Kayıt Yok</div>
+            <div class="record-unit">CORRECT WORDS</div>
+            <div class="record-date" id="best-date">No Records</div>
         </div>
 
         <div class="tips">
-            <b>Mobil İpucu:</b><br>
-            Telefonda yazarken kelime önerilerini (otomatik düzeltme) kapatırsan daha rahat edersin.<br>
+            <b>Mobile Tip:</b><br>
+            Disabling keyboard auto-correct will make typing smoother.<br>
         </div>
     </aside>
 
@@ -313,7 +313,7 @@
             <button class="time-btn" onclick="setTime(15)">15s</button>
             <button class="time-btn active" onclick="setTime(30)">30s</button>
             <button class="time-btn" onclick="setTime(60)">60s</button>
-            <button class="time-btn" onclick="setTime(180)">3dk</button>
+            <button class="time-btn" onclick="setTime(180)">3m</button>
         </div>
 
         <div class="live-stats" id="timer">30</div>
@@ -327,97 +327,38 @@
 
     <div class="result-modal" id="result-modal">
         <div class="result-card">
-            <div class="result-title">Süre Doldu!</div>
+            <div class="result-title">Time's Up!</div>
             <div class="result-score" id="final-score">0</div>
-            <div class="result-label">Doğru Kelime</div>
+            <div class="result-label">Correct Words</div>
             
             <div class="grid-stats">
                 <div class="stat-item">
-                    <span>Toplam Vuruş</span>
+                    <span>Total Keystrokes</span>
                     <b id="stat-keystrokes">0</b>
                 </div>
                 <div class="stat-item">
-                    <span>Doğruluk</span>
+                    <span>Accuracy</span>
                     <b id="stat-acc">%0</b>
                 </div>
                 <div class="stat-item" style="grid-column: span 2;">
-                    <span>Tarih</span>
+                    <span>Date</span>
                     <b id="stat-date">--</b>
                 </div>
             </div>
 
-            <button class="restart-btn" onclick="resetGame()">Tekrar Dene</button>
+            <button class="restart-btn" onclick="resetGame()">Try Again</button>
         </div>
     </div>
 
     <script>
-        // --- 1000 KELİME HAVUZU ---
+        // --- 1000 WORD POOL ---
         const wordPool = [
-            "ben", "sen", "o", "biz", "siz", "onlar", "ve", "ile", "ama", "fakat", "lakin", "çünkü", "veya", "ya", "da", "de",
-            "gelmek", "gitmek", "yapmak", "etmek", "olmak", "almak", "vermek", "sevmek", "bilmek", "görmek", "bakmak", "duymak",
-            "yazmak", "okumak", "konuşmak", "anlamak", "düşünmek", "başlamak", "bitirmek", "çalışmak", "oynamak", "koşmak", "yürümek",
-            "ev", "okul", "iş", "araba", "masa", "sandalye", "kalem", "defter", "kitap", "bilgisayar", "telefon", "internet",
-            "sabah", "öğle", "akşam", "gece", "bugün", "yarın", "dün", "şimdi", "sonra", "önce", "zaman", "saat", "dakika",
-            "güzel", "çirkin", "iyi", "kötü", "büyük", "küçük", "uzun", "kısa", "zor", "kolay", "sıcak", "soğuk", "yeni", "eski",
-            "kırmızı", "mavi", "yeşil", "sarı", "siyah", "beyaz", "turuncu", "mor", "pembe", "gri", "kahverengi", "renk",
-            "insan", "çocuk", "kadın", "erkek", "anne", "baba", "kardeş", "arkadaş", "öğretmen", "doktor", "mühendis", "polis",
-            "elma", "armut", "muz", "çilek", "ekmek", "su", "süt", "çay", "kahve", "yemek", "kahvaltı", "akşam", "lezzetli",
-            "mutlu", "üzgün", "kızgın", "şaşkın", "korkmuş", "heyecanlı", "yorgun", "hızlı", "yavaş", "güçlü", "zayıf",
-            "Türkiye", "İstanbul", "Ankara", "İzmir", "dünya", "güneş", "ay", "yıldız", "deniz", "dağ", "orman", "hava",
-            "proje", "kod", "yazılım", "teknoloji", "veri", "sistem", "klavye", "ekran", "fare", "dosya", "klasör", "uygulama",
-            "başarı", "hata", "kontrol", "sonuç", "rapor", "analiz", "tasarım", "geliştirme", "test", "demo", "versiyon",
-            "lütfen", "teşekkür", "merhaba", "hoşçakal", "evet", "hayır", "belki", "elbette", "tabii", "asla", "daima", "bazen",
-            "bir", "iki", "üç", "dört", "beş", "on", "yüz", "bin", "milyon", "sayı", "rakam", "matematik", "fen", "tarih",
-            "müzik", "resim", "spor", "futbol", "basketbol", "voleybol", "yüzme", "koşu", "antrenman", "maç", "takım", "oyuncu",
-            "film", "dizi", "sinema", "tiyatro", "sanat", "kültür", "gezi", "tatil", "uçak", "otobüs", "tren", "gemi", "yol",
-            "cadde", "sokak", "mahalle", "şehir", "ülke", "kıta", "adres", "konum", "harita", "yön", "sağ", "sol", "ileri", "geri",
-            "aile", "bebek", "dede", "nene", "hala", "teyze", "amca", "dayı", "kuzen", "komşu", "misafir", "yabancı", "halk",
-            "devlet", "millet", "bayrak", "vatan", "toprak", "sınır", "asker", "ordu", "silah", "barış", "savaş", "zafer",
-            "göz", "kulak", "burun", "ağız", "diş", "dil", "kol", "bacak", "el", "ayak", "parmak", "tırnak", "saç", "baş",
-            "kalp", "mide", "ciğer", "kan", "damar", "kemik", "deri", "beyin", "akıl", "fikir", "ruh", "can", "nefes",
-            "giyim", "kıyafet", "elbise", "gömlek", "pantolon", "ceket", "ayakkabı", "çorap", "şapka", "atkı", "eldiven", "kemer",
-            "oda", "salon", "mutfak", "banyo", "tuvalet", "balkon", "bahçe", "kapı", "pencere", "duvar", "tavan", "taban",
-            "yatak", "yorgan", "yastık", "çarşaf", "halı", "perde", "lamba", "ayna", "dolap", "çekmece", "raf", "kutu",
-            "cam", "demir", "tahta", "plastik", "kağıt", "karton", "kumaş", "deri", "altın", "gümüş", "bakır", "taş",
-            "kedi", "köpek", "kuş", "balık", "at", "eşek", "inek", "koyun", "keçi", "tavuk", "horoz", "ördek", "kaz",
-            "aslan", "kaplan", "ayı", "kurt", "tilki", "tavşan", "fare", "yılan", "böcek", "arı", "sinek", "kelebek",
-            "ağaç", "çiçek", "gül", "lale", "papatya", "çimen", "yaprak", "dal", "kök", "meyve", "sebze", "tohum",
-            "domates", "biber", "patlıcan", "soğan", "sarımsak", "havuç", "patates", "salatalık", "marul", "maydanoz", "nane",
-            "et", "tavuk", "balık", "sucuk", "salam", "sosis", "yumurta", "peynir", "zeytin", "yağ", "bal", "reçel",
-            "tuz", "şeker", "biber", "baharat", "un", "pirinç", "makarna", "çorba", "pilav", "dolma", "sarma", "börek",
-            "tatlı", "pasta", "kek", "kurabiye", "dondurma", "çikolata", "bisküvi", "sakız", "meyve suyu", "gazoz", "ayran",
-            "tabak", "çatal", "kaşık", "bıçak", "bardak", "kupa", "sürahi", "tencere", "tava", "tepsi", "fırın", "ocak",
-            "buzdolabı", "çamaşır", "bulaşık", "ütü", "süpürge", "kovası", "bez", "deterjan", "sabun", "şampuan", "havlu",
-            "koltuk", "kanepe", "sehpa", "vitrin", "televizyon", "radyo", "kamera", "fotoğraf", "resim", "müzik", "şarkı",
-            "söz", "beste", "nota", "ritim", "dans", "eğlence", "parti", "doğum günü", "düğün", "nişan", "kına", "bayram",
-            "yılbaşı", "hediye", "sürpriz", "kutlama", "tebrik", "başarı", "ödül", "madalya", "kupa", "derece", "rekor",
-            "para", "lira", "dolar", "euro", "banka", "kredi", "kart", "borç", "alacak", "hesap", "fatura", "fiş",
-            "market", "bakkal", "manav", "kasap", "fırın", "eczane", "hastane", "okul", "üniversite", "sınıf", "ders",
-            "sınav", "not", "karne", "diploma", "mezuniyet", "ödev", "proje", "sunum", "toplantı", "ofis", "büro",
-            "şirket", "firma", "fabrika", "atölye", "depo", "mağaza", "dükkan", "alışveriş", "satış", "pazarlama", "reklam",
-            "müşteri", "patron", "işçi", "memur", "müdür", "şef", "başkan", "yönetici", "lider", "ortak", "rakip",
-            "siyaset", "politika", "seçim", "oy", "sandık", "parti", "bakan", "vekil", "meclis", "yasa", "kanun",
-            "hak", "hukuk", "adalet", "mahkeme", "hakim", "savcı", "avukat", "dava", "suç", "ceza", "hapis",
-            "haber", "gazete", "dergi", "televizyon", "radyo", "internet", "sosyal medya", "mesaj", "mail", "mektup", "zarf",
-            "telefon", "hat", "numara", "arama", "konuşma", "sohbet", "muhabbet", "tartışma", "kavga", "barış", "anlaşma",
-            "sevgi", "aşk", "nefret", "korku", "cesaret", "umut", "hayal", "gerçek", "yalan", "doğru", "yanlış",
-            "bilgi", "cahil", "alim", "bilgin", "uzman", "usta", "çırak", "kalfa", "beceri", "yetenek", "zeka",
-            "soru", "cevap", "çözüm", "sorun", "problem", "dert", "çare", "ilaç", "tedavi", "hastalık", "sağlık",
-            "hayat", "yaşam", "ölüm", "cenaze", "mezar", "toprak", "ruh", "melek", "şeytan", "cennet", "cehennem",
-            "din", "iman", "inanç", "dua", "ibadet", "cami", "kilise", "havra", "tapınak", "ezan", "çan",
-            "tarih", "geçmiş", "gelecek", "anı", "hatıra", "unutmak", "hatırlamak", "öğrenmek", "öğretmek", "eğitim", "kültür",
-            "gezi", "seyahat", "turist", "rehber", "otel", "pansiyon", "kamp", "çadır", "doğa", "manzara", "fotoğraf",
-            "trafik", "kaza", "yol", "köprü", "tünel", "kavşak", "ışık", "levha", "ehliyet", "ceza", "radar",
-            "hız", "sürat", "mesafe", "uzak", "yakın", "yüksek", "alçak", "derin", "sığ", "geniş", "dar",
-            "ağır", "hafif", "sert", "yumuşak", "katı", "sıvı", "gaz", "ateş", "buz", "buhar", "duman",
-            "enerji", "elektrik", "pil", "akü", "motor", "benzin", "mazot", "gaz", "petrol", "kömür", "maden",
-            "demir", "çelik", "alüminyum", "plastik", "cam", "beton", "tuğla", "çimento", "kum", "kireç", "boya",
-            "inşaat", "bina", "apartman", "kule", "gökdelen", "saray", "köşk", "yalı", "villa", "kulübe", "baraka",
-            "tarla", "bağ", "bahçe", "çiftlik", "köy", "kasaba", "ilçe", "şehir", "başkent", "merkez", "taşra",
-            "kuzey", "güney", "doğu", "batı", "lodos", "poyraz", "rüzgar", "fırtına", "yağmur", "kar", "dolu",
-            "sis", "bulut", "gökkuşağı", "yıldırım", "şimşek", "deprem", "sel", "yangın", "çığ", "heyelan", "kuraklık",
-            "çöl", "vaha", "okyanus", "körfez", "boğaz", "ada", "yarımada", "kıyı", "sahil", "plaj", "kumsal",
-            "dalga", "akıntı", "derinlik", "yüzey", "dip", "zirve", "yamaç", "vadi", "ova", "plato", "tepe"
+            "the", "be", "to", "of", "and", "a", "in", "that", "have", "it", "for", "not", "on", "with", "he", "as", "you", "do", "at", "this",
+            "but", "his", "by", "from", "they", "we", "say", "her", "she", "or", "an", "will", "my", "one", "all", "would", "there", "their", "what", "so",
+            "up", "out", "if", "about", "who", "get", "which", "go", "me", "when", "make", "can", "like", "time", "no", "just", "him", "know", "take", "people",
+            "into", "year", "your", "good", "some", "could", "them", "see", "other", "than", "then", "now", "look", "only", "come", "its", "over", "think", "also", "back",
+            "after", "use", "two", "how", "our", "work", "first", "well", "way", "even", "new", "want", "because", "any", "these", "give", "day", "most", "us", "water",
+            "school", "many", "found", "study", "still", "learn", "should", "world", "high", "low", "deep", "shallow", "wide", "narrow", "heavy", "hard", "soft", "hot", "cold"
         ];
 
         let timeLeft = 30;
@@ -597,7 +538,7 @@
             }
 
             const now = new Date();
-            const dateString = now.toLocaleDateString('tr-TR') + " - " + now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+            const dateString = now.toLocaleDateString() + " " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
             document.getElementById("final-score").innerText = completedCorrectWords;
             document.getElementById("stat-keystrokes").innerText = totalKeystrokes;
@@ -622,7 +563,7 @@
 
         function loadBestScore(mode) {
             let label = mode + "s";
-            if(mode === 180) label = "3dk";
+            if(mode === 180) label = "3m";
             recordModeLabel.innerText = label;
 
             let records = JSON.parse(localStorage.getItem("hakan_typing_words_records")) || {};
@@ -633,7 +574,7 @@
                 bestDateTag.innerText = recordData.date;
             } else {
                 bestScoreTag.innerText = 0;
-                bestDateTag.innerText = "Kayıt Yok";
+                bestDateTag.innerText = "No Records";
             }
         }
 
