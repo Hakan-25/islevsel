@@ -1,17 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HakanTools | Ücretsiz PDF Birleştirme ve Klavye Hız Testi</title>
+    <title>HakanTools | Ücretsiz PDF Çevirici, Klavye Hız Testi ve Oyunlar</title>
     
-    <meta name="description" content="HakanTools ile ücretsiz PDF birleştirin, resimlerinizi PDF'e dönüştürün ve klavye yazma hızınızı TR/EN dillerinde test edin. Hızlı ve güvenli online araçlar.">
-    <meta name="keywords" content="pdf birleştirme, resim pdf yapma, klavye hız testi, typing test tr, ücretsiz online araçlar">
+    <meta name="description" content="HakanTools: İnternetin en pratik araç merkezi. Ücretsiz JPG'den PDF yapma, 10 parmak klavye hız testi (WPM) ve Flappy Hakan oyunu tek adreste. İndirme yok, üyelik yok.">
+    
+    <meta name="keywords" content="hakan tools, pdf birleştirme, resim pdf çevirme, jpg to pdf, ücretsiz pdf araçları, klavye hız testi, 10 parmak testi, yazma hızı ölçme, wpm testi, typing test turkish, flappy bird oyna, tarayıcı oyunları, online tools, bedava programlar, productivity tools, dosya dönüştürücü, pdf merge online">
+    
     <meta name="author" content="HakanTools">
-
-    <meta property="og:title" content="HakanTools - Pratik Online Araçlar">
-    <meta property="og:description" content="PDF araçları ve Yazma hızı testi bir arada. Hemen ücretsiz kullanmaya başla!">
+    <meta name="robots" content="index, follow"> <meta name="language" content="Turkish">
+    <link rel="canonical" href="https://hakantools.com/" /> <meta property="og:title" content="HakanTools - İşini Hızlandır, Stresini At">
+    <meta property="og:description" content="PDF dosyalarını birleştir, klavye hızını test et veya oyun oyna. Hepsi tamamen ücretsiz.">
+    <meta property="og:image" content="https://hakantools.com/assets/banner.jpg"> <meta property="og:url" content="https://hakantools.com/">
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="HakanTools">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="HakanTools | Online Araç Seti">
+    <meta name="twitter:description" content="PDF çevirici, Hız testi ve Oyunlar. Hızlı, güvenli ve ücretsiz.">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "HakanTools",
+      "url": "https://hakantools.com/",
+      "description": "Ücretsiz online PDF araçları, klavye hız testi ve tarayıcı tabanlı oyun platformu.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "TRY"
+      }
+    }
+    </script>
 
     <style>
         /* Import global modern font */
@@ -39,6 +64,7 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
+            justify-content: space-between; /* İleride menü eklenirse diye */
         }
 
         .logo {
@@ -54,7 +80,7 @@
 
         /* --- Hero Header Section --- */
         .hero-section {
-            padding: 3rem 1rem 1rem 1rem;
+            padding: 4rem 1rem 2rem 1rem;
             text-align: center;
         }
 
@@ -64,12 +90,13 @@
             color: #111827;
             margin-bottom: 1rem;
             letter-spacing: -0.025em;
+            line-height: 1.2;
         }
 
         .hero-section p {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             color: #6b7280;
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
             line-height: 1.6;
         }
@@ -99,57 +126,76 @@
             text-align: center;
             text-decoration: none; /* Remove underlines */
             color: inherit;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Daha pürüzsüz animasyon */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border: 1px solid transparent;
+            border: 2px solid transparent; /* Border hatası önlemi */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            height: 100%; /* Kartları eşit boyda tutar */
         }
 
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 15px -33px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border-color: #3b82f6; /* Blue border on hover */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: #3b82f6;
         }
 
         .icon-box {
-            font-size: 3rem;
+            font-size: 3.5rem; /* İkonlar biraz daha belirgin */
             margin-bottom: 1.5rem;
-            background-color: #f3f4f6;
-            width: 80px;
-            height: 80px;
+            background-color: #eff6ff; /* Hafif mavi arka plan */
+            color: #2563eb;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .icon-box {
+            transform: scale(1.1) rotate(5deg);
+            background-color: #dbeafe;
         }
 
         .card h2 {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             font-weight: 700;
             margin-bottom: 0.75rem;
             color: #111827;
         }
 
         .card p {
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: #6b7280;
             line-height: 1.5;
         }
 
         /* --- Footer --- */
         footer {
+            background-color: #ffffff;
             text-align: center;
-            padding: 1.5rem;
+            padding: 2rem;
             color: #9ca3af;
             font-size: 0.875rem;
+            border-top: 1px solid #e5e7eb;
+            margin-top: auto;
+        }
+        
+        /* SEO Footer Links (Gizli değil ama alt kısımda) */
+        .footer-keywords {
+            margin-top: 10px;
+            font-size: 0.75rem;
+            opacity: 0.6;
         }
 
         @media (max-width: 768px) {
             .hero-section h1 { font-size: 2rem; }
             .hero-section p { font-size: 1rem; }
+            .grid-container { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -160,36 +206,39 @@
     </nav>
 
     <header class="hero-section">
-        <h1>Pratik ve Ücretsiz Online Araçlar</h1>
-        <p>Dosyalarınızı düzenleyin, yazma hızınızı test edin veya küçük bir mola verin. Her şey tamamen ücretsiz ve güvenli.</p>
+        <h1>Ücretsiz Online PDF Araçları ve Hız Testi Merkezi</h1>
+        <p>Dosyalarınızı saniyeler içinde düzenleyin, klavye hızınızı profesyonelce ölçün veya mola verip oyun oynayın. Üyelik gerektirmez, tamamen güvenli.</p>
     </header>
 
-    <div class="main-container">
+    <main class="main-container">
         <div class="grid-container">
             
-            <a href="flaapy.html" class="card">
+            <a href="flaapy.html" class="card" aria-label="Flappy Hakan Oyunu Oyna">
                 <div class="icon-box">🐦</div>
                 <h2>Flappy Hakan</h2>
-                <p>Canın mı sıkıldı? Klasik oyunun bu modern ve flat tasarımıyla stres at.</p>
+                <p>Canın mı sıkıldı? Klasik <strong>Flappy Bird</strong> oyununun bu modern, milimetrik ve zorlu versiyonu ile stres at. Rekorunu kır!</p>
             </a>
 
-            <a href="pdf.html" class="card">
+            <a href="pdf.html" class="card" aria-label="JPG PDF Çevirici">
                 <div class="icon-box">📄</div>
                 <h2>PDF Converter</h2>
-                <p>Merge images into a PDF in seconds. No server, 100% private and secure.</p>
+                <p>Resimlerinizi (JPG, PNG) saniyeler içinde <strong>PDF'e çevirin</strong> ve birleştirin. Dosyalarınız sunucuya yüklenmez, %100 güvenlidir.</p>
             </a>
 
-            <a href="typing.html" class="card">
+            <a href="typing.html" class="card" aria-label="Klavye Hız Testi">
                 <div class="icon-box">⌨️</div>
                 <h2>Typing Speed Test</h2>
-                <p>How fast are your fingers? Professional analysis and detailed results.</p>
+                <p>Parmakların ne kadar hızlı? <strong>10 parmak klavye testi</strong> (WPM) ile yazma hızını ölç, analiz et ve kendini geliştir.</p>
             </a>
 
         </div>
-    </div>
+    </main>
 
     <footer>
-        &copy; 2025 Hakan Tools. All Rights Reserved.
+        <div>&copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.</div>
+        <div class="footer-keywords">
+            HakanTools: PDF Birleştirme | Klavye Hız Testi | Browser Games
+        </div>
     </footer>
 
 </body>
