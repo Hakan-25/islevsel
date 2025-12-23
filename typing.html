@@ -3,67 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Kelime Avcısı</title>
+    <title>HakanTools | Kelime Avcısı (Hız Testi)</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <link rel="stylesheet" href="görsel.css">
+    
+    <style>
+        .config-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .time-btn, .lang-btn { 
+            padding: 8px 16px; border: 1px solid #e5e7eb; background: white; 
+            border-radius: 20px; cursor: pointer; font-weight: 600; color: var(--gray);
+            transition: all 0.2s;
+        }
+        .time-btn.active, .lang-btn.active { 
+            background: var(--primary); color: white; border-color: var(--primary); 
+        }
+        .live-stats { font-size: 3rem; font-weight: 900; color: var(--primary); margin-bottom: 1rem; }
+        .record-box { margin-bottom: 20px; font-size: 0.9rem; color: var(--gray); }
+        #best-score { font-weight: bold; color: var(--dark); font-size: 1.2rem; }
+    </style>
 </head>
 <body>
 
-    <div class="lang-switch">
-        <button class="lang-btn active" id="btn-tr" onclick="setLanguage('tr')">🇹🇷</button>
-        <button class="lang-btn" id="btn-en" onclick="setLanguage('en')">🇺🇸</button>
+    <nav class="navbar">
+        <a href="index.html" class="logo">Hakan<span>Tools</span></a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-back">← Ana Menü</a>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="game-wrapper">
+            
+            <div class="config-bar">
+                <button class="lang-btn active" id="btn-tr" onclick="setLanguage('tr')">🇹🇷 TR</button>
+                <button class="lang-btn" id="btn-en" onclick="setLanguage('en')">🇺🇸 EN</button>
+            </div>
+
+            <div class="config-bar" id="time-options">
+                <button class="time-btn" onclick="setTime(15)">15s</button>
+                <button class="time-btn active" onclick="setTime(30)">30s</button>
+                <button class="time-btn" onclick="setTime(60)">60s</button>
+            </div>
+
+            <div class="record-box">
+                <span id="ui-best">EN İYİ</span> (<span id="record-mode-label">30s</span>): 
+                <span id="best-score">0</span> <span id="ui-unit">KELİME</span>
+            </div>
+
+            <div class="live-stats" id="timer">30</div>
+
+            <div class="word-display" id="words-wrapper" onclick="focusInput()">
+                </div>
+
+            <input type="text" id="input-field" class="input-field" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Yazmaya başla...">
+            
+            <div style="margin-top: 20px; font-size: 0.9rem; color: #9ca3af;" id="ui-tips">
+                Mobil İpucu: Kelime önerilerini kapatırsan daha hızlı yazarsın.
+            </div>
+
+        </div>
     </div>
 
-    <aside class="sidebar">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> <span id="ui-menu">Ana Menü</span></a>
-        <div class="record-box">
-            <div class="record-title"><span id="ui-best">EN İYİ</span> (<span id="record-mode-label">30s</span>)</div>
-            <div class="record-score" id="best-score">0</div>
-            <div class="record-unit" id="ui-unit">DOĞRU KELİME</div>
-            <div class="record-date" id="best-date">Kayıt Yok</div>
-        </div>
-        <div class="tips" id="ui-tips">
-            <b>Mobil İpucu:</b><br>
-            Telefonda yazarken kelime önerilerini kapatırsan daha rahat edersin.<br>
-        </div>
-    </aside>
-
-    <main class="main-content">
-        <div class="config-bar" id="time-options">
-            <button class="time-btn" onclick="setTime(15)">15s</button>
-            <button class="time-btn active" onclick="setTime(30)">30s</button>
-            <button class="time-btn" onclick="setTime(60)">60s</button>
-            <button class="time-btn" onclick="setTime(180)">3dk</button>
-        </div>
-        <div class="live-stats" id="timer">30</div>
-        <div class="typing-container" onclick="focusInput()">
-            <div class="words-wrapper" id="words-wrapper"></div>
-        </div>
-        <input type="text" id="input-field" autocomplete="off" autocapitalize="none" spellcheck="false" style="font-size: 16px;">
-    </main>
-
     <div class="result-modal" id="result-modal">
-        <div class="result-card">
-            <div class="result-title" id="ui-timeout">Süre Doldu!</div>
-            <div class="result-score" id="final-score">0</div>
-            <div class="result-label" id="ui-result-label">Doğru Kelime</div>
-            <div class="grid-stats">
+        <div class="result-content">
+            <h2 class="result-title" id="ui-timeout" style="font-size: 2rem; margin-bottom: 10px; color: var(--dark);">Süre Doldu!</h2>
+            
+            <div style="font-size: 4rem; font-weight: 900; color: var(--primary);" id="final-score">0</div>
+            <div class="result-label" id="ui-result-label" style="color: var(--gray); margin-bottom: 20px;">Doğru Kelime</div>
+            
+            <div class="stats-bar" style="border: none; margin-bottom: 20px;">
                 <div class="stat-item">
-                    <span id="ui-stat-keys">Toplam Vuruş</span>
-                    <b id="stat-keystrokes">0</b>
+                    <span id="ui-stat-keys">Tuş Vuruşu</span>
+                    <b id="stat-keystrokes" style="color: var(--dark);">0</b>
                 </div>
                 <div class="stat-item">
                     <span id="ui-stat-acc">Doğruluk</span>
-                    <b id="stat-acc">%0</b>
-                </div>
-                <div class="stat-item" style="grid-column: span 2;">
-                    <span id="ui-stat-date">Tarih</span>
-                    <b id="stat-date">--</b>
+                    <b id="stat-acc" style="color: var(--secondary);">%0</b>
                 </div>
             </div>
-            <button class="restart-btn" onclick="resetGame()" id="ui-restart">Tekrar Dene</button>
+            
+            <div style="margin-bottom: 20px; font-size: 0.85rem; color: var(--gray);">
+                <span id="ui-stat-date">Tarih</span>: <b id="stat-date">--</b>
+            </div>
+
+            <button class="cta-btn" onclick="resetGame()" id="ui-restart">Tekrar Dene ⟳</button>
+            <br><br>
+            <a href="index.html" style="color: var(--gray); text-decoration: none; font-size: 0.9rem;">Ana Menüye Dön</a>
         </div>
     </div>
+
+    <footer>
+        &copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.
+    </footer>
 
     <script>
         const wordPools = {
@@ -149,13 +182,13 @@
                 menu: "Ana Menü", best: "EN İYİ", unit: "DOĞRU KELİME", timeout: "Süre Doldu!", 
                 resultLabel: "Doğru Kelime", statKeys: "Toplam Vuruş", statAcc: "Doğruluk", 
                 statDate: "Tarih", restart: "Tekrar Dene", noRecord: "Kayıt Yok", 
-                tips: "<b>Mobil İpucu:</b><br>Telefonda yazarken kelime önerilerini kapatırsan daha rahat edersin.<br>"
+                tips: "Mobil İpucu: Kelime önerilerini kapatırsan daha rahat edersin."
             },
             en: {
                 menu: "Main Menu", best: "BEST RECORD", unit: "CORRECT WORDS", timeout: "Time's Up!", 
                 resultLabel: "Correct Words", statKeys: "Total Keystrokes", statAcc: "Accuracy", 
                 statDate: "Date", restart: "Try Again", noRecord: "No Record", 
-                tips: "<b>Mobile Tip:</b><br>Disabling auto-correct on your phone will make typing much smoother.<br>"
+                tips: "Mobile Tip: Disabling auto-correct on your phone will make typing much smoother."
             }
         };
 
@@ -172,6 +205,7 @@
         let totalKeystrokes = 0;
         let correctKeystrokes = 0;
 
+        // --- ID GÜNCELLEMESİ YAPILDI (CSS İLE UYUMLU OLMASI İÇİN) ---
         const wordWrapper = document.getElementById("words-wrapper");
         const inputField = document.getElementById("input-field");
         const timerTag = document.getElementById("timer");
@@ -194,7 +228,7 @@
             document.getElementById(`btn-${lang}`).classList.add('active');
             
             const t = translations[lang];
-            document.getElementById('ui-menu').innerText = t.menu;
+            // Not: ui-menu artık nav-back içinde değil ama kodda kalabilir, zarar vermez.
             document.getElementById('ui-best').innerText = t.best;
             document.getElementById('ui-unit').innerText = t.unit;
             document.getElementById('ui-timeout').innerText = t.timeout;
@@ -203,7 +237,7 @@
             document.getElementById('ui-stat-acc').innerText = t.statAcc;
             document.getElementById('ui-stat-date').innerText = t.statDate;
             document.getElementById('ui-restart').innerText = t.restart;
-            document.getElementById('ui-tips').innerHTML = t.tips;
+            document.getElementById('ui-tips').innerText = t.tips;
 
             loadBestScore(maxTime);
             resetGame();
@@ -222,7 +256,7 @@
         function renderWords() {
             words.forEach(word => {
                 const wordDiv = document.createElement("div");
-                wordDiv.className = "word";
+                wordDiv.className = "word"; // CSS class ismi
                 word.split('').forEach(char => {
                     const span = document.createElement("span");
                     span.innerText = char;
@@ -282,7 +316,6 @@
             const currentWordDiv = wordWrapper.children[currentWordIndex];
             const chars = currentWordDiv.querySelectorAll(".letter");
             
-            // Geri silme işlemi
             if (inputType === "deleteContentBackward") {
                 if (currentCharIndex > 0) {
                     removeClassFromChar(currentWordIndex, currentCharIndex, "active");
@@ -291,7 +324,6 @@
                     removeClassFromChar(currentWordIndex, currentCharIndex, "incorrect");
                     addClassToCurrentChar("active");
                 }
-                // Silme yapınca da scroll kontrolü yap (Geri yukarı çıkması için)
                 checkScroll();
                 return;
             }
@@ -303,18 +335,18 @@
                 if (targetChar === " " && inputChar === " ") {
                     removeClassFromChar(currentWordIndex, currentCharIndex, "active");
                     
-                    const hasMistake = currentWordDiv.querySelector(".incorrect");
+                    const hasMistake = currentWordDiv.querySelector(".incorrect"); // CSS class kontrolü
                     
                     if (!hasMistake) {
                         completedCorrectWords++;
                     } else {
-                        currentWordDiv.classList.add("error-word");
+                        currentWordDiv.classList.add("error"); // CSS class düzeltildi (error-word -> error)
                     }
 
                     currentWordIndex++;
                     currentCharIndex = 0;
                     
-                    checkScroll(); // Scroll kontrolü burada
+                    checkScroll();
 
                     if (currentWordIndex < words.length) addClassToCurrentChar("active");
                     inputField.value = "";
@@ -325,7 +357,7 @@
                         addClassToChar(currentWordIndex, currentCharIndex, "correct");
                         correctKeystrokes++;
                     } else {
-                        addClassToChar(currentWordIndex, currentCharIndex, "incorrect");
+                        addClassToChar(currentWordIndex, currentCharIndex, "incorrect"); // CSS class düzeltildi (error -> incorrect)
                     }
                     currentCharIndex++;
                     if (currentCharIndex < chars.length) addClassToCurrentChar("active");
@@ -342,19 +374,13 @@
             }
         }
 
-        // --- MİLİMETRİK SCROLL DÜZELTMESİ BURADA ---
         function checkScroll() {
             const currentWord = wordWrapper.children[currentWordIndex];
             if (!currentWord) return;
 
-            // O anki kelimenin yüksekliğini dinamik al (Mobil: ~32px, PC: 40px)
             const lineHeight = currentWord.offsetHeight; 
-            
-            // Aktif kelimenin yukarıdan uzaklığı
             const offsetTop = currentWord.offsetTop;
 
-            // Kural: Eğer 2. satırın altına iniyorsak (offset > lineHeight), yukarı kaydır.
-            // Bu sayede aktif satır hep 2. sırada görünür, 1. satır yukarıda kalır.
             let newTranslateY = 0;
             if (offsetTop > lineHeight) {
                 newTranslateY = -(offsetTop - lineHeight);
@@ -433,4 +459,3 @@
     </script>
 </body>
 </html>
-
