@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HakanTools | PDF Birleştirme, QR Kod, Hız Testi ve Araçlar</title>
+    <title>HakanTools | PDF Birleştirme, QR Kod, Hız Testi ve Rehberler</title>
     
-    <meta name="description" content="Programsız PDF birleştirme, sınırsız QR kod oluşturma (Wi-Fi/Link), 10 parmak hız testi ve tarayıcı oyunları. Güvenli, ücretsiz ve hızlı online araçlar.">
-    <meta name="keywords" content="hakan tools, pdf birleştirme, qr kod oluşturucu, wifi karekod, klavye hız testi, wpm test, flappy hakan, dosya dönüştürücü, online tools">
+    <meta name="description" content="Ücretsiz online araçlar merkezi: Programsız PDF birleştirme, QR kod oluşturma, 10 parmak hız testi ve adım adım 'Nasıl Yapılır' rehberleri.">
+    <meta name="keywords" content="hakan tools, pdf birleştirme, qr kod yapma, klavye hız testi, nasıl yapılır, teknoloji rehberi, ücretsiz online araçlar">
     <meta name="robots" content="index, follow">
     <meta name="author" content="HakanTools">
     
@@ -18,7 +18,7 @@
       "@type": "WebApplication",
       "name": "HakanTools",
       "url": "https://hakantools.com/",
-      "description": "Ücretsiz online PDF araçları, QR kod oluşturucu ve klavye hız testi platformu.",
+      "description": "Ücretsiz online PDF araçları, QR kod oluşturucu ve eğitim rehberleri.",
       "applicationCategory": "UtilitiesApplication",
       "offers": {
         "@type": "Offer",
@@ -37,8 +37,8 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Gri Zemin */
-            color: #1f2937; /* Koyu Gri Metin */
+            background-color: #f3f4f6;
+            color: #1f2937;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -66,11 +66,15 @@
         }
         .logo span { color: #3b82f6; }
 
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
         .nav-links a {
             color: #4b5563;
             text-decoration: none;
             font-weight: 600;
-            margin-left: 20px;
             font-size: 0.95rem;
             transition: color 0.2s;
         }
@@ -218,11 +222,22 @@
             border-top: 1px solid #e5e7eb;
             margin-top: auto;
         }
+        
+        /* Footer Linkleri */
+        .footer-links a {
+            color: #6b7280;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: #111827; }
 
         @media (max-width: 768px) {
             .hero-section h1 { font-size: 2rem; }
             .tools-grid, .guides-grid { grid-template-columns: 1fr; }
             .section-title { flex-direction: column; align-items: flex-start; gap: 5px; }
+            /* Mobilde menüyü sıkıştırma */
+            .nav-links { gap: 10px; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -231,6 +246,7 @@
     <nav class="navbar">
         <a href="index.html" class="logo">Hakan<span>Tools</span></a>
         <div class="nav-links">
+            <a href="nasil.html">Nasıl Yapılır?</a>
             <a href="rehber.html">Blog & Rehber</a>
         </div>
     </nav>
@@ -303,7 +319,12 @@
 
     <footer>
         <div>&copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.</div>
-        <div style="margin-top: 10px; font-size: 0.75rem; opacity: 0.7;">
+        <div class="footer-links" style="margin-top: 15px; font-size: 0.85rem;">
+            <a href="nasil.html">Nasıl Yapılır?</a> | 
+            <a href="rehber.html">Blog</a> | 
+            <a href="sitemap.xml">Site Haritası</a>
+        </div>
+        <div style="margin-top: 10px; font-size: 0.75rem; opacity: 0.6;">
             Free PDF Tools | QR Code Generator | Typing Speed Test
         </div>
     </footer>
