@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HakanTools | Ücretsiz QR Kod Oluşturucu (Wi-Fi & Link)</title>
+    
+    <meta name="description" content="Ücretsiz, sınırsız ve renklendirilebilir QR kod oluşturucu. Link, Metin veya Wi-Fi şifresi paylaşmak için en hızlı araç.">
+    <meta name="keywords" content="qr kod oluşturucu, wifi qr code, karekod yapma, renkli qr kod, ücretsiz qr generator">
+    <meta name="robots" content="index, follow">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        /* Navbar (Standart) */
+        .navbar {
+            background: white; padding: 1.5rem 5%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo { font-size: 1.5rem; font-weight: 800; color: #111827; text-decoration: none; }
+        .logo span { color: #3b82f6; }
+        .nav-back { color: #4b5563; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+
+        /* Ana Alan */
+        .main-container {
+            flex: 1; padding: 3rem 1rem;
+            display: flex; justify-content: center; align-items: flex-start;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr; /* Sol panel geniş, sağ panel dar */
+            gap: 2rem;
+            width: 100%; max-width: 1000px;
+        }
+
+        /* Sol Panel: Ayarlar */
+        .settings-card {
+            background: white; border-radius: 1rem; padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 1.5rem; color: #111827; }
+
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem; color: #374151; }
+        
+        input, select, textarea {
+            width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb;
+            border-radius: 0.5rem; font-family: inherit; font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #3b82f6; }
+
+        /* Renk Seçiciler Yan Yana */
+        .color-row { display: flex; gap: 1rem; }
+        .color-group { flex: 1; }
+        input[type="color"] { height: 50px; padding: 0.2rem; cursor: pointer; }
+
+        /* Tab Butonları (Link / Wifi) */
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; background: #f3f4f6; padding: 0.5rem; border-radius: 0.5rem; }
+        .tab-btn {
+            flex: 1; padding: 0.75rem; border: none; border-radius: 0.4rem;
+            background: transparent; font-weight: 600; color: #6b7280; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn.active { background: white; color: #3b82f6; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+        /* Sağ Panel: Önizleme */
+        .preview-card {
+            background: white; border-radius: 1rem; padding: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            text-align: center; position: sticky; top: 2rem;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        #qrcode {
+            margin: 1rem 0; padding: 1rem;
+            border: 1px solid #e5e7eb; border-radius: 0.5rem;
+        }
+        
+        /* QR Code içindeki resim taşmasın */
+        #qrcode img { max-width: 100%; height: auto; }
+
+        .download-btn {
+            background-color: #3b82f6; color: white; border: none;
+            padding: 1rem 2rem; border-radius: 0.5rem; font-weight: 700;
+            cursor: pointer; width: 100%; font-size: 1rem; margin-top: 1rem;
+            transition: background 0.2s;
+        }
+        .download-btn:hover { background-color: #2563eb; }
+
+        /* Gizli Alanlar */
+        .hidden { display: none; }
+
+        footer { text-align: center; padding: 2rem; color: #9ca3af; font-size: 0.9rem; margin-top: auto; }
+
+        @media (max-width: 768px) {
+            .tool-grid { grid-template-columns: 1fr; }
+            .preview-card { position: static; order: -1; margin-bottom: 2rem; } /* Mobilde QR üstte gözüksün */
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">Hakan<span>Tools</span></a>
+        <a href="index.html" class="nav-back">← Menü</a>
+    </nav>
+
+    <div class="main-container">
+        <div class="tool-grid">
+            
+            <div class="settings-card">
+                <h1>QR Kod Oluşturucu</h1>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="setMode('url')">🌐 Link / Metin</button>
+                    <button class="tab-btn" onclick="setMode('wifi')">📶 Wi-Fi Giriş</button>
+                </div>
+
+                <div id="url-inputs">
+                    <div class="form-group">
+                        <label>Web Adresi veya Metin</label>
+                        <input type="text" id="text-input" placeholder="https://hakantools.com" oninput="generateQR()">
+                    </div>
+                </div>
+
+                <div id="wifi-inputs" class="hidden">
+                    <div class="form-group">
+                        <label>Ağ Adı (SSID)</label>
+                        <input type="text" id="wifi-ssid" placeholder="Örn: Ev_Internet" oninput="generateQR()">
+                    </div>
+                    <div class="form-group">
+                        <label>Şifre</label>
+                        <input type="text" id="wifi-pass" placeholder="Wi-Fi Şifresi" oninput="generateQR()">
+                    </div>
+                    <div class="form-group">
+                        <label>Güvenlik Tipi</label>
+                        <select id="wifi-type" onchange="generateQR()">
+                            <option value="WPA">WPA/WPA2 (Standart)</option>
+                            <option value="WEP">WEP</option>
+                            <option value="nopass">Şifresiz</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="color-row">
+                    <div class="color-group">
+                        <label>QR Rengi</label>
+                        <input type="color" id="colorDark" value="#000000" oninput="generateQR()">
+                    </div>
+                    <div class="color-group">
+                        <label>Arkaplan</label>
+                        <input type="color" id="colorLight" value="#ffffff" oninput="generateQR()">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="preview-card">
+                <h3 style="margin:0; color:#6b7280;">Önizleme</h3>
+                <div id="qrcode"></div>
+                <button class="download-btn" onclick="downloadQR()">⬇️ QR Kodu İndir</button>
+                <p style="font-size: 0.8rem; color: #9ca3af; margin-top: 10px;">HD Kalitesinde İndirilir</p>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.
+    </footer>
+
+    <script>
+        // Değişkenler
+        let currentMode = 'url';
+        let qrcodeObj = null;
+
+        // Sayfa Yüklendiğinde
+        window.onload = function() {
+            // İlk boş QR
+            generateQR();
+        };
+
+        // Mod Değiştirme (URL <-> WiFi)
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Tab Butonları Görünümü
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Input Alanları Görünümü
+            if (mode === 'wifi') {
+                document.getElementById('url-inputs').classList.add('hidden');
+                document.getElementById('wifi-inputs').classList.remove('hidden');
+            } else {
+                document.getElementById('url-inputs').classList.remove('hidden');
+                document.getElementById('wifi-inputs').classList.add('hidden');
+            }
+            generateQR();
+        }
+
+        // QR Oluşturma Fonksiyonu
+        function generateQR() {
+            // Önceki QR'ı temizle
+            document.getElementById("qrcode").innerHTML = "";
+            
+            let finalString = "";
+
+            if (currentMode === 'url') {
+                finalString = document.getElementById("text-input").value;
+                if (!finalString) finalString = "HakanTools"; // Boşsa placeholder
+            } else {
+                // Wi-Fi Formatı: WIFI:T:WPA;S:MySSID;P:MyPass;;
+                let ssid = document.getElementById("wifi-ssid").value;
+                let pass = document.getElementById("wifi-pass").value;
+                let type = document.getElementById("wifi-type").value;
+                
+                if (!ssid) {
+                    finalString = "HakanTools WiFi";
+                } else {
+                    finalString = `WIFI:T:${type};S:${ssid};P:${pass};;`;
+                }
+            }
+
+            let colorDark = document.getElementById("colorDark").value;
+            let colorLight = document.getElementById("colorLight").value;
+
+            // Kütüphaneyi çağır
+            qrcodeObj = new QRCode(document.getElementById("qrcode"), {
+                text: finalString,
+                width: 256,
+                height: 256,
+                colorDark : colorDark,
+                colorLight : colorLight,
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        // İndirme Fonksiyonu
+        function downloadQR() {
+            // QRCode kütüphanesi canvas yerine img tag üretiyor olabilir, kontrol et
+            let img = document.querySelector("#qrcode img");
+            
+            if (img && img.src) {
+                let link = document.createElement('a');
+                link.download = 'hakantools-qr.png';
+                link.href = img.src;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                // Eğer henüz img oluşmadıysa (bazen canvas olarak kalır)
+                let canvas = document.querySelector("#qrcode canvas");
+                if(canvas) {
+                     let link = document.createElement('a');
+                     link.download = 'hakantools-qr.png';
+                     link.href = canvas.toDataURL("image/png");
+                     document.body.appendChild(link);
+                     link.click();
+                     document.body.removeChild(link);
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>
