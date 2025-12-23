@@ -11,84 +11,246 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="görsel.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background-color: var(--bg-card);
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo span { color: var(--primary); }
+
+        .nav-back {
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .nav-back:hover { color: var(--primary); }
+
+        /* HERO SECTION */
+        .hero-section {
+            text-align: center;
+            padding: 4rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero-section h1 {
+            font-size: 2.5rem;
+            color: #111827;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-section p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+        }
+
+        /* GRID LAYOUT */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto 4rem auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        /* ARTICLE CARD */
+        .article-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .article-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
+            width: fit-content;
+        }
+
+        /* Tag Renkleri */
+        .tag-blue { background-color: #eff6ff; color: #2563eb; }
+        .tag-green { background-color: #ecfdf5; color: #059669; }
+        .tag-red { background-color: #fef2f2; color: #dc2626; }
+        .tag-orange { background-color: #fffbeb; color: #d97706; }
+
+        .article-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: #111827;
+            line-height: 1.3;
+        }
+
+        .article-card p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            flex-grow: 1; /* Butonu en alta iter */
+        }
+
+        /* CTA BUTTON */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 600;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f3f4f6;
+            transition: gap 0.2s;
+        }
+
+        .cta-btn:hover {
+            gap: 12px;
+            color: var(--primary-hover);
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #9ca3af;
+            font-size: 0.9rem;
+            background-color: var(--bg-card);
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* Mobil Uyumluluk */
+        @media (max-width: 640px) {
+            .hero-section h1 { font-size: 2rem; }
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <a href="index.html" class="logo">Hakan<span>Tools</span></a>
-        <div class="nav-links">
-            <a href="index.html" class="nav-back">← Araçlara Dön</a>
-        </div>
+        <a href="index.html" class="logo">
+            <i class="fas fa-layer-group"></i> Hakan<span>Tools</span>
+        </a>
+        <a href="index.html" class="nav-back">
+            <i class="fas fa-arrow-left"></i> Araçlara Dön
+        </a>
     </nav>
 
-    <header class="hero-section" style="padding: 4rem 1rem 2rem 1rem;">
+    <header class="hero-section">
         <h1>Blog & Rehberler</h1>
         <p>Teknolojiyi verimli kullanmak, güvenliği sağlamak ve hızlanmak için ipuçları.</p>
     </header>
 
     <div class="container">
 
-        <article id="pdf-birlestirme" class="article-card">
-            <span class="article-tag" style="color: #3b82f6;">PDF ARAÇLARI</span>
+        <article class="article-card">
+            <span class="article-tag tag-blue"><i class="fas fa-file-pdf"></i> PDF Araçları</span>
             <h2>Programsız: Resimler ve Dosyalar Nasıl PDF Yapılır?</h2>
             <p>
-                Günümüzde pek çok devlet dairesi, okul veya iş yeri belgeleri tek bir PDF dosyası olarak istiyor. Ancak telefonunuzdaki JPG veya PNG resimlerini birleştirmek için pahalı programlar (Adobe Acrobat gibi) satın almanıza gerek yok.
+                Günümüzde pek çok kurum belgeleri tek bir PDF dosyası olarak istiyor. Pahalı programlar satın almanıza gerek yok.
             </p>
             <p>
-                <strong>HakanTools PDF Converter</strong> kullanarak, dosyalarınızı sunucuya yüklemeden (yani verileriniz tarayıcınızdan çıkmadan) saniyeler içinde birleştirebilirsiniz. Bu yöntem hem KVKK dostudur hem de tamamen ücretsizdir.
+                <strong>HakanTools PDF Converter</strong> ile dosyalarınızı sunucuya yüklemeden (Client-Side), tamamen tarayıcınızın içinde güvenle birleştirebilirsiniz. KVKK dostu ve ücretsizdir.
             </p>
-            <p>
-                Sürükle bırak mantığıyla çalışan aracımız, mobil cihazlarda da sorunsuz çalışır.
-            </p>
-            <a href="pdf.html" class="cta-btn">Ücretsiz PDF Dönüştürücüyü Dene →</a>
+            <a href="pdf.html" class="cta-btn">PDF Dönüştürücüyü Dene <i class="fas fa-arrow-right"></i></a>
         </article>
 
-        <article id="hizli-yazma" class="article-card">
-            <span class="article-tag" style="color: #10b981;">VERİMLİLİK</span>
+        <article class="article-card">
+            <span class="article-tag tag-green"><i class="fas fa-keyboard"></i> Verimlilik</span>
             <h2>Klavye Hızınızı Nasıl Ölçersiniz? (WPM Nedir?)</h2>
             <p>
-                WPM (Words Per Minute), dakikada yazabildiğiniz kelime sayısını ifade eder. Ortalama bir bilgisayar kullanıcısı 40 WPM hızla yazarken, profesyonel yazılımcılar ve katipler 80-100 WPM seviyelerine çıkabilir.
+                WPM (Dakikadaki Kelime Sayısı), yazma hızınızı ifade eder. Profesyonel yazılımcılar genellikle 80+ WPM hızına sahiptir.
             </p>
             <p>
-                Hızınızı arttırmanın en iyi yolu, düzenli olarak <strong>10 Parmak Testi</strong> yapmaktır. Yanlış yazdığınızda silmek yerine doğrusunu yazmaya odaklanmak, kas hafızanızı geliştirir.
+                Hızınızı arttırmanın en iyi yolu düzenli pratik yapmaktır. Yanlış yazdığınızda silmek yerine doğrusunu yazmaya odaklanarak kas hafızanızı geliştirin.
             </p>
-            <p>
-                HakanTools Hız Testi aracı, size anlık WPM sonucunuzu ve doğruluk oranınızı gösterir.
-            </p>
-            <a href="typing.html" class="cta-btn">Hız Testine Başla →</a>
+            <a href="typing.html" class="cta-btn">Hız Testine Başla <i class="fas fa-arrow-right"></i></a>
         </article>
 
-        <article id="guvenlik" class="article-card">
-            <span class="article-tag" style="color: #ef4444;">GÜVENLİK & GİZLİLİK</span>
-            <h2>Dosyalarınız Güvende mi? Online Dönüştürücüler Hakkında Gerçekler</h2>
+        <article class="article-card">
+            <span class="article-tag tag-red"><i class="fas fa-shield-alt"></i> Güvenlik</span>
+            <h2>Dosyalarınız Güvende mi? Online Dönüştürücü Gerçekleri</h2>
             <p>
-                İnternette "JPG to PDF" veya "Word to PDF" arattığınızda karşınıza çıkan sitelerin çoğu, dosyalarınızı kendi sunucularına yükler. Bu durum, kimlik fotokopisi veya şirket evrakları gibi hassas veriler için büyük bir risk oluşturur.
+                Çoğu "JPG to PDF" sitesi dosyalarınızı sunucularına yükler. Bu, hassas verileriniz için büyük risktir.
             </p>
             <p>
-                <strong>HakanTools</strong> olarak "Client-Side Processing" (İstemci Taraflı İşleme) teknolojisi kullanıyoruz. Sitemizde işlem yaparken dosyalarınız <u>asla</u> bizim sunucumuza gönderilmez. Tüm birleştirme işlemi, bizzat sizin tarayıcınızın içinde, sizin bilgisayarınızda gerçekleşir.
+                <strong>HakanTools</strong> olarak dosyalarınızı <u>asla</u> sunucumuza almıyoruz. İnternet kablonuzu çekseniz bile araçlarımızın çalıştığını görebilirsiniz. Gerçek güvenlik budur.
             </p>
-            <p>
-                İnternet kablonuzu çekseniz bile PDF aracımızın çalıştığını görebilirsiniz. İşte gerçek güvenlik budur.
-            </p>
+            <span class="cta-btn" style="cursor: default; color: var(--text-light);">Bilgilendirme Amaçlıdır</span>
         </article>
 
-        <article id="oyun-terapi" class="article-card">
-            <span class="article-tag" style="color: #f59e0b;">MOLA ZAMANI</span>
+        <article class="article-card">
+            <span class="article-tag tag-orange"><i class="fas fa-gamepad"></i> Mola Zamanı</span>
             <h2>Mikro Molaların Gücü: Neden Oyun Oynamalısınız?</h2>
             <p>
-                Pomodoro tekniği ve modern çalışma prensipleri, her 25-30 dakikalık çalışmadan sonra kısa molalar vermeyi önerir. Bu molalarda beyni "odaklanma modundan" çıkarmak, geri döndüğünüzde veriminizi %40 arttırır.
+                Pomodoro tekniği, her 25 dakikalık çalışmadan sonra kısa molalar önerir. Bu, veriminizi %40 arttırabilir.
             </p>
             <p>
-                Tam da bunun için geliştirdiğimiz <strong>Flappy Hakan</strong>, kurulum gerektirmeyen, tarayıcı tabanlı hafif bir oyundur. Reflekslerinizi test ederken iş stresinden anlık olarak uzaklaşmanızı sağlar.
+                Kurulum gerektirmeyen, tarayıcı tabanlı <strong>Flappy Hakan</strong> ile reflekslerinizi test ederken iş stresinden uzaklaşın.
             </p>
-            <a href="flaapy.html" class="cta-btn">Şimdi Bir El Oyna →</a>
+            <a href="flaapy.html" class="cta-btn">Şimdi Oyna <i class="fas fa-arrow-right"></i></a>
         </article>
 
     </div>
 
     <footer>
-        &copy; 2025 Hakan Tools. Tüm Hakları Saklıdır. | <a href="index.html" style="color: inherit; text-decoration: none;">Ana Sayfa</a>
+        &copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.
     </footer>
 
 </body>
