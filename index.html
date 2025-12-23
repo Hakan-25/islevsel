@@ -12,6 +12,8 @@
     
     <link rel="icon" type="image/png" href="favicon.png">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -28,7 +30,77 @@
     }
     </script>
 
-<link rel="stylesheet" href="görsel.css"></head>
+    <link rel="stylesheet" href="görsel.css">
+
+    <style>
+        /* Footer Düzeni */
+        footer {
+            background-color: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            padding: 2rem 1rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .footer-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Instagram Butonu Tasarımı */
+        .insta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #f3f4f6;
+            color: #374151;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .insta-btn i {
+            font-size: 1.2rem;
+            /* Instagram Renk Geçişi */
+            background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .insta-btn:hover {
+            background-color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            color: #111;
+        }
+
+        /* Alt Linkler */
+        .footer-links a {
+            color: #6b7280;
+            text-decoration: none;
+            margin: 0 8px;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: #2563eb; }
+
+        /* Masaüstü Görünüm */
+        @media (min-width: 768px) {
+            .footer-container {
+                flex-direction: row;
+                justify-content: space-between;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
 <body>
 
     <nav class="navbar">
@@ -106,17 +178,23 @@
     </main>
 
     <footer>
-        <div>&copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.</div>
-        <div class="footer-links" style="margin-top: 15px; font-size: 0.85rem;">
-            <a href="nasil.html">Nasıl Yapılır?</a> | 
-            <a href="rehber.html">Blog</a> | 
-            <a href="sitemap.xml">Site Haritası</a>
-        </div>
-        <div style="margin-top: 10px; font-size: 0.75rem; opacity: 0.6;">
-            Free PDF Tools | QR Code Generator | Typing Speed Test
+        <div class="footer-container">
+            
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div>&copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.</div>
+                <div class="footer-links">
+                    <a href="nasil.html">Nasıl Yapılır?</a> • 
+                    <a href="rehber.html">Blog</a> • 
+                    <a href="sitemap.xml">Site Haritası</a>
+                </div>
+            </div>
+
+            <a href="https://www.instagram.com/mhakanx_" target="_blank" class="insta-btn">
+                <i class="fab fa-instagram"></i> @mhakanx_
+            </a>
+
         </div>
     </footer>
 
 </body>
 </html>
-
