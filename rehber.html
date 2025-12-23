@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HakanTools Rehber | Teknoloji İpuçları ve Verimlilik</title>
+    
+    <meta name="description" content="Programsız PDF birleştirme, 10 parmak klavye geliştirme teknikleri ve online güvenlik ipuçları. HakanTools resmi rehber sayfası.">
+    <meta name="keywords" content="jpg pdf çevirme, programsız pdf, klavye hız testi taktikleri, wpm arttırma, online dosya güvenliği, pomodoro tekniği, tarayıcı oyunları">
+    <meta name="robots" content="index, follow">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f3f4f6; 
+            color: #1f2937; 
+            margin: 0; 
+            padding: 0; 
+            line-height: 1.6; 
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* Navbar */
+        .navbar { 
+            background: white; 
+            padding: 1.5rem 5%; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            color: #111827; 
+            text-decoration: none; 
+        }
+        .logo span { color: #3b82f6; }
+        
+        .nav-menu a {
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 20px;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        .nav-menu a:hover { color: #3b82f6; }
+
+        /* Ana İçerik Alanı */
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 3rem 1rem; 
+            flex: 1;
+        }
+
+        /* Başlıklar */
+        h1 { 
+            font-size: 2.5rem; 
+            font-weight: 800; 
+            text-align: center; 
+            margin-bottom: 1rem; 
+            color: #111827; 
+            letter-spacing: -0.03em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        /* Makale Kart Tasarımı */
+        .article-card { 
+            background: white; 
+            border-radius: 1rem; 
+            padding: 2.5rem; 
+            margin-bottom: 2.5rem; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+            border: 1px solid #e5e7eb;
+            transition: transform 0.3s ease;
+        }
+
+        .article-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            border-color: #d1d5db;
+        }
+        
+        .article-tag {
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .article-card h2 { 
+            font-size: 1.75rem; 
+            color: #111827; 
+            margin: 0.5rem 0 1rem 0; 
+            line-height: 1.3;
+        }
+
+        .article-card p { 
+            color: #4b5563; 
+            margin-bottom: 1.5rem; 
+            font-size: 1.05rem; 
+        }
+        
+        /* Çağrı Butonları (CTA) */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .cta-btn:hover { background-color: #2563eb; transform: translateY(-2px); }
+        
+        /* Footer */
+        footer { 
+            text-align: center; 
+            padding: 2rem; 
+            color: #9ca3af; 
+            font-size: 0.9rem; 
+            border-top: 1px solid #e5e7eb; 
+            background: white; 
+        }
+
+        /* Mobil Uyum */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .article-card { padding: 1.5rem; }
+            .navbar { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">Hakan<span>Tools</span></a>
+        <div class="nav-menu">
+            <a href="index.html">← Araçlara Dön</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Blog & Rehberler</h1>
+        <p class="subtitle">Teknolojiyi verimli kullanmak, güvenliği sağlamak ve hızlanmak için ipuçları.</p>
+
+        <article id="pdf-birlestirme" class="article-card">
+            <span class="article-tag" style="color: #3b82f6;">PDF ARAÇLARI</span>
+            <h2>Programsız: Resimler ve Dosyalar Nasıl PDF Yapılır?</h2>
+            <p>
+                Günümüzde pek çok devlet dairesi, okul veya iş yeri belgeleri tek bir PDF dosyası olarak istiyor. Ancak telefonunuzdaki JPG veya PNG resimlerini birleştirmek için pahalı programlar (Adobe Acrobat gibi) satın almanıza gerek yok.
+            </p>
+            <p>
+                <strong>HakanTools PDF Converter</strong> kullanarak, dosyalarınızı sunucuya yüklemeden (yani verileriniz tarayıcınızdan çıkmadan) saniyeler içinde birleştirebilirsiniz. Bu yöntem hem KVKK dostudur hem de tamamen ücretsizdir.
+            </p>
+            <p>
+                Sürükle bırak mantığıyla çalışan aracımız, mobil cihazlarda da sorunsuz çalışır.
+            </p>
+            <a href="pdf.html" class="cta-btn">Ücretsiz PDF Dönüştürücüyü Dene →</a>
+        </article>
+
+        <article id="hizli-yazma" class="article-card">
+            <span class="article-tag" style="color: #10b981;">VERİMLİLİK</span>
+            <h2>Klavye Hızınızı Nasıl Ölçersiniz? (WPM Nedir?)</h2>
+            <p>
+                WPM (Words Per Minute), dakikada yazabildiğiniz kelime sayısını ifade eder. Ortalama bir bilgisayar kullanıcısı 40 WPM hızla yazarken, profesyonel yazılımcılar ve katipler 80-100 WPM seviyelerine çıkabilir.
+            </p>
+            <p>
+                Hızınızı arttırmanın en iyi yolu, düzenli olarak <strong>10 Parmak Testi</strong> yapmaktır. Yanlış yazdığınızda silmek yerine doğrusunu yazmaya odaklanmak, kas hafızanızı geliştirir.
+            </p>
+            <p>
+                HakanTools Hız Testi aracı, size anlık WPM sonucunuzu ve doğruluk oranınızı gösterir.
+            </p>
+            <a href="typing.html" class="cta-btn">Hız Testine Başla →</a>
+        </article>
+
+        <article id="guvenlik" class="article-card">
+            <span class="article-tag" style="color: #ef4444;">GÜVENLİK & GİZLİLİK</span>
+            <h2>Dosyalarınız Güvende mi? Online Dönüştürücüler Hakkında Gerçekler</h2>
+            <p>
+                İnternette "JPG to PDF" veya "Word to PDF" arattığınızda karşınıza çıkan sitelerin çoğu, dosyalarınızı kendi sunucularına yükler. Bu durum, kimlik fotokopisi veya şirket evrakları gibi hassas veriler için büyük bir risk oluşturur.
+            </p>
+            <p>
+                <strong>HakanTools</strong> olarak "Client-Side Processing" (İstemci Taraflı İşleme) teknolojisi kullanıyoruz. Sitemizde işlem yaparken dosyalarınız <u>asla</u> bizim sunucumuza gönderilmez. Tüm birleştirme işlemi, bizzat sizin tarayıcınızın içinde, sizin bilgisayarınızda gerçekleşir.
+            </p>
+            <p>
+                İnternet kablonuzu çekseniz bile PDF aracımızın çalıştığını görebilirsiniz. İşte gerçek güvenlik budur.
+            </p>
+        </article>
+
+        <article id="oyun-terapi" class="article-card">
+            <span class="article-tag" style="color: #f59e0b;">MOLA ZAMANI</span>
+            <h2>Mikro Molaların Gücü: Neden Oyun Oynamalısınız?</h2>
+            <p>
+                Pomodoro tekniği ve modern çalışma prensipleri, her 25-30 dakikalık çalışmadan sonra kısa molalar vermeyi önerir. Bu molalarda beyni "odaklanma modundan" çıkarmak, geri döndüğünüzde veriminizi %40 arttırır.
+            </p>
+            <p>
+                Tam da bunun için geliştirdiğimiz <strong>Flappy Hakan</strong>, kurulum gerektirmeyen, tarayıcı tabanlı hafif bir oyundur. Reflekslerinizi test ederken iş stresinden anlık olarak uzaklaşmanızı sağlar.
+            </p>
+            <a href="flaapy.html" class="cta-btn">Şimdi Bir El Oyna →</a>
+        </article>
+
+    </div>
+
+    <footer>
+        &copy; 2025 Hakan Tools. Tüm Hakları Saklıdır. | <a href="index.html" style="color: inherit; text-decoration: none;">Ana Sayfa</a>
+    </footer>
+
+</body>
+</html>
