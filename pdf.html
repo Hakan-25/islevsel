@@ -12,40 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        :root { --accent: #ef4444; --bg: #f3f4f6; --text: #1f2937; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; }
-        
-        /* Sidebar */
-        .sidebar { width: 280px; background: white; border-right: 1px solid #e5e7eb; padding: 1.5rem; display: flex; flex-direction: column; }
-        .menu-btn { background: none; border: none; width: 100%; padding: 12px; text-align: left; cursor: pointer; border-radius: 8px; margin-bottom: 5px; font-weight: 600; color: #6b7280; display: flex; align-items: center; gap: 10px; }
-        .menu-btn.active { background: #fef2f2; color: var(--accent); }
-        
-        /* Main Content */
-        .main-content { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
-        .card { background: white; width: 100%; max-width: 800px; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
-        
-        /* Drag & Drop Area */
-        .drop-zone { border: 3px dashed #e5e7eb; padding: 3rem; border-radius: 1rem; cursor: pointer; transition: 0.3s; background: #fafafa; position: relative; }
-        .drop-zone.drag-over { border-color: var(--accent); background: #fef2f2; }
-        .drop-zone i { font-size: 3rem; color: #9ca3af; margin-bottom: 1rem; }
-        
-        .file-list { margin-top: 1.5rem; text-align: left; }
-        .file-item { background: #f9fafb; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; border: 1px solid #eee; }
-        .remove-btn { color: var(--accent); cursor: pointer; font-weight: bold; }
-        
-        .action-btn { background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 1rem; width: 100%; transition: 0.2s; }
-        .action-btn:disabled { background: #d1d5db; cursor: not-allowed; }
-        
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; flex-direction: row; overflow-x: auto; padding: 10px; }
-            .menu-btn { width: auto; white-space: nowrap; }
-            .main-content { padding: 1rem; }
-        }
-    </style>
+    <link rel="stylesheet" href="görsel.css">
 </head>
 <body ondragover="event.preventDefault()" ondrop="event.preventDefault()">
 
@@ -213,3 +180,4 @@
     </script>
 </body>
 </html>
+
