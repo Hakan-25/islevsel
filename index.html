@@ -20,20 +20,39 @@
       "@type": "WebApplication",
       "name": "HakanTools",
       "url": "https://hakantools.com/",
-      "description": "Ücretsiz online PDF araçları, QR kod oluşturucu ve eğitim rehberleri.",
-      "applicationCategory": "UtilitiesApplication",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "TRY"
-      }
+      "description": "Ücretsiz online PDF araçları, QR kod oluşturucu ve eğitim rehberleri."
     }
     </script>
 
     <link rel="stylesheet" href="görsel.css">
 
     <style>
-        /* Footer Düzeni */
+        /* --- HEADER DÜZENLEMELERİ --- */
+        
+        /* Navbar'ın içindeki sol grup (Logo + Instagram) */
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* Logo ile Instagram arasındaki boşluk */
+        }
+
+        /* Header'daki Küçük Instagram İkonu */
+        .header-insta {
+            color: #6b7280; /* Gri ton */
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .header-insta:hover {
+            /* Instagram Renkleri */
+            color: #d62976; 
+            transform: scale(1.1); /* Üzerine gelince hafif büyür */
+        }
+
+        /* --- FOOTER DÜZENLEMELERİ (Eskisi gibi kalsın) --- */
         footer {
             background-color: #ffffff;
             border-top: 1px solid #e5e7eb;
@@ -51,7 +70,6 @@
             gap: 1.5rem;
         }
 
-        /* Instagram Butonu Tasarımı */
         .insta-btn {
             display: inline-flex;
             align-items: center;
@@ -69,7 +87,6 @@
 
         .insta-btn i {
             font-size: 1.2rem;
-            /* Instagram Renk Geçişi */
             background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -82,16 +99,9 @@
             color: #111;
         }
 
-        /* Alt Linkler */
-        .footer-links a {
-            color: #6b7280;
-            text-decoration: none;
-            margin: 0 8px;
-            transition: color 0.2s;
-        }
+        .footer-links a { color: #6b7280; text-decoration: none; margin: 0 8px; transition: color 0.2s; }
         .footer-links a:hover { color: #2563eb; }
 
-        /* Masaüstü Görünüm */
         @media (min-width: 768px) {
             .footer-container {
                 flex-direction: row;
@@ -104,7 +114,15 @@
 <body>
 
     <nav class="navbar">
-        <a href="index.html" class="logo">Hakan<span>Tools</span></a>
+        
+        <div class="nav-left">
+            <a href="index.html" class="logo">Hakan<span>Tools</span></a>
+            
+            <a href="https://www.instagram.com/mhakanx_" target="_blank" class="header-insta" aria-label="Instagram">
+                <i class="fab fa-instagram"></i>
+            </a>
+        </div>
+
         <div class="nav-links">
             <a href="nasil.html">Nasıl Yapılır?</a>
             <a href="rehber.html">Blog & Rehber</a>
@@ -179,7 +197,6 @@
 
     <footer>
         <div class="footer-container">
-            
             <div style="display: flex; flex-direction: column; gap: 5px;">
                 <div>&copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.</div>
                 <div class="footer-links">
@@ -192,7 +209,6 @@
             <a href="https://www.instagram.com/mhakanx_" target="_blank" class="insta-btn">
                 <i class="fab fa-instagram"></i> @mhakanx_
             </a>
-
         </div>
     </footer>
 
