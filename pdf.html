@@ -8,47 +8,274 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-    <link rel="stylesheet" href="görsel.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+            --sidebar-width: 260px;
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden; /* Sayfa kaymasını engeller, içerik kayar */
+        }
+
+        /* --- SIDEBAR TASARIMI --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-card);
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            height: 100%;
+            transition: transform 0.3s ease;
+            z-index: 10;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .brand span { color: var(--primary); }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-light);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-btn:hover {
+            background-color: #f3f4f6;
+            color: var(--primary);
+        }
+
+        .menu-btn.active {
+            background-color: #eff6ff;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .back-link {
+            margin-top: auto;
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--text-main); }
+
+        /* --- ANA İÇERİK --- */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { margin-bottom: 0.5rem; font-size: 1.5rem; }
+        .subtitle { color: var(--text-light); margin-bottom: 2rem; font-size: 0.9rem; }
+
+        /* --- DRAG & DROP ALANI --- */
+        .drop-zone {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #f9fafb;
+        }
+
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: var(--primary);
+            background-color: #eff6ff;
+        }
+
+        .drop-zone i {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+            transition: color 0.3s;
+        }
+
+        .drop-zone:hover i { color: var(--primary); }
+
+        .drop-zone p { color: var(--text-light); margin-bottom: 0; }
+        .drop-zone b { color: var(--primary); }
+
+        /* --- DOSYA LİSTESİ --- */
+        .file-list {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f3f4f6;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--primary);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        .remove-btn {
+            color: var(--danger);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(239, 68, 68, 0.1);
+            transition: background 0.2s;
+        }
+        
+        .remove-btn:hover { background: rgba(239, 68, 68, 0.2); }
+
+        /* --- AKSİYON BUTONU --- */
+        .action-btn {
+            display: block;
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        .action-btn:hover:not(:disabled) { background-color: var(--primary-hover); }
+        
+        .action-btn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        /* --- MOBİL UYUM --- */
+        @media (max-width: 768px) {
+            body { flex-direction: column; height: auto; overflow: visible; }
+            .sidebar { width: 100%; height: auto; padding: 1rem; border-right: none; border-bottom: 1px solid #e5e7eb; }
+            .brand { justify-content: center; }
+            .menu-btn { justify-content: center; }
+            .main-content { padding: 1rem; }
+        }
+    </style>
 </head>
 <body ondragover="event.preventDefault()" ondrop="event.preventDefault()">
 
     <aside class="sidebar">
-        <h2 style="margin-bottom:1.5rem; font-size:1.2rem; color:var(--accent)"><i class="fas fa-file-pdf"></i> PDF Tools</h2>
-        <button class="menu-btn active" id="btn-img" onclick="showTool('img-to-pdf')"><i class="fas fa-images"></i> Image -> PDF</button>
-        <button class="menu-btn" id="btn-merge" onclick="showTool('merge-pdf')"><i class="fas fa-layer-group"></i> Merge PDF</button>
-        <a href="index.html" style="margin-top:auto; text-decoration:none; color:#6b7280; font-size:0.9rem"><i class="fas fa-arrow-left"></i> Back to Menu</a>
+        <div class="brand">
+            <i class="fas fa-file-pdf"></i> Hakan<span>Tools</span>
+        </div>
+        
+        <button class="menu-btn active" id="btn-img" onclick="showTool('img-to-pdf')">
+            <i class="fas fa-images"></i> Resimden PDF'e
+        </button>
+        <button class="menu-btn" id="btn-merge" onclick="showTool('merge-pdf')">
+            <i class="fas fa-layer-group"></i> PDF Birleştir
+        </button>
+
+        <a href="index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Ana Menüye Dön
+        </a>
     </aside>
 
     <main class="main-content">
+        
         <div id="img-to-pdf" class="card">
-            <h2>Create PDF from Images</h2>
-            <p style="color:#6b7280; margin-bottom:1.5rem">Support: JPG, PNG, WebP, BMP, GIF</p>
+            <h2>Resimden PDF Oluştur</h2>
+            <p class="subtitle">Desteklenenler: JPG, PNG, WebP, BMP, GIF</p>
             
             <div class="drop-zone" id="img-drop-zone">
-                <i class="fas fa-file-image"></i>
-                <p>Drag images here or <b>click</b></p>
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Resimleri buraya sürükleyin veya <b>seçmek için tıklayın</b></p>
                 <input type="file" id="img-input" multiple accept="image/jpeg, image/png, image/webp, image/bmp, image/gif" style="display:none">
             </div>
             
             <div class="file-list" id="img-file-list"></div>
-            <button class="action-btn" id="process-img-btn" disabled onclick="createPdfFromImages()">Download PDF</button>
+            
+            <button class="action-btn" id="process-img-btn" disabled onclick="createPdfFromImages()">
+                <i class="fas fa-download"></i> PDF Olarak İndir
+            </button>
         </div>
 
         <div id="merge-pdf" class="card" style="display:none">
-            <h2>Merge PDF Files</h2>
-            <p style="color:#6b7280; margin-bottom:1.5rem">Add the PDF files you want to merge.</p>
+            <h2>PDF Dosyalarını Birleştir</h2>
+            <p class="subtitle">Birleştirmek istediğiniz PDF dosyalarını sırayla ekleyin.</p>
+            
             <div class="drop-zone" id="pdf-drop-zone">
                 <i class="fas fa-file-pdf"></i>
-                <p>Drag PDFs here or <b>click</b></p>
+                <p>PDF'leri buraya sürükleyin veya <b>seçmek için tıklayın</b></p>
                 <input type="file" id="pdf-input" multiple accept="application/pdf" style="display:none">
             </div>
+            
             <div class="file-list" id="pdf-file-list"></div>
-            <button class="action-btn" id="process-pdf-btn" disabled onclick="mergeSelectedPdfs()">Merge and Download</button>
+            
+            <button class="action-btn" id="process-pdf-btn" disabled onclick="mergeSelectedPdfs()">
+                <i class="fas fa-object-group"></i> Birleştir ve İndir
+            </button>
         </div>
+
     </main>
 
     <script>
@@ -56,87 +283,149 @@
         let pdfFiles = [];
 
         function showTool(toolId) {
+            // Tüm kartları gizle
             document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+            // Buton aktifliklerini kaldır
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            
+            // Seçileni göster
             document.getElementById(toolId).style.display = 'block';
-            if(toolId === 'img-to-pdf') document.getElementById('btn-img').classList.add('active');
-            else document.getElementById('btn-merge').classList.add('active');
+            
+            // Butonu aktif yap
+            if(toolId === 'img-to-pdf') {
+                document.getElementById('btn-img').classList.add('active');
+            } else {
+                document.getElementById('btn-merge').classList.add('active');
+            }
         }
 
         function setupDropZone(zoneId, inputId, fileArray, listId, btnId, isImg) {
             const zone = document.getElementById(zoneId);
             const input = document.getElementById(inputId);
+
             zone.onclick = () => input.click();
-            zone.ondragover = (e) => { e.preventDefault(); e.stopPropagation(); zone.classList.add('drag-over'); };
-            zone.ondragleave = (e) => { e.preventDefault(); e.stopPropagation(); zone.classList.remove('drag-over'); };
+
+            // Sürükleme Efektleri
+            zone.ondragover = (e) => { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+                zone.classList.add('drag-over'); 
+            };
+            zone.ondragleave = (e) => { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+                zone.classList.remove('drag-over'); 
+            };
+            
             zone.ondrop = (e) => {
-                e.preventDefault(); e.stopPropagation();
+                e.preventDefault(); 
+                e.stopPropagation();
                 zone.classList.remove('drag-over');
                 handleFiles(e.dataTransfer.files, fileArray, listId, btnId, isImg);
             };
+
             input.onchange = (e) => handleFiles(e.target.files, fileArray, listId, btnId, isImg);
         }
 
         function handleFiles(files, fileArray, listId, btnId, isImg) {
             const validImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/gif'];
+            
             Array.from(files).forEach(file => {
                 if (isImg && !validImageTypes.includes(file.type)) {
-                    alert(`Invalid file: ${file.name}. Please upload supported images.`);
+                    alert(`Geçersiz dosya: ${file.name}. Lütfen sadece resim yükleyin.`);
                     return;
                 }
                 if (!isImg && file.type !== 'application/pdf') {
-                    alert(`Invalid file: ${file.name}. Please upload PDF files.`);
+                    alert(`Geçersiz dosya: ${file.name}. Lütfen sadece PDF yükleyin.`);
                     return;
                 }
                 fileArray.push(file);
-                renderFileList(fileArray, listId, btnId);
             });
-            document.getElementById(btnId).disabled = fileArray.length === 0;
+            renderFileList(fileArray, listId, btnId);
         }
 
         function renderFileList(fileArray, listId, btnId) {
             const list = document.getElementById(listId);
-            list.innerHTML = '';
+            list.innerHTML = ''; // Listeyi temizle
+            
             fileArray.forEach((file, index) => {
                 const item = document.createElement('div');
                 item.className = 'file-item';
-                item.innerHTML = `<span>${file.name}</span><span class="remove-btn" onclick="removeFile(${index}, '${listId}')">Remove</span>`;
+                
+                // Dosya boyutu hesaplama (KB/MB)
+                let size = (file.size / 1024).toFixed(1) + ' KB';
+                if(file.size > 1024 * 1024) size = (file.size / (1024*1024)).toFixed(1) + ' MB';
+
+                item.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fas ${listId.includes('img') ? 'fa-image' : 'fa-file-pdf'}" style="color:#6b7280"></i>
+                        <span>${file.name} <small style="color:#9ca3af">(${size})</small></span>
+                    </div>
+                    <span class="remove-btn" onclick="removeFile(${index}, '${listId}')"><i class="fas fa-trash"></i> Kaldır</span>
+                `;
                 list.appendChild(item);
             });
-            document.getElementById(btnId).disabled = fileArray.length === 0;
+            
+            // Buton durumunu güncelle
+            const btn = document.getElementById(btnId);
+            btn.disabled = fileArray.length === 0;
+            if(!btn.disabled) {
+                btn.innerHTML = listId.includes('img') 
+                    ? `<i class="fas fa-download"></i> PDF Olarak İndir (${fileArray.length} Resim)` 
+                    : `<i class="fas fa-object-group"></i> Birleştir ve İndir (${fileArray.length} Dosya)`;
+            }
         }
 
         window.removeFile = (index, listId) => {
-            if(listId === 'img-file-list') { imgFiles.splice(index, 1); renderFileList(imgFiles, 'img-file-list', 'process-img-btn'); }
-            else { pdfFiles.splice(index, 1); renderFileList(pdfFiles, 'pdf-file-list', 'process-pdf-btn'); }
+            if(listId === 'img-file-list') { 
+                imgFiles.splice(index, 1); 
+                renderFileList(imgFiles, 'img-file-list', 'process-img-btn'); 
+            } else { 
+                pdfFiles.splice(index, 1); 
+                renderFileList(pdfFiles, 'pdf-file-list', 'process-pdf-btn'); 
+            }
         }
+
+        // --- PDF İŞLEME FONKSİYONLARI ---
 
         async function createPdfFromImages() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const btn = document.getElementById('process-img-btn');
-            btn.innerText = "Processing..."; btn.disabled = true;
+            
+            btn.innerText = "İşleniyor..."; 
+            btn.disabled = true;
 
             try {
                 const pageWidth = doc.internal.pageSize.getWidth();
                 const pageHeight = doc.internal.pageSize.getHeight();
+                
                 for (let i = 0; i < imgFiles.length; i++) {
                     const imgData = await convertToJpeg(imgFiles[i]);
                     if (i > 0) doc.addPage();
+                    
                     const imgProps = doc.getImageProperties(imgData);
                     let finalWidth = pageWidth - 20;
                     let finalHeight = (imgProps.height * finalWidth) / imgProps.width;
+                    
                     if (finalHeight > (pageHeight - 20)) {
                         finalHeight = pageHeight - 20;
                         finalWidth = (imgProps.width * finalHeight) / imgProps.height;
                     }
+                    
                     const xOffset = (pageWidth - finalWidth) / 2;
                     const yOffset = (pageHeight - finalHeight) / 2;
+                    
                     doc.addImage(imgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight);
                 }
                 doc.save("HakanTools_Images.pdf");
-            } catch (err) { alert("An error occurred during conversion."); } 
-            finally { btn.innerText = "Download PDF"; btn.disabled = false; }
+            } catch (err) { 
+                alert("Dönüştürme sırasında bir hata oluştu."); 
+                console.error(err);
+            } finally { 
+                btn.innerHTML = `<i class="fas fa-download"></i> PDF Olarak İndir`; 
+                btn.disabled = false; 
+            }
         }
 
         function convertToJpeg(file) {
@@ -146,21 +435,27 @@
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        canvas.width = img.width; canvas.height = img.height;
+                        canvas.width = img.width; 
+                        canvas.height = img.height;
                         const ctx = canvas.getContext('2d');
-                        ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = "#FFFFFF"; 
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
                         ctx.drawImage(img, 0, 0);
-                        resolve(canvas.toDataURL('image/jpeg', 0.9));
+                        resolve(canvas.toDataURL('image/jpeg', 0.85)); // Kalite optimizasyonu
                     };
-                    img.onerror = reject; img.src = e.target.result;
+                    img.onerror = reject; 
+                    img.src = e.target.result;
                 };
-                reader.onerror = reject; reader.readAsDataURL(file);
+                reader.onerror = reject; 
+                reader.readAsDataURL(file);
             });
         }
 
         async function mergeSelectedPdfs() {
             const btn = document.getElementById('process-pdf-btn');
-            btn.innerText = "Merging..."; btn.disabled = true;
+            btn.innerText = "Birleştiriliyor..."; 
+            btn.disabled = true;
+            
             try {
                 const mergedPdf = await PDFLib.PDFDocument.create();
                 for (const file of pdfFiles) {
@@ -171,13 +466,17 @@
                 }
                 const pdfBytes = await mergedPdf.save();
                 saveAs(new Blob([pdfBytes], { type: 'application/pdf' }), "HakanTools_Merged.pdf");
-            } catch (err) { alert("Error merging PDFs."); } 
-            finally { btn.innerText = "Merge and Download"; btn.disabled = false; }
+            } catch (err) { 
+                alert("PDF birleştirme hatası."); 
+            } finally { 
+                btn.innerHTML = `<i class="fas fa-object-group"></i> Birleştir ve İndir`; 
+                btn.disabled = false; 
+            }
         }
 
+        // Başlatma
         setupDropZone('img-drop-zone', 'img-input', imgFiles, 'img-file-list', 'process-img-btn', true);
         setupDropZone('pdf-drop-zone', 'pdf-input', pdfFiles, 'pdf-file-list', 'process-pdf-btn', false);
     </script>
 </body>
 </html>
-
