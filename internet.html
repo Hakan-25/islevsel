@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İnternet Hız Testi | HakanTools</title>
+    
+    <meta name="description" content="Ücretsiz, reklamsız ve hassas internet hız testi. Download, Upload, Ping ve Jitter değerlerinizi anında ölçün.">
+    
+    <link rel="stylesheet" href="görsel.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- BU SAYFAYA ÖZEL TATLI TASARIM --- */
+
+        /* Arka Plana Hareketli Renk Geçişi */
+        body {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Ana Başlık */
+        .page-header {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Hız Testi Kutusu (Cam Efekti) */
+        .speedtest-wrapper {
+            background: rgba(255, 255, 255, 0.95); /* Hafif şeffaf beyaz */
+            border-radius: 25px;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto 40px auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); /* Yumuşak gölge */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .speedtest-wrapper:hover {
+            transform: translateY(-5px); /* Üzerine gelince hafif kalkar */
+        }
+
+        iframe {
+            width: 100%;
+            height: 650px;
+            border: none;
+            border-radius: 15px;
+        }
+
+        /* Bilgi Kartları Alanı */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .info-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .info-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: -webkit-linear-gradient(45deg, #23a6d5, #23d5ab);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .info-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .info-card p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Footer Rengi Bozmasın Diye Beyaz Arka Plan */
+        footer {
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(10px);
+            margin-top: 50px;
+            border-top: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" style="background: rgba(255,255,255,0.95);">
+        <div class="nav-left">
+            <a href="index.html" class="logo">Hakan<span>Tools</span></a>
+            <a href="https://www.instagram.com/mhakanx_" target="_blank" class="header-insta">
+                <i class="fab fa-instagram"></i>
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="nasil.html">Nasıl Yapılır?</a>
+            <a href="rehber.html">Blog & Rehber</a>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1>🚀 İnternet Hız Testi</h1>
+        <p>Bağlantın ne kadar güçlü? Tek tıkla hemen öğren.</p>
+    </div>
+
+    <main class="main-container">
+        
+        <div class="speedtest-wrapper">
+            <iframe src="https://openspeedtest.com/speedtest" title="Hız Testi Aracı"></iframe>
+        </div>
+
+        <div class="info-cards">
+            <div class="info-card">
+                <div class="info-icon"><i class="fas fa-download"></i></div>
+                <h3>Download (İndirme)</h3>
+                <p>İnternetten veri çekme hızınızdır. Film izlerken, dosya indirirken veya Instagram'da gezerken bu hız önemlidir.</p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon"><i class="fas fa-upload"></i></div>
+                <h3>Upload (Yükleme)</h3>
+                <p>İnternete veri gönderme hızınızdır. YouTube'a video atarken, görüntülü konuşurken veya dosya paylaşırken kullanılır.</p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon"><i class="fas fa-tachometer-alt"></i></div>
+                <h3>Ping & Jitter</h3>
+                <p>Ping, tepki süresidir (ne kadar düşükse o kadar iyi). Oyun oynarken lag olmaması için Ping'in düşük olması gerekir.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div>&copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.</div>
+                <div class="footer-links">
+                    <a href="nasil.html">Nasıl Yapılır?</a> • 
+                    <a href="rehber.html">Blog</a> • 
+                    <a href="sitemap.xml">Site Haritası</a>
+                </div>
+            </div>
+            <a href="https://www.instagram.com/mhakanx_" target="_blank" class="insta-btn">
+                <i class="fab fa-instagram"></i> @mhakanx_
+            </a>
+        </div>
+    </footer>
+
+</body>
+</html>
