@@ -5,7 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HakanTools | Flappy Hakan (Millimetric Edition)</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
-    <link rel="stylesheet" href="görsel.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        /* TEMEL AYARLAR */
+        body { margin: 0; padding: 0; background-color: #4ec0ca; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; }
+        
+        /* UI KATMANI */
+        #ui-container {
+            position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
+            text-align: center; color: white; z-index: 100; pointer-events: none;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+
+        #current-score {
+            font-size: 80px; font-weight: 900; line-height: 1;
+            text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .sub-stats {
+            display: flex; gap: 20px; align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 25px; border-radius: 50px;
+            font-size: 20px; font-weight: 700;
+            backdrop-filter: blur(4px);
+            border: 2px solid rgba(255,255,255,0.4);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .stat-box { display: flex; align-items: center; gap: 8px; }
+
+        /* ANA MENÜ BUTONU */
+        .back-btn { 
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
+            padding: 15px 40px; background: #ffffff; color: #4ec0ca; 
+            text-decoration: none; border-radius: 50px; font-weight: 900; font-size: 16px;
+            box-shadow: 0 6px 0 #3da0a9; transition: 0.1s; z-index: 100; 
+            pointer-events: auto; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .back-btn:active { transform: translateX(-50%) translateY(4px); box-shadow: 0 2px 0 #3da0a9; }
+        
+        /* BAŞLANGIÇ MESAJI */
+        #start-msg {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 24px; color: white; font-weight: bold; text-shadow: 2px 2px 0 #000;
+            animation: pulse 1s infinite; pointer-events: none; z-index: 90;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
 </head>
 <body>
 
@@ -326,4 +374,3 @@
     </script>
 </body>
 </html>
-
