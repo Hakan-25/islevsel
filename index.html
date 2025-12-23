@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HakanTools | Ücretsiz PDF Birleştirme, Hız Testi ve Araçlar</title>
+    <title>HakanTools | PDF Birleştirme, QR Kod, Hız Testi ve Araçlar</title>
     
-    <meta name="description" content="Programsız resimden PDF yapma, 10 parmak klavye hız testi ve tarayıcı oyunları. Hızlı, güvenli ve tamamen ücretsiz online araçlar merkezi.">
-    <meta name="keywords" content="hakan tools, pdf birleştirme, jpg to pdf, ücretsiz online araçlar, klavye hız testi, wpm test, typing speed, flappy hakan, dosya dönüştürücü">
+    <meta name="description" content="Programsız PDF birleştirme, sınırsız QR kod oluşturma (Wi-Fi/Link), 10 parmak hız testi ve tarayıcı oyunları. Güvenli, ücretsiz ve hızlı online araçlar.">
+    <meta name="keywords" content="hakan tools, pdf birleştirme, qr kod oluşturucu, wifi karekod, klavye hız testi, wpm test, flappy hakan, dosya dönüştürücü, online tools">
     <meta name="robots" content="index, follow">
     <meta name="author" content="HakanTools">
     
@@ -18,7 +18,7 @@
       "@type": "WebApplication",
       "name": "HakanTools",
       "url": "https://hakantools.com/",
-      "description": "Ücretsiz online PDF araçları ve klavye hız testi platformu.",
+      "description": "Ücretsiz online PDF araçları, QR kod oluşturucu ve klavye hız testi platformu.",
       "applicationCategory": "UtilitiesApplication",
       "offers": {
         "@type": "Offer",
@@ -114,7 +114,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
-            margin-bottom: 5rem; /* Araçlar ile Rehber arası boşluk */
+            margin-bottom: 5rem;
         }
 
         /* --- KART TASARIMI (Tools) --- */
@@ -159,7 +159,7 @@
         .card h2 { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.75rem; color: #111827; }
         .card p { font-size: 1rem; color: #6b7280; line-height: 1.5; }
 
-        /* --- REHBER BÖLÜMÜ (Yeni Eklenen Milimetrik Alan) --- */
+        /* --- REHBER BÖLÜMÜ --- */
         .section-title {
             font-size: 1.5rem;
             color: #111827;
@@ -175,7 +175,7 @@
 
         .guides-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Biraz daha dar sığabilir */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
         }
 
@@ -236,8 +236,8 @@
     </nav>
 
     <header class="hero-section">
-        <h1>Ücretsiz Online PDF Araçları<br>ve Hız Testi Merkezi</h1>
-        <p>Dosyalarınızı güvenle düzenleyin, klavye hızınızı ölçün veya küçük bir mola verip oyun oynayın. Üyelik yok, kurulum yok.</p>
+        <h1>Ücretsiz Online Araçlar<br>ve Hız Testi Merkezi</h1>
+        <p>Dosyalarınızı güvenle düzenleyin, QR kod oluşturun, klavye hızınızı ölçün veya küçük bir mola verip oyun oynayın.</p>
     </header>
 
     <main class="main-container">
@@ -250,10 +250,16 @@
                 <p>Canın mı sıkıldı? Klasik oyunun bu modern ve zorlu versiyonu ile reflekslerini test et.</p>
             </a>
 
+            <a href="qr.html" class="card" aria-label="QR Kod Oluşturucu">
+                <div class="icon-box">📱</div>
+                <h2>QR Kod Yapıcı</h2>
+                <p>Linkleriniz veya <strong>Wi-Fi şifreniz</strong> için sınırsız, renkli ve HD kalitede QR kodlar oluşturun.</p>
+            </a>
+
             <a href="pdf.html" class="card" aria-label="PDF Converter">
                 <div class="icon-box">📄</div>
                 <h2>PDF Converter</h2>
-                <p>Resimlerinizi (JPG, PNG) saniyeler içinde <strong>PDF'e çevirin</strong>. Dosyalarınız sunucuya yüklenmez, %100 güvenlidir.</p>
+                <p>Resimlerinizi (JPG, PNG) saniyeler içinde <strong>PDF'e çevirin</strong>. Dosyalarınız sunucuya yüklenmez.</p>
             </a>
 
             <a href="typing.html" class="card" aria-label="Klavye Testi">
@@ -298,7 +304,7 @@
     <footer>
         <div>&copy; 2025 Hakan Tools. Tüm Hakları Saklıdır.</div>
         <div style="margin-top: 10px; font-size: 0.75rem; opacity: 0.7;">
-            Free PDF Tools | Typing Speed Test | Browser Games
+            Free PDF Tools | QR Code Generator | Typing Speed Test
         </div>
     </footer>
 
