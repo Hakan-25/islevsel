@@ -19,6 +19,29 @@
         .opt-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .timer-big { font-size: 3rem; font-weight: 900; color: var(--primary); margin: 10px 0; }
         .record-text { font-size: 0.9rem; color: var(--gray); margin-bottom: 20px; }
+
+        /* --- KRİTİK DÜZELTME: HARF RENKLERİ --- */
+        .letter { position: relative; transition: color 0.1s; }
+        
+        /* Doğru Harf (Yeşil) */
+        .letter.correct { color: #10b981 !important; } 
+        
+        /* Yanlış Harf (Kırmızı) */
+        .letter.incorrect { color: #ef4444 !important; text-decoration: underline; }
+        
+        /* İmleç (Aktif Harf - Yanıp Sönen Çizgi) */
+        .letter.active::before {
+            content: '|';
+            position: absolute;
+            left: -2px;
+            color: var(--primary);
+            animation: blink 1s infinite;
+            opacity: 0.7;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Hatalı Kelime (Tümden Kırmızı) */
+        .word.error { text-decoration: underline wavy #ef4444; }
     </style>
 </head>
 <body>
@@ -54,8 +77,7 @@
 
             <div class="timer-big" id="timer">30</div>
 
-            <div class="word-display" id="words-wrapper" onclick="focusInput()">
-                </div>
+            <div class="word-display" id="words-wrapper" onclick="focusInput()"></div>
 
             <input type="text" id="input-field" class="input-field" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Yazmaya başla...">
 
@@ -115,65 +137,14 @@
                 "proje", "kod", "yazılım", "teknoloji", "veri", "sistem", "klavye", "ekran", "fare", "dosya", "klasör", "uygulama",
                 "başarı", "hata", "kontrol", "sonuç", "rapor", "analiz", "tasarım", "geliştirme", "test", "demo", "versiyon",
                 "lütfen", "teşekkür", "merhaba", "hoşçakal", "evet", "hayır", "belki", "elbette", "tabii", "asla", "daima", "bazen",
-                "bir", "iki", "üç", "dört", "beş", "on", "yüz", "bin", "milyon", "sayı", "rakam", "matematik", "fen", "tarih",
-                "müzik", "resim", "spor", "futbol", "basketbol", "voleybol", "yüzme", "koşu", "antrenman", "maç", "takım", "oyuncu",
-                "film", "dizi", "sinema", "tiyatro", "sanat", "kültür", "gezi", "tatil", "uçak", "otobüs", "tren", "gemi", "yol",
-                "cadde", "sokak", "mahalle", "şehir", "ülke", "kıta", "adres", "konum", "harita", "yön", "sağ", "sol", "ileri", "geri",
-                "aile", "bebek", "dede", "nene", "hala", "teyze", "amca", "dayı", "kuzen", "komşu", "misafir", "yabancı", "halk",
-                "devlet", "millet", "bayrak", "vatan", "toprak", "sınır", "asker", "ordu", "silah", "barış", "savaş", "zafer",
-                "göz", "kulak", "burun", "ağız", "diş", "dil", "kol", "bacak", "el", "ayak", "parmak", "tırnak", "saç", "baş",
-                "kalp", "mide", "ciğer", "kan", "damar", "kemik", "deri", "beyin", "akıl", "fikir", "ruh", "can", "nefes",
-                "giyim", "kıyafet", "elbise", "gömlek", "pantolon", "ceket", "ayakkabı", "çorap", "şapka", "atkı", "eldiven", "kemer",
-                "oda", "salon", "mutfak", "banyo", "tuvalet", "balkon", "bahçe", "kapı", "pencere", "duvar", "tavan", "taban",
-                "yatak", "yorgan", "yastık", "çarşaf", "halı", "perde", "lamba", "ayna", "dolap", "çekmece", "raf", "kutu",
-                "cam", "demir", "tahta", "plastik", "kağıt", "karton", "kumaş", "deri", "altın", "gümüş", "bakır", "taş",
-                "kedi", "köpek", "kuş", "balık", "at", "eşek", "inek", "koyun", "keçi", "tavuk", "horoz", "ördek", "kaz",
-                "aslan", "kaplan", "ayı", "kurt", "tilki", "tavşan", "fare", "yılan", "böcek", "arı", "sinek", "kelebek",
-                "ağaç", "çiçek", "gül", "lale", "papatya", "çimen", "yaprak", "dal", "kök", "meyve", "sebze", "tohum",
-                "domates", "biber", "patlıcan", "soğan", "sarımsak", "havuç", "patates", "salatalık", "marul", "maydanoz", "nane",
-                "et", "tavuk", "balık", "sucuk", "salam", "sosis", "yumurta", "peynir", "zeytin", "yağ", "bal", "reçel",
-                "tuz", "şeker", "biber", "baharat", "un", "pirinç", "makarna", "çorba", "pilav", "dolma", "sarma", "börek",
-                "tatlı", "pasta", "kek", "kurabiye", "dondurma", "çikolata", "bisküvi", "sakız", "meyve suyu", "gazoz", "ayran",
-                "tabak", "çatal", "kaşık", "bıçak", "bardak", "kupa", "sürahi", "tencere", "tava", "tepsi", "fırın", "ocak",
-                "buzdolabı", "çamaşır", "bulaşık", "ütü", "süpürge", "kovası", "bez", "deterjan", "sabun", "şampuan", "havlu",
-                "koltuk", "kanepe", "sehpa", "vitrin", "televizyon", "radyo", "kamera", "fotoğraf", "resim", "müzik", "şarkı",
-                "söz", "beste", "nota", "ritim", "dans", "eğlence", "parti", "doğum günü", "düğün", "nişan", "kına", "bayram",
-                "yılbaşı", "hediye", "sürpriz", "kutlama", "tebrik", "başarı", "ödül", "madalya", "kupa", "derece", "rekor",
-                "para", "lira", "dolar", "euro", "banka", "kredi", "kart", "borç", "alacak", "hesap", "fatura", "fiş",
-                "market", "bakkal", "manav", "kasap", "fırın", "eczane", "hastane", "okul", "üniversite", "sınıf", "ders",
-                "sınav", "not", "karne", "diploma", "mezuniyet", "ödev", "proje", "sunum", "toplantı", "ofis", "büro",
-                "şirket", "firma", "fabrika", "atölye", "depo", "mağaza", "dükkan", "alışveriş", "satış", "pazarlama", "reklam",
-                "müşteri", "patron", "işçi", "memur", "müdür", "şef", "başkan", "yönetici", "lider", "ortak", "rakip",
-                "siyaset", "politika", "seçim", "oy", "sandık", "parti", "bakan", "vekil", "meclis", "yasa", "kanun",
-                "hak", "hukuk", "adalet", "mahkeme", "hakim", "savcı", "avukat", "dava", "suç", "ceza", "hapis",
-                "haber", "gazete", "dergi", "televizyon", "radyo", "internet", "sosyal medya", "mesaj", "mail", "mektup", "zarf",
-                "telefon", "hat", "numara", "arama", "konuşma", "sohbet", "muhabbet", "tartışma", "kavga", "barış", "anlaşma",
-                "sevgi", "aşk", "nefret", "korku", "cesaret", "umut", "hayal", "gerçek", "yalan", "doğru", "yanlış",
-                "bilgi", "cahil", "alim", "bilgin", "uzman", "usta", "çırak", "kalfa", "beceri", "yetenek", "zeka",
-                "soru", "cevap", "çözüm", "sorun", "problem", "dert", "çare", "ilaç", "tedavi", "hastalık", "sağlık",
-                "hayat", "yaşam", "ölüm", "cenaze", "mezar", "toprak", "ruh", "melek", "şeytan", "cennet", "cehennem",
-                "din", "iman", "inanç", "dua", "ibadet", "cami", "kilise", "havra", "tapınak", "ezan", "çan",
-                "tarih", "geçmiş", "gelecek", "anı", "hatıra", "unutmak", "hatırlamak", "öğrenmek", "öğretmek", "eğitim", "kültür",
-                "gezi", "seyahat", "turist", "rehber", "otel", "pansiyon", "kamp", "çadır", "doğa", "manzara", "fotoğraf",
-                "trafik", "kaza", "yol", "köprü", "tünel", "kavşak", "ışık", "levha", "ehliyet", "ceza", "radar",
-                "hız", "sürat", "mesafe", "uzak", "yakın", "yüksek", "alçak", "derin", "sığ", "geniş", "dar",
-                "ağır", "hafif", "sert", "yumuşak", "katı", "sıvı", "gaz", "ateş", "buz", "buhar", "duman",
-                "enerji", "elektrik", "pil", "akü", "motor", "benzin", "mazot", "gaz", "petrol", "kömür", "maden",
-                "demir", "çelik", "alüminyum", "plastik", "cam", "beton", "tuğla", "çimento", "kum", "kireç", "boya",
-                "inşaat", "bina", "apartman", "kule", "gökdelen", "saray", "köşk", "yalı", "villa", "kulübe", "baraka",
-                "tarla", "bağ", "bahçe", "çiftlik", "köy", "kasaba", "ilçe", "şehir", "başkent", "merkez", "taşra",
-                "kuzey", "güney", "doğu", "batı", "lodos", "poyraz", "rüzgar", "fırtına", "yağmur", "kar", "dolu",
-                "sis", "bulut", "gökkuşağı", "yıldırım", "şimşek", "deprem", "sel", "yangın", "çığ", "heyelan", "kuraklık",
-                "çöl", "vaha", "okyanus", "körfez", "boğaz", "ada", "yarımada", "kıyı", "sahil", "plaj", "kumsal",
-                "dalga", "akıntı", "derinlik", "yüzey", "dip", "zirve", "yamaç", "vadi", "ova", "plato", "tepe"
+                "bir", "iki", "üç", "dört", "beş", "on", "yüz", "bin", "milyon", "sayı", "rakam", "matematik", "fen", "tarih"
             ],
             en: [
                 "the", "be", "to", "of", "and", "a", "in", "that", "have", "it", "for", "not", "on", "with", "he", "as", "you", "do", "at", "this",
                 "but", "his", "by", "from", "they", "we", "say", "her", "she", "or", "an", "will", "my", "one", "all", "would", "there", "their", "what", "so",
                 "up", "out", "if", "about", "who", "get", "which", "go", "me", "when", "make", "can", "like", "time", "no", "just", "him", "know", "take", "people",
                 "into", "year", "your", "good", "some", "could", "them", "see", "other", "than", "then", "now", "look", "only", "come", "its", "over", "think", "also", "back",
-                "after", "use", "two", "how", "our", "work", "first", "well", "way", "even", "new", "want", "because", "any", "these", "give", "day", "most", "us", "water",
-                "school", "many", "found", "study", "still", "learn", "should", "world", "high", "low", "deep", "shallow", "wide", "narrow", "heavy", "hard", "soft", "hot", "cold"
+                "after", "use", "two", "how", "our", "work", "first", "well", "way", "even", "new", "want", "because", "any", "these", "give", "day", "most", "us", "water"
             ]
         };
 
@@ -227,7 +198,6 @@
             document.getElementById(`btn-${lang}`).classList.add('active');
             
             const t = translations[lang];
-            // Not: Nav içindeki ui-menu güncellenmiyor çünkü statik yapıldı, sorun yok.
             document.getElementById('ui-best').innerText = t.best;
             document.getElementById('ui-unit').innerText = t.unit;
             document.getElementById('ui-timeout').innerText = t.timeout;
@@ -290,6 +260,9 @@
             timerTag.innerText = timeLeft;
             isTyping = false;
             
+            // Input kilidini aç
+            inputField.disabled = false;
+            
             currentWordIndex = 0;
             currentCharIndex = 0;
             completedCorrectWords = 0;
@@ -305,6 +278,12 @@
         }
 
         inputField.addEventListener("input", (e) => {
+            // Eğer süre bittiyse yazmayı engelle
+            if (timeLeft <= 0) {
+                inputField.disabled = true;
+                return;
+            }
+
             if (!isTyping && timeLeft > 0) {
                 isTyping = true;
                 timer = setInterval(initTimer, 1000);
@@ -316,6 +295,7 @@
             const currentWordDiv = wordWrapper.children[currentWordIndex];
             const chars = currentWordDiv.querySelectorAll(".letter");
             
+            // Geri Silme (Backspace)
             if (inputType === "deleteContentBackward") {
                 if (currentCharIndex > 0) {
                     removeClassFromChar(currentWordIndex, currentCharIndex, "active");
@@ -324,6 +304,7 @@
                     removeClassFromChar(currentWordIndex, currentCharIndex, "incorrect");
                     addClassToCurrentChar("active");
                 }
+                // Silme işleminde de scroll kontrolü yap
                 checkScroll();
                 return;
             }
@@ -332,6 +313,7 @@
                 totalKeystrokes++;
                 const targetChar = chars[currentCharIndex].innerText.replace(/\u00a0/g, " ");
                 
+                // BOŞLUK TUŞUNA BASILDIĞINDA
                 if (targetChar === " " && inputChar === " ") {
                     removeClassFromChar(currentWordIndex, currentCharIndex, "active");
                     
@@ -343,20 +325,26 @@
                         currentWordDiv.classList.add("error");
                     }
 
+                    // Bir sonraki kelimeye geç
                     currentWordIndex++;
                     currentCharIndex = 0;
+                    
+                    // Input'u temizle
+                    inputField.value = "";
+
+                    // Scroll Kontrolü (AŞAĞI KAYDIRMA İŞLEMİ BURADA)
                     checkScroll();
 
                     if (currentWordIndex < words.length) addClassToCurrentChar("active");
-                    inputField.value = "";
                 } 
+                // NORMAL HARF YAZILDIĞINDA
                 else if (targetChar !== " ") {
                     removeClassFromChar(currentWordIndex, currentCharIndex, "active");
                     if (inputChar === targetChar) {
-                        addClassToChar(currentWordIndex, currentCharIndex, "correct");
+                        addClassToChar(currentWordIndex, currentCharIndex, "correct"); // Yeşil Yap
                         correctKeystrokes++;
                     } else {
-                        addClassToChar(currentWordIndex, currentCharIndex, "incorrect");
+                        addClassToChar(currentWordIndex, currentCharIndex, "incorrect"); // Kırmızı Yap
                     }
                     currentCharIndex++;
                     if (currentCharIndex < chars.length) addClassToCurrentChar("active");
@@ -373,21 +361,35 @@
             }
         }
 
+        // --- SCROLL DÜZELTMESİ ---
         function checkScroll() {
             const currentWord = wordWrapper.children[currentWordIndex];
             if (!currentWord) return;
-            const lineHeight = currentWord.offsetHeight; 
+
+            // Kelimenin kutu içindeki pozisyonu (offsetTop)
             const offsetTop = currentWord.offsetTop;
-            let newTranslateY = 0;
+            // Kelimenin yüksekliği (yaklaşık 40-50px)
+            const lineHeight = currentWord.offsetHeight; 
+            
+            // Eğer kelime 2. satıra indiyse (offsetTop > 0 veya belli bir piksel), yukarı kaydır
             if (offsetTop > lineHeight) {
-                newTranslateY = -(offsetTop - lineHeight);
+                // Mantık: Aktif satırı en üstte tutmak yerine, bir önceki satırı gizle
+                // Wrapper'ı yukarı ötele (translateY ile)
+                // - (offsetTop - lineHeight) -> Aktif satırı 2. sıraya alır, daha doğal görünür
+                wordWrapper.style.transform = `translateY(-${offsetTop - lineHeight}px)`;
+            } else {
+                // En baştaysa sıfırla
+                wordWrapper.style.transform = "translateY(0px)";
             }
-            wordWrapper.style.transform = `translateY(${newTranslateY}px)`;
         }
 
         function finishGame() {
             clearInterval(timer);
             isTyping = false;
+            
+            // Inputu Kilitle
+            inputField.disabled = true;
+            inputField.value = ""; // Temizle
             
             let accuracy = 0;
             if (totalKeystrokes > 0) {
@@ -402,7 +404,7 @@
             document.getElementById("stat-acc").innerText = `%${accuracy}`;
             document.getElementById("stat-date").innerText = dateString;
 
-            resultModal.style.display = "flex"; // Master CSS'deki .result-modal ile uyumlu
+            resultModal.style.display = "flex";
 
             saveScore(completedCorrectWords, maxTime, dateString);
         }
@@ -445,11 +447,11 @@
             if(w) { const c = w.querySelectorAll(".letter")[cIdx]; if(c) c.classList.remove(className); }
         }
 
-        window.focusInput = () => { inputField.focus(); }
+        window.focusInput = () => { if(!inputField.disabled) inputField.focus(); }
 
         document.addEventListener("keydown", (e) => {
             if(e.key === "Tab") { e.preventDefault(); resetGame(); }
-            inputField.focus();
+            if(!inputField.disabled) inputField.focus();
         });
 
     </script>
