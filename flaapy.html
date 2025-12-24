@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Flappy Hakan (Red Baron V2)</title>
+    <title>HakanTools | Flappy Hakan (Red Baron Side View)</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -331,19 +331,23 @@
         birdG.fillStyle(0xF39C12, 1); birdG.fillTriangle(32, 20, 44, 23, 32, 26); // Gaga
         birdG.generateTexture('bird_default', 45, 40);
 
-        // 2. RED (KIZIL BARON) KUŞ - DÜZELTİLDİ VE GÜVENLİ HALE GETİRİLDİ
+        // 2. KIZIL BARON (YENİLENMİŞ - YAN PROFİL GÖZLÜK)
         let redBirdG = this.make.graphics();
         
-        // Kırmızı Aerodinamik Gövde
+        // Kırmızı Gövde
         redBirdG.fillStyle(0xD72638, 1);
         redBirdG.fillCircle(22, 20, 16); 
 
-        // Pilot Gözlüğü (Koyu çerçeve + Mavi Cam) - ARTIK GARANTİ ÇALIŞIYOR
-        redBirdG.fillStyle(0x2C3E50, 1); // Gözlük çerçevesi
-        redBirdG.fillRect(8, 12, 28, 12); // KARE ÇİZİM KULLANILDI
-        redBirdG.fillStyle(0x3498DB, 1); // Gözlük camı
-        redBirdG.fillRect(10, 14, 10, 8); // Sol cam
-        redBirdG.fillRect(24, 14, 10, 8); // Sağ cam
+        // Gözlük Kayışı (Kafanın yan tarafında arkaya doğru)
+        redBirdG.fillStyle(0x2C3E50, 1); // Koyu çerçeve rengi
+        redBirdG.fillRect(6, 17, 20, 6); // Arkaya giden bant
+
+        // Yan Gözlük Camı (Eliptik, yandan görünüm)
+        redBirdG.fillStyle(0x3498DB, 1); // Mavi cam
+        redBirdG.fillEllipse(26, 20, 9, 7); // Gözün üzerine oturan lens
+        // Gözlük Çerçevesi (Cama kontur)
+        redBirdG.lineStyle(2, 0x2C3E50, 1);
+        redBirdG.strokeEllipse(26, 20, 9, 7);
 
         // Siyah Sivri Kanat
         redBirdG.fillStyle(0x1a1a1a, 1);
@@ -354,11 +358,11 @@
         redBirdG.closePath();
         redBirdG.fill();
 
-        // Sivri Altın Gaga
+        // Altın Gaga
         redBirdG.fillStyle(0xF1C40F, 1);
         redBirdG.fillTriangle(36, 18, 50, 22, 36, 26);
 
-        redBirdG.generateTexture('bird_red', 50, 45); 
+        redBirdG.generateTexture('bird_red', 55, 45); 
 
         // ------------------------------
 
