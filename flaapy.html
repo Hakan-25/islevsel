@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Flappy Hakan (Market Edition)</title>
+    <title>HakanTools | Flappy Hakan (Red Baron V2)</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -168,8 +168,6 @@
         
         if (show) {
             modal.style.display = 'flex';
-            // Start butonuna basınca oyun başlamasın diye propagation durdurulmalı
-            // Ama burada basitçe modal açıyoruz.
             renderMarket();
         } else {
             modal.style.display = 'none';
@@ -214,9 +212,8 @@
             localStorage.setItem('flappy_coins', totalCoins);
             localStorage.setItem('flappy_ownedSkins', JSON.stringify(ownedSkins));
             
-            // UI Güncelle
             document.getElementById('total-coins').innerText = totalCoins;
-            playSynthSound('coin'); // Satın alma sesi
+            playSynthSound('coin'); 
             renderMarket();
         }
     }
@@ -227,7 +224,7 @@
             localStorage.setItem('flappy_currentSkin', currentSkin);
             renderMarket();
             
-            // Oyunu yeniden yükle ki yeni kuş gelsin
+            // Oyunu yeniden yükle
             game.scene.scenes[0].restartGame();
         }
     }
@@ -291,7 +288,6 @@
     function create() {
         // --- GRAFİKLER ---
         
-        // Bulut
         let cloudG = this.make.graphics();
         cloudG.fillStyle(0xFFFFFF, 1);
         cloudG.fillCircle(20, 20, 20); cloudG.fillCircle(45, 20, 25); cloudG.fillCircle(75, 20, 20);
@@ -301,14 +297,12 @@
         this.add.image(config.width * 0.8, config.height * 0.3, 'cloud').setAlpha(0.5).setScale(0.8);
         this.add.image(config.width * 0.5, config.height * 0.1, 'cloud').setAlpha(0.4).setScale(1.2);
 
-        // Zemin
         let groundG = this.make.graphics();
         groundG.fillStyle(0xDED895, 1); groundG.fillRect(0, 15, 400, 100);
         groundG.fillStyle(0x73BF2E, 1); groundG.fillRect(0, 0, 400, 15);
         groundG.lineStyle(3, 0x558C22, 1); groundG.strokeRect(0, 0, 400, 15);
         groundG.generateTexture('ground', 400, 110);
 
-        // Altın
         let coinG = this.make.graphics();
         coinG.fillStyle(0xFFD700, 1); coinG.fillCircle(16, 16, 16);
         coinG.lineStyle(2, 0xB8860B, 1); coinG.strokeCircle(16, 16, 16);
@@ -316,7 +310,6 @@
         coinG.fillStyle(0xB8860B, 1); coinG.fillRect(14, 9, 4, 14); 
         coinG.generateTexture('coin', 32, 32);
 
-        // Boru
         let pipeG = this.make.graphics();
         pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(2, 2, 54, 600);
         pipeG.lineStyle(4, 0x558C22, 1); pipeG.strokeRect(0, 0, 58, 600);
@@ -338,44 +331,60 @@
         birdG.fillStyle(0xF39C12, 1); birdG.fillTriangle(32, 20, 44, 23, 32, 26); // Gaga
         birdG.generateTexture('bird_default', 45, 40);
 
-        // 2. RED (KIZIL) KUŞ - YENİ
+        // 2. RED (KIZIL BARON) KUŞ - YENİ AGRESİF TASARIM
         let redBirdG = this.make.graphics();
-        redBirdG.fillStyle(0x000000, 1); // Siyah Taç
-        redBirdG.fillTriangle(10, 8, 14, 0, 18, 8); redBirdG.fillTriangle(18, 8, 22, -2, 26, 8); redBirdG.fillTriangle(26, 8, 30, 0, 34, 8);
-        redBirdG.fillStyle(0xD72638, 1); redBirdG.fillCircle(22, 20, 14); // Kırmızı Gövde
-        redBirdG.fillStyle(0x2C3E50, 1); redBirdG.fillEllipse(16, 22, 12, 8); // Koyu Mavi Kanat
-        redBirdG.lineStyle(2, 0xFFFFFF, 1); redBirdG.strokeEllipse(16, 22, 12, 8); // Beyaz Çerçeve
-        redBirdG.fillStyle(0xFFFFFF, 1); redBirdG.fillCircle(28, 16, 6); 
-        redBirdG.fillStyle(0x000000, 1); redBirdG.fillCircle(30, 16, 2); 
-        redBirdG.fillStyle(0xF1C40F, 1); redBirdG.fillTriangle(32, 20, 44, 23, 32, 26); // Altın Gaga
-        redBirdG.generateTexture('bird_red', 45, 40);
+        
+        // Kırmızı Aerodinamik Gövde
+        redBirdG.fillStyle(0xD72638, 1);
+        redBirdG.fillCircle(22, 20, 16); 
+
+        // Pilot Gözlüğü (Koyu çerçeve + Mavi Cam)
+        redBirdG.fillStyle(0x2C3E50, 1); // Gözlük çerçevesi
+        redBirdG.fillRoundRect(8, 12, 28, 12, 4);
+        redBirdG.fillStyle(0x3498DB, 1); // Gözlük camı
+        redBirdG.fillRoundRect(10, 14, 10, 8, 2); // Sol cam
+        redBirdG.fillRoundRect(24, 14, 10, 8, 2); // Sağ cam
+
+        // Siyah Sivri Kanat
+        redBirdG.fillStyle(0x1a1a1a, 1);
+        redBirdG.beginPath();
+        redBirdG.moveTo(8, 24);
+        redBirdG.lineTo(32, 24);
+        redBirdG.lineTo(15, 36);
+        redBirdG.closePath();
+        redBirdG.fill();
+
+        // Sivri Altın Gaga
+        redBirdG.fillStyle(0xF1C40F, 1);
+        redBirdG.fillTriangle(36, 18, 50, 22, 36, 26);
+
+        redBirdG.generateTexture('bird_red', 50, 45); 
 
         // ------------------------------
 
-        // GRUPLAR
         pipes = this.physics.add.group();
         coins = this.physics.add.group();
 
-        // OYUNCU (SEÇİLİ KUŞA GÖRE SPRITE OLUŞTUR)
         let textureKey = 'bird_' + currentSkin;
         bird = this.physics.add.sprite(config.width / 4, config.height / 2, textureKey);
         bird.setDepth(10);
-        bird.body.setCircle(13, 9, 7); 
+        // Kızıl Baron biraz daha büyük olduğu için hitbox'ı ayarlayalım
+        if (currentSkin === 'red') {
+            bird.body.setCircle(16, 10, 5);
+        } else {
+            bird.body.setCircle(13, 9, 7);
+        }
         
-        // ZEMİN
         this.ground = this.add.tileSprite(config.width/2, config.height, config.width, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
         this.physics.add.existing(this.ground, true);
 
-        // GİRDİ
         this.input.on('pointerdown', jump, this);
         this.input.keyboard.on('keydown-SPACE', jump, this);
 
-        // ÇARPIŞMA
         this.physics.add.collider(bird, pipes, gameOver, null, this);
         this.physics.add.collider(bird, this.ground, gameOver, null, this);
         this.physics.add.overlap(bird, coins, collectCoin, null, this);
 
-        // BORU TIMER
         this.pipeTimer = this.time.addEvent({
             delay: 1500,
             callback: addPipeColumn,
@@ -400,7 +409,6 @@
     }
 
     function jump() {
-        // Eğer market açıksa zıplama
         if (document.getElementById('market-modal').style.display === 'flex') return;
 
         if (gameOverFlag) { restartGame.call(this); return; }
@@ -409,7 +417,7 @@
             gameHasStarted = true;
             bird.body.allowGravity = true;
             this.pipeTimer.paused = false;
-            document.getElementById('start-screen').style.display = 'none'; // Butonu ve yazıyı gizle
+            document.getElementById('start-screen').style.display = 'none';
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
@@ -483,8 +491,7 @@
         localStorage.setItem('flappy_coins', totalCoins);
 
         document.getElementById('start-msg').innerText = "TEKRAR DENE";
-        document.getElementById('start-screen').style.display = 'flex'; // Ekranı geri getir
-        // Yanınca market butonu da geri gelsin
+        document.getElementById('start-screen').style.display = 'flex';
     }
 
     function restartGame() {
