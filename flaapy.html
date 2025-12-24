@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Flappy Hakan (Red Baron V3 + Leaderboard)</title>
+    <title>HakanTools | Flappy Hakan (Final Edition)</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -66,10 +66,7 @@
         .btn-market { background: #f1c40f; box-shadow: 0 5px 0 #d35400; }
         .btn-leaderboard { background: #9b59b6; box-shadow: 0 5px 0 #8e44ad; }
         .btn-menu { background: #ffffff; color: #4ec0ca; box-shadow: 0 5px 0 #3da0a9; }
-        .btn-save { 
-            background: #2ecc71; box-shadow: 0 5px 0 #27ae60; 
-            margin-top: 15px; pointer-events: auto; display: none; /* Başlangıçta gizli */
-        }
+        .btn-login { background: #2ecc71; color:white; width: 100%; margin-top:10px; box-shadow: 0 5px 0 #27ae60; justify-content: center;}
 
         /* MODALLAR */
         .modal-overlay {
@@ -84,6 +81,18 @@
             position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #aaa;
         }
 
+        /* GİRİŞ EKRANI ÖZEL */
+        #login-modal { display: flex; z-index: 300; background: #4ec0ca; }
+        .login-box { 
+            background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; width: 300px;
+        }
+        .login-input {
+            width: 85%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; 
+            border-radius: 10px; font-size: 16px; text-align: center; font-weight: bold; outline: none;
+        }
+        .login-input:focus { border-color: #4ec0ca; }
+
         /* SIRALAMA LİSTESİ */
         .leaderboard-list {
             max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 15px;
@@ -94,16 +103,11 @@
         }
         .score-row:nth-child(1) { color: #f1c40f; font-size: 1.2em; }
 
-        /* INPUT */
-        .input-group input {
-            width: 80%; padding: 10px; border-radius: 10px; border: 2px solid #ddd;
-            font-size: 16px; margin-bottom: 10px; text-align: center; font-weight: bold;
-        }
-
         /* BAŞLANGIÇ EKRANI */
         #start-screen {
             position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            text-align: center; z-index: 90; display: flex; flex-direction: column; gap: 10px; align-items: center;
+            text-align: center; z-index: 90; display: none; /* Login kontrolü ile açılacak */
+            flex-direction: column; gap: 10px; align-items: center;
         }
         #start-msg {
             font-size: 24px; color: white; font-weight: bold; text-shadow: 2px 2px 0 #000;
@@ -112,6 +116,10 @@
         #pause-msg {
             font-size: 30px; color: white; font-weight: 900; text-shadow: 3px 3px 0 #000;
             display: none; pointer-events: none;
+        }
+        #new-record-msg { 
+            color: #f1c40f; font-weight: 900; font-size: 18px; text-shadow: 1px 1px 0 #000; 
+            margin-top: 5px; display: none; 
         }
 
         /* MARKET ÖGELERİ */
@@ -129,6 +137,16 @@
 </head>
 <body>
 
+    <div id="login-modal" class="modal-overlay">
+        <div class="login-box">
+            <h1 style="color:#4ec0ca; margin-top:0;">HOŞGELDİN</h1>
+            <p style="color:#666;">Sıralamada görünmek için bir isim belirle.</p>
+            <input type="text" id="username-input" class="login-input" placeholder="Kullanıcı Adı" maxlength="12">
+            <button class="menu-btn btn-login" onclick="saveUsername()">OYUNA BAŞLA</button>
+            <p id="login-error" style="color:red; font-size:12px; display:none; margin-top:5px; font-weight:bold;"></p>
+        </div>
+    </div>
+
     <div id="top-controls">
         <div class="icon-btn" id="btn-sound" onclick="toggleMute()">🔊</div>
         <div class="icon-btn" id="btn-pause" onclick="togglePause()">⏸️</div>
@@ -145,12 +163,13 @@
             </div>
         </div>
         <div id="current-score">0</div>
+        <div id="display-username" style="font-size: 14px; margin-top:5px; opacity: 0.8; font-weight: bold;"></div>
     </div>
 
     <div id="start-screen">
         <div id="start-msg">BAŞLAMAK İÇİN DOKUN</div>
         <div id="pause-msg">OYUN DURAKLATILDI</div>
-        <button id="save-score-btn" class="menu-btn btn-save" onclick="openSaveModal()">💾 SKORU KAYDET</button>
+        <div id="new-record-msg">YENİ REKOR! KAYDEDİLDİ ✅</div>
     </div>
 
     <div id="bottom-controls">
@@ -178,18 +197,6 @@
         </div>
     </div>
 
-    <div id="save-modal" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-btn" onclick="document.getElementById('save-modal').style.display='none'">&times;</span>
-            <h2 style="margin-top:0; color:#2ecc71;">SKORU KAYDET</h2>
-            <p>Skorun: <strong id="score-to-save" style="font-size:20px;">0</strong></p>
-            <div class="input-group">
-                <input type="text" id="player-name" placeholder="Adın (Max 10 krk)" maxlength="10">
-            </div>
-            <button class="menu-btn btn-save" style="display:inline-block; margin:0;" onclick="window.submitScoreToFirebase()">GÖNDER</button>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
@@ -209,17 +216,10 @@
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
-        // Global Fonksiyonlar
-        window.submitScoreToFirebase = async function() {
-            const nameInput = document.getElementById('player-name');
-            const name = nameInput.value.trim() || "Anonim";
-            const score = parseInt(document.getElementById('score-to-save').innerText);
-
-            if(score <= 0) { alert("0 Puan kaydedilemez!"); return; }
-
-            const submitBtn = document.querySelector('#save-modal .btn-save');
-            submitBtn.innerText = "Yükleniyor...";
-            submitBtn.disabled = true;
+        // OTOMATİK SKOR GÖNDERME FONKSİYONU
+        window.autoSubmitScore = async function(score) {
+            const name = localStorage.getItem('flappy_username');
+            if(!name) return; // İsim yoksa kaydetme
 
             try {
                 await addDoc(collection(db, "leaderboard"), {
@@ -227,20 +227,17 @@
                     score: score,
                     date: new Date()
                 });
-                alert("Skor başarıyla kaydedildi!");
-                document.getElementById('save-modal').style.display = 'none';
-                document.getElementById('save-score-btn').style.display = 'none';
+                console.log("Skor otomatik kaydedildi.");
+                // Kullanıcıya bildirim göster
+                const msg = document.getElementById('new-record-msg');
+                msg.style.display = 'block';
+                msg.innerText = `YENİ REKOR (${score}) KAYDEDİLDİ ✅`;
             } catch (e) {
-                console.error("Hata: ", e);
-                alert("Kayıt başarısız! İnternetini kontrol et.");
-            } finally {
-                submitBtn.innerText = "GÖNDER";
-                submitBtn.disabled = false;
+                console.error("Skor kaydedilemedi: ", e);
             }
         };
 
         window.openLeaderboard = async function() {
-            // Oyun oynanırken açılmasını engelle
             if (typeof gameHasStarted !== 'undefined' && gameHasStarted && !gameOverFlag) return;
 
             const modal = document.getElementById('leaderboard-modal');
@@ -278,6 +275,53 @@
     </script>
 
     <script>
+    // --- KULLANICI ADI VE GİRİŞ SİSTEMİ ---
+    const badWords = ["mk", "amk", "aq", "oc", "pic", "yarak", "oç", "bok", "siktir", "sik", "anan", "bacın", "kaşar", "göt"]; // Basit küfür filtresi
+
+    function checkLoginStatus() {
+        const savedName = localStorage.getItem('flappy_username');
+        if (savedName) {
+            document.getElementById('login-modal').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+            document.getElementById('display-username').innerText = savedName;
+        } else {
+            document.getElementById('login-modal').style.display = 'flex';
+            document.getElementById('start-screen').style.display = 'none';
+        }
+    }
+
+    function saveUsername() {
+        const input = document.getElementById('username-input');
+        const errorMsg = document.getElementById('login-error');
+        let name = input.value.trim();
+
+        if (name.length < 3) {
+            errorMsg.innerText = "İsim en az 3 karakter olmalı.";
+            errorMsg.style.display = 'block';
+            return;
+        }
+
+        // Küfür Kontrolü
+        let isBad = false;
+        badWords.forEach(word => {
+            if (name.toLowerCase().includes(word)) isBad = true;
+        });
+
+        if (isBad) {
+            errorMsg.innerText = "Bu ismi kullanamazsın!";
+            errorMsg.style.display = 'block';
+            return;
+        }
+
+        localStorage.setItem('flappy_username', name);
+        checkLoginStatus();
+    }
+
+    // Sayfa Yüklendiğinde Kontrol Et
+    window.onload = function() {
+        checkLoginStatus();
+    };
+
     // --- VERİ YÖNETİMİ ---
     let bestScore = localStorage.getItem('flappy_best') || 0;
     let totalCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
@@ -295,11 +339,6 @@
 
     document.getElementById('best-score').innerText = bestScore;
     document.getElementById('total-coins').innerText = totalCoins;
-
-    function openSaveModal() {
-        document.getElementById('score-to-save').innerText = score;
-        document.getElementById('save-modal').style.display = 'flex';
-    }
 
     // --- SES YÖNETİMİ ---
     let isMuted = false;
@@ -434,7 +473,6 @@
         const startScreen = document.getElementById('start-screen');
         const pauseMsg = document.getElementById('pause-msg');
         const startMsg = document.getElementById('start-msg');
-        const saveBtn = document.getElementById('save-score-btn');
 
         if (!isGamePaused) {
             isGamePaused = true;
@@ -445,7 +483,7 @@
             startScreen.style.display = 'flex';
             startMsg.style.display = 'none';
             pauseMsg.style.display = 'block';
-            saveBtn.style.display = 'none'; // Pause ekranında save butonu gizlensin
+            document.getElementById('new-record-msg').style.display = 'none';
 
         } else {
             isGamePaused = false;
@@ -479,38 +517,78 @@
     let score = 0;
     let gameHasStarted = false;
     let gameOverFlag = false;
-    let isNight = false;
+    // isNight değişkeni silindi (Gece modu iptal)
 
     const game = new Phaser.Game(config);
 
     function create() {
-        // GRAFİKLER (KODLARI SAKLADIM)
-        let cloudG = this.make.graphics(); cloudG.fillStyle(0xFFFFFF, 1); cloudG.fillCircle(20, 20, 20); cloudG.fillCircle(45, 20, 25); cloudG.fillCircle(75, 20, 20); cloudG.generateTexture('cloud', 100, 50);
-        let starG = this.make.graphics(); starG.fillStyle(0xFFFFFF, 1); starG.fillCircle(4, 4, 4); starG.generateTexture('star', 8, 8);
-        let mountG = this.make.graphics(); mountG.fillStyle(0x607D8B, 1); mountG.fillTriangle(0, 100, 100, 0, 200, 100); mountG.generateTexture('mountain', 200, 100);
-        let treeG = this.make.graphics(); treeG.fillStyle(0x8D6E63, 1); treeG.fillRect(10, 30, 10, 30); treeG.fillStyle(0x4CAF50, 1); treeG.fillCircle(15, 20, 15); treeG.generateTexture('tree', 30, 60);
-        let groundG = this.make.graphics(); groundG.fillStyle(0xDED895, 1); groundG.fillRect(0, 15, 400, 100); groundG.fillStyle(0x73BF2E, 1); groundG.fillRect(0, 0, 400, 15); groundG.lineStyle(3, 0x558C22, 1); groundG.strokeRect(0, 0, 400, 15); groundG.generateTexture('ground', 400, 110);
-        let coinG = this.make.graphics(); coinG.fillStyle(0xFFD700, 1); coinG.fillCircle(16, 16, 16); coinG.lineStyle(2, 0xB8860B, 1); coinG.strokeCircle(16, 16, 16); coinG.fillStyle(0xFFFACD, 1); coinG.fillCircle(16, 16, 10); coinG.fillStyle(0xB8860B, 1); coinG.fillRect(14, 9, 4, 14); coinG.generateTexture('coin', 32, 32);
-        let pipeG = this.make.graphics(); pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(2, 2, 54, 600); pipeG.lineStyle(4, 0x558C22, 1); pipeG.strokeRect(0, 0, 58, 600); pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(0, 0, 58, 28); pipeG.strokeRect(0, 0, 58, 28); pipeG.generateTexture('pipe', 60, 600);
+        // --- GRAFİKLER (GÜNCELLENMİŞ) ---
+        
+        // 1. Bulut (Daha seyrek olması için geniş texture)
+        let cloudG = this.make.graphics(); 
+        cloudG.fillStyle(0xFFFFFF, 1); cloudG.fillCircle(20, 20, 20); cloudG.fillCircle(45, 20, 25); cloudG.fillCircle(75, 20, 20);
+        cloudG.generateTexture('cloud', 500, 50); // Genişlik 500px yapıldı (Boşluk arttı)
 
-        // KUŞLAR
+        // 2. Yıldız (Artık kullanılmıyor ama kod bozulmasın diye tutuyoruz)
+        let starG = this.make.graphics();
+        starG.fillStyle(0xFFFFFF, 1); starG.fillCircle(4, 4, 4);
+        starG.generateTexture('star', 8, 8);
+
+        // 3. Dağ
+        let mountG = this.make.graphics();
+        mountG.fillStyle(0x607D8B, 1);
+        mountG.fillTriangle(0, 100, 100, 0, 200, 100);
+        mountG.generateTexture('mountain', 200, 100);
+
+        // 4. Ağaç (GÜZELLEŞTİRİLMİŞ ÇAM AĞACI & SEYREK)
+        let treeG = this.make.graphics(); 
+        // Gövde
+        treeG.fillStyle(0x5D4037, 1); treeG.fillRect(15, 40, 10, 20);
+        // Yapraklar (Çam tarzı)
+        treeG.fillStyle(0x388E3C, 1); 
+        treeG.fillTriangle(20, 10, 5, 30, 35, 30); // Üst üçgen
+        treeG.fillTriangle(20, 20, 0, 45, 40, 45); // Alt üçgen
+        treeG.generateTexture('tree', 300, 60); // Genişlik 300px yapıldı (Boşluk arttı - 10'da 9 seyrelme)
+
+        // 5. Zemin
+        let groundG = this.make.graphics();
+        groundG.fillStyle(0xDED895, 1); groundG.fillRect(0, 15, 400, 100);
+        groundG.fillStyle(0x73BF2E, 1); groundG.fillRect(0, 0, 400, 15);
+        groundG.lineStyle(3, 0x558C22, 1); groundG.strokeRect(0, 0, 400, 15);
+        groundG.generateTexture('ground', 400, 110);
+
+        // 6. Nesneler
+        let coinG = this.make.graphics();
+        coinG.fillStyle(0xFFD700, 1); coinG.fillCircle(16, 16, 16); coinG.lineStyle(2, 0xB8860B, 1); coinG.strokeCircle(16, 16, 16); coinG.fillStyle(0xFFFACD, 1); coinG.fillCircle(16, 16, 10); coinG.fillStyle(0xB8860B, 1); coinG.fillRect(14, 9, 4, 14); 
+        coinG.generateTexture('coin', 32, 32);
+
+        let pipeG = this.make.graphics();
+        pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(2, 2, 54, 600); pipeG.lineStyle(4, 0x558C22, 1); pipeG.strokeRect(0, 0, 58, 600); pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(0, 0, 58, 28); pipeG.strokeRect(0, 0, 58, 28);
+        pipeG.generateTexture('pipe', 60, 600);
+
+        // --- KUŞLAR ---
         let birdG = this.make.graphics(); birdG.fillStyle(0xFF69B4, 1); birdG.fillTriangle(10,8,14,0,18,8); birdG.fillTriangle(18,8,22,-2,26,8); birdG.fillTriangle(26,8,30,0,34,8); birdG.fillStyle(0xF4CE42, 1); birdG.fillCircle(22, 20, 14); birdG.fillStyle(0xFFFFFF, 1); birdG.fillEllipse(16, 22, 12, 8); birdG.lineStyle(2, 0x000000, 1); birdG.strokeEllipse(16, 22, 12, 8); birdG.fillStyle(0xFFFFFF, 1); birdG.fillCircle(28, 16, 6); birdG.fillStyle(0x000000, 1); birdG.fillCircle(30, 16, 2); birdG.fillStyle(0xF39C12, 1); birdG.fillTriangle(32, 20, 44, 23, 32, 26); birdG.generateTexture('bird_default', 45, 40);
         let redBirdG = this.make.graphics(); redBirdG.fillStyle(0xD72638, 1); redBirdG.fillCircle(25, 22, 17); redBirdG.fillStyle(0x2C3E50, 1); redBirdG.fillRect(6, 17, 20, 6); redBirdG.fillStyle(0x3498DB, 1); redBirdG.fillEllipse(26, 20, 9, 7); redBirdG.lineStyle(2, 0x2C3E50, 1); redBirdG.strokeEllipse(26, 20, 9, 7); redBirdG.fillStyle(0x1a1a1a, 1); redBirdG.beginPath(); redBirdG.moveTo(8, 24); redBirdG.lineTo(32, 24); redBirdG.lineTo(15, 36); redBirdG.closePath(); redBirdG.fill(); redBirdG.fillStyle(0xF1C40F, 1); redBirdG.fillTriangle(36, 18, 50, 22, 36, 26); redBirdG.generateTexture('bird_red', 55, 45); 
         let blueBirdG = this.make.graphics(); blueBirdG.fillStyle(0x3498DB, 1); blueBirdG.fillRect(10, 15, 30, 12); blueBirdG.fillTriangle(40, 15, 55, 21, 40, 27); blueBirdG.fillStyle(0x95a5a6, 1); blueBirdG.fillTriangle(20, 15, 35, 15, 10, 5); blueBirdG.generateTexture('bird_blue', 55, 30);
 
-        // ARKA PLAN
+        // --- ARKA PLAN (SADECE GÜNDÜZ) ---
+        // Stars artık görünmeyecek (alpha 0) ama kod hatası olmasın diye tanımlı
         stars = this.add.tileSprite(config.width/2, config.height/2, config.width, config.height, 'star');
         stars.setAlpha(0);
+
         mountains = this.add.tileSprite(config.width/2, config.height - 150, config.width, 100, 'mountain');
         mountains.setOrigin(0.5, 1); mountains.setAlpha(0.8);
+
         clouds = this.add.tileSprite(config.width/2, 100, config.width, 100, 'cloud');
         clouds.setAlpha(0.5);
+
         trees = this.add.tileSprite(config.width/2, config.height - 110, config.width, 60, 'tree');
         trees.setOrigin(0.5, 1);
+
         this.ground = this.add.tileSprite(config.width/2, config.height, config.width, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
         this.physics.add.existing(this.ground, true);
 
-        // OYUN NESNELERİ
+        // --- OYUN ---
         pipes = this.physics.add.group();
         coins = this.physics.add.group();
 
@@ -540,30 +618,22 @@
         }
         if (gameOverFlag) return;
 
+        // Parallax
         this.ground.tilePositionX += 2.5;
         trees.tilePositionX += 2.5; 
         mountains.tilePositionX += 0.5;
         clouds.tilePositionX += 0.2;
 
-        let cycle = Math.floor(score / 25);
-        if (cycle % 2 === 1 && !isNight) {
-            isNight = true;
-            this.cameras.main.setBackgroundColor('#2c3e50'); 
-            stars.setAlpha(1); mountains.setTint(0x555555); trees.setTint(0x555555); this.ground.setTint(0x999999);
-        } else if (cycle % 2 === 0 && isNight) {
-            isNight = false;
-            this.cameras.main.setBackgroundColor('#4ec0ca'); 
-            stars.setAlpha(0); mountains.clearTint(); trees.clearTint(); this.ground.clearTint();
-        }
-
+        // Gece/Gündüz döngüsü TAMAMEN KALDIRILDI. Hepsi gündüz.
+        // Sadece kuş açısı ve ölüm kontrolü kaldı.
         if (bird.angle < 30) bird.angle += 2.5;
         if (bird.y < -50 || bird.y > config.height) gameOver.call(this);
     }
 
     function jump() {
         if (document.getElementById('market-modal').style.display === 'flex') return;
-        if (document.getElementById('leaderboard-modal').style.display === 'flex') return; // Leaderboard açıkken zıplama
-        if (document.getElementById('save-modal').style.display === 'flex') return; // Save açıkken zıplama
+        if (document.getElementById('leaderboard-modal').style.display === 'flex') return;
+        if (document.getElementById('login-modal').style.display === 'flex') return;
         
         if (isGamePaused) { togglePause(); return; }
         if (gameOverFlag) { restartGame.call(this); return; }
@@ -639,10 +709,18 @@
         bird.setTint(0xff0000);
         playSynthSound('dead');
 
+        // REKOR KONTROLÜ VE OTOMATİK KAYIT
         if (score > bestScore) {
             bestScore = score;
             localStorage.setItem('flappy_best', bestScore);
             document.getElementById('best-score').innerText = bestScore;
+            
+            // Eğer rekor kırıldıysa ve isim varsa otomatik gönder
+            if(window.autoSubmitScore) {
+                window.autoSubmitScore(score);
+            }
+        } else {
+            document.getElementById('new-record-msg').style.display = 'none';
         }
         localStorage.setItem('flappy_coins', totalCoins);
 
@@ -650,14 +728,11 @@
         document.getElementById('start-screen').style.display = 'flex';
         document.getElementById('bottom-controls').style.display = 'flex';
         
-        // Eğer skor yapıldıysa Kaydet butonunu göster
-        if (score > 0) {
-            document.getElementById('save-score-btn').style.display = 'inline-block';
-        }
+        // Manuel kayıt butonu artık yok, otomatik yapılıyor.
     }
 
     function restartGame() {
-        score = 0; isNight = false; isGamePaused = false;
+        score = 0; isGamePaused = false;
         game.scene.scenes[0].cameras.main.setBackgroundColor('#4ec0ca'); 
         
         gameOverFlag = false;
@@ -665,9 +740,7 @@
         document.getElementById('current-score').innerText = "0";
         document.getElementById('start-msg').innerText = "BAŞLAMAK İÇİN DOKUN";
         document.getElementById('pause-msg').style.display = 'none';
-        
-        // Kaydet butonunu gizle
-        document.getElementById('save-score-btn').style.display = 'none';
+        document.getElementById('new-record-msg').style.display = 'none';
         
         document.getElementById('btn-pause').innerText = '⏸️';
 
