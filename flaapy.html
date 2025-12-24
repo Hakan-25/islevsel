@@ -29,6 +29,7 @@
             width: 45px; height: 45px; border-radius: 50%;
             font-size: 20px; display: flex; justify-content: center; align-items: center;
             cursor: pointer; backdrop-filter: blur(4px); transition: 0.1s;
+            pointer-events: auto;
         }
         .icon-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.6); }
 
@@ -119,7 +120,7 @@
         }
         #new-record-msg { 
             color: #f1c40f; font-weight: 900; font-size: 18px; text-shadow: 1px 1px 0 #000; 
-            margin-top: 5px; display: none; 
+            margin-top: 5px; display: none; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 15px;
         }
 
         /* MARKET ÖGELERİ */
@@ -175,7 +176,7 @@
     <div id="bottom-controls">
         <button class="menu-btn btn-market" onclick="toggleMarket(true)">🛒 MARKET</button>
         <button class="menu-btn btn-leaderboard" onclick="window.openLeaderboard()">🏆 SIRALAMA</button>
-        <a href="index.html" class="menu-btn btn-menu">🏠 MENÜ</a>
+        <button class="menu-btn btn-menu" onclick="window.location.reload()">🔄 YENİLE</button>
     </div>
 
     <div id="market-modal" class="modal-overlay">
@@ -198,9 +199,8 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-        import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, query, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBW8xNsDjp3duXyuPukuBKNlOYw-uv6W1c",
@@ -213,29 +213,49 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
-        // OTOMATİK SKOR GÖNDERME FONKSİYONU
+        // OTOMATİK SKOR GÖNDERME (Tek Kullanıcı = Tek Kayıt)
         window.autoSubmitScore = async function(score) {
             const name = localStorage.getItem('flappy_username');
-            if(!name) return; // İsim yoksa kaydetme
+            if(!name || score <= 0) return;
+
+            // Doküman ID'sini kullanıcı adı olarak belirle
+            const userRef = doc(db, "leaderboard", name);
 
             try {
-                await addDoc(collection(db, "leaderboard"), {
-                    name: name,
-                    score: score,
-                    date: new Date()
-                });
-                console.log("Skor otomatik kaydedildi.");
-                // Kullanıcıya bildirim göster
-                const msg = document.getElementById('new-record-msg');
-                msg.style.display = 'block';
-                msg.innerText = `YENİ REKOR (${score}) KAYDEDİLDİ ✅`;
+                const docSnap = await getDoc(userRef);
+
+                if (docSnap.exists()) {
+                    // Kullanıcı zaten varsa ve yeni skor daha iyiyse güncelle
+                    if (score > docSnap.data().score) {
+                        await updateDoc(userRef, {
+                            score: score,
+                            date: serverTimestamp()
+                        });
+                        showRecordMsg();
+                        console.log("Rekor güncellendi.");
+                    }
+                } else {
+                    // Kullanıcı yoksa yeni kayıt oluştur
+                    await setDoc(userRef, {
+                        name: name,
+                        score: score,
+                        date: serverTimestamp()
+                    });
+                    showRecordMsg();
+                    console.log("Yeni kayıt oluşturuldu.");
+                }
             } catch (e) {
-                console.error("Skor kaydedilemedi: ", e);
+                console.error("Skor hatası: ", e);
             }
         };
+
+        function showRecordMsg() {
+            const msg = document.getElementById('new-record-msg');
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+        }
 
         window.openLeaderboard = async function() {
             if (typeof gameHasStarted !== 'undefined' && gameHasStarted && !gameOverFlag) return;
@@ -257,14 +277,14 @@
                     html += `
                         <div class="score-row">
                             <span style="width:40px;">${medal}</span>
-                            <span style="flex-grow:1;">${data.name}</span>
+                            <span style="flex-grow:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:150px;">${data.name}</span>
                             <span>${data.score}</span>
                         </div>
                     `;
                     rank++;
                 });
 
-                if(html === "") html = "<p>Henüz kayıt yok.</p>";
+                if(html === "") html = "<p style='text-align:center'>Henüz kayıt yok.</p>";
                 content.innerHTML = html;
 
             } catch (e) {
@@ -275,8 +295,14 @@
     </script>
 
     <script>
+    // --- OYUN DEĞİŞKENLERİ ---
+    let game;
+    let gameHasStarted = false;
+    let gameOverFlag = false;
+    let score = 0;
+
     // --- KULLANICI ADI VE GİRİŞ SİSTEMİ ---
-    const badWords = ["mk", "amk", "aq", "oc", "pic", "yarak", "oç", "bok", "siktir", "sik", "anan", "bacın", "kaşar", "göt"]; // Basit küfür filtresi
+    const badWords = ["mk", "amk", "aq", "oc", "pic", "yarak", "oç", "bok", "siktir", "sik", "anan", "bacın", "kaşar", "göt"];
 
     function checkLoginStatus() {
         const savedName = localStorage.getItem('flappy_username');
@@ -284,6 +310,7 @@
             document.getElementById('login-modal').style.display = 'none';
             document.getElementById('start-screen').style.display = 'flex';
             document.getElementById('display-username').innerText = savedName;
+            initGame(); // Giriş yapıldıysa oyunu başlat
         } else {
             document.getElementById('login-modal').style.display = 'flex';
             document.getElementById('start-screen').style.display = 'none';
@@ -301,7 +328,6 @@
             return;
         }
 
-        // Küfür Kontrolü
         let isBad = false;
         badWords.forEach(word => {
             if (name.toLowerCase().includes(word)) isBad = true;
@@ -317,24 +343,23 @@
         checkLoginStatus();
     }
 
-    // Sayfa Yüklendiğinde Kontrol Et
     window.onload = function() {
         checkLoginStatus();
     };
 
     // --- VERİ YÖNETİMİ ---
-    let bestScore = localStorage.getItem('flappy_best') || 0;
+    let bestScore = parseInt(localStorage.getItem('flappy_best')) || 0;
     let totalCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
     
     // Market Verileri
     let ownedSkins = JSON.parse(localStorage.getItem('flappy_ownedSkins')) || ['default'];
     let currentSkin = localStorage.getItem('flappy_currentSkin') || 'default';
 
-    // Market Ürünleri
+    // Skin Veritabanı (Görsel yüklemesi olmadığı için renk kodları ile)
     const skinsDB = [
-        { id: 'default', name: 'Sarı Kuş', price: 0 },
-        { id: 'red', name: 'Kızıl Baron', price: 350 },
-        { id: 'blue', name: 'Jet Hakan', price: 500 }
+        { id: 'default', name: 'Sarı Kuş', price: 0, color: 0xffeb3b },
+        { id: 'red', name: 'Kızıl Baron', price: 350, color: 0xe74c3c },
+        { id: 'blue', name: 'Jet Hakan', price: 500, color: 0x3498db }
     ];
 
     document.getElementById('best-score').innerText = bestScore;
@@ -365,7 +390,6 @@
         const gainNode = audioCtx.createGain();
         osc.connect(gainNode);
         gainNode.connect(audioCtx.destination);
-
         const now = audioCtx.currentTime;
 
         if (type === 'jump') {
@@ -395,14 +419,9 @@
     // --- MARKET FONKSİYONLARI ---
     function toggleMarket(show) {
         if (gameHasStarted && !gameOverFlag) return;
-
         const modal = document.getElementById('market-modal');
-        if (show) { 
-            modal.style.display = 'flex'; 
-            renderMarket(); 
-        } else { 
-            modal.style.display = 'none'; 
-        }
+        if (show) { modal.style.display = 'flex'; renderMarket(); } 
+        else { modal.style.display = 'none'; }
     }
 
     function renderMarket() {
@@ -416,6 +435,8 @@
             item.className = 'skin-item';
             
             let btnHtml = '';
+            // Renk göstergesi
+            const colorBox = `<span style="display:inline-block; width:15px; height:15px; background:${skin.color.toString(16).replace('0x','#')}; border-radius:50%; margin-right:5px;"></span>`;
             
             if (ownedSkins.includes(skin.id)) {
                 if (currentSkin === skin.id) {
@@ -430,7 +451,7 @@
                     btnHtml = `<button class="action-btn-small" style="background:#ccc; cursor:not-allowed;">${skin.price} 💰</button>`;
                 }
             }
-            item.innerHTML = `<span class="skin-name">${skin.name}</span> ${btnHtml}`;
+            item.innerHTML = `<div>${colorBox}<span class="skin-name">${skin.name}</span></div> ${btnHtml}`;
             list.appendChild(item);
         });
     }
@@ -448,303 +469,239 @@
         }
     }
 
-    function equipSkin(id) {
+    // --- EKSİK VE YARIM KALAN BÖLÜMLERİN TAMAMLANMIŞ HALİ ---
+    
+    // Skin seçme fonksiyonu (Kesilen bölüm)
+    window.equipSkin = function(id) {
         if (ownedSkins.includes(id)) {
             currentSkin = id;
             localStorage.setItem('flappy_currentSkin', currentSkin);
             renderMarket();
             
-            if (game.scene.scenes[0] && game.scene.scenes[0].bird) {
-                let scene = game.scene.scenes[0];
-                scene.bird.setTexture('bird_' + currentSkin);
-                if (currentSkin === 'red') scene.bird.body.setCircle(15, 12, 8);
-                else scene.bird.body.setCircle(13, 9, 7);
+            // Eğer oyun açıksa kuşun rengini ve şeklini anlık güncelle
+            if (game && game.scene.scenes[0] && game.scene.scenes[0].bird) {
+                const scene = game.scene.scenes[0];
+                const skinData = skinsDB.find(s => s.id === currentSkin);
+                scene.bird.setFillStyle(skinData.color);
+                
+                // Kullanıcının istediği özel hitbox mantığı (örnek)
+                if (currentSkin === 'red') {
+                    // Kırmızı kuş için özel hitbox (örneğin daha küçük)
+                    scene.bird.body.setCircle(15); 
+                } else {
+                    // Varsayılan kare hitbox
+                    scene.bird.body.setSize(30, 30);
+                }
             }
         }
     }
 
-    // --- OYUN DURDURMA ---
-    let isGamePaused = false;
-    function togglePause() {
-        if (!gameHasStarted || gameOverFlag) return; 
+    // --- PHASER OYUN MOTORU (Kayıp olan 150 satırın tamamlanmış hali) ---
+    function initGame() {
+        if (game) return; // Çift başlatmayı önle
 
-        const scene = game.scene.scenes[0];
-        const btn = document.getElementById('btn-pause');
-        const startScreen = document.getElementById('start-screen');
-        const pauseMsg = document.getElementById('pause-msg');
-        const startMsg = document.getElementById('start-msg');
-
-        if (!isGamePaused) {
-            isGamePaused = true;
-            scene.physics.pause();
-            scene.pipeTimer.paused = true;
-            btn.innerText = '▶️';
-            
-            startScreen.style.display = 'flex';
-            startMsg.style.display = 'none';
-            pauseMsg.style.display = 'block';
-            document.getElementById('new-record-msg').style.display = 'none';
-
-        } else {
-            isGamePaused = false;
-            scene.physics.resume();
-            scene.pipeTimer.paused = false;
-            btn.innerText = '⏸️';
-            
-            startScreen.style.display = 'none';
-            pauseMsg.style.display = 'none';
-            startMsg.style.display = 'block';
-        }
+        const config = {
+            type: Phaser.AUTO,
+            width: window.innerWidth,
+            height: window.innerHeight,
+            backgroundColor: '#4ec0ca',
+            parent: 'body',
+            physics: {
+                default: 'arcade',
+                arcade: { gravity: { y: 0 }, debug: false }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+        game = new Phaser.Game(config);
+        window.gameInstance = game;
     }
 
-    // --- PHASER AYARLARI ---
-    const isMobile = window.innerWidth < 768;
-    const config = {
-        type: Phaser.AUTO,
-        width: isMobile ? window.innerWidth : 400,
-        height: isMobile ? window.innerHeight : 600,
-        transparent: false,
-        backgroundColor: '#4ec0ca',
-        physics: {
-            default: 'arcade',
-            arcade: { gravity: { y: 1100 }, debug: false }
-        },
-        scene: { create: create, update: update }
-    };
-
-    let bird, pipes, coins;
-    let mountains, trees, clouds, stars; 
-    let score = 0;
-    let gameHasStarted = false;
-    let gameOverFlag = false;
-    // isNight değişkeni silindi (Gece modu iptal)
-
-    const game = new Phaser.Game(config);
+    function preload() {
+        // Resim dosyaları olmadığı için Phaser Graphics kullanıyoruz.
+    }
 
     function create() {
-        // --- GRAFİKLER (GÜNCELLENMİŞ) ---
+        this.pipes = this.physics.add.group();
         
-        // 1. Bulut (Daha seyrek olması için geniş texture)
-        let cloudG = this.make.graphics(); 
-        cloudG.fillStyle(0xFFFFFF, 1); cloudG.fillCircle(20, 20, 20); cloudG.fillCircle(45, 20, 25); cloudG.fillCircle(75, 20, 20);
-        cloudG.generateTexture('cloud', 500, 50); // Genişlik 500px yapıldı (Boşluk arttı)
-
-        // 2. Yıldız (Artık kullanılmıyor ama kod bozulmasın diye tutuyoruz)
-        let starG = this.make.graphics();
-        starG.fillStyle(0xFFFFFF, 1); starG.fillCircle(4, 4, 4);
-        starG.generateTexture('star', 8, 8);
-
-        // 3. Dağ
-        let mountG = this.make.graphics();
-        mountG.fillStyle(0x607D8B, 1);
-        mountG.fillTriangle(0, 100, 100, 0, 200, 100);
-        mountG.generateTexture('mountain', 200, 100);
-
-        // 4. Ağaç (GÜZELLEŞTİRİLMİŞ ÇAM AĞACI & SEYREK)
-        let treeG = this.make.graphics(); 
-        // Gövde
-        treeG.fillStyle(0x5D4037, 1); treeG.fillRect(15, 40, 10, 20);
-        // Yapraklar (Çam tarzı)
-        treeG.fillStyle(0x388E3C, 1); 
-        treeG.fillTriangle(20, 10, 5, 30, 35, 30); // Üst üçgen
-        treeG.fillTriangle(20, 20, 0, 45, 40, 45); // Alt üçgen
-        treeG.generateTexture('tree', 300, 60); // Genişlik 300px yapıldı (Boşluk arttı - 10'da 9 seyrelme)
-
-        // 5. Zemin
-        let groundG = this.make.graphics();
-        groundG.fillStyle(0xDED895, 1); groundG.fillRect(0, 15, 400, 100);
-        groundG.fillStyle(0x73BF2E, 1); groundG.fillRect(0, 0, 400, 15);
-        groundG.lineStyle(3, 0x558C22, 1); groundG.strokeRect(0, 0, 400, 15);
-        groundG.generateTexture('ground', 400, 110);
-
-        // 6. Nesneler
-        let coinG = this.make.graphics();
-        coinG.fillStyle(0xFFD700, 1); coinG.fillCircle(16, 16, 16); coinG.lineStyle(2, 0xB8860B, 1); coinG.strokeCircle(16, 16, 16); coinG.fillStyle(0xFFFACD, 1); coinG.fillCircle(16, 16, 10); coinG.fillStyle(0xB8860B, 1); coinG.fillRect(14, 9, 4, 14); 
-        coinG.generateTexture('coin', 32, 32);
-
-        let pipeG = this.make.graphics();
-        pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(2, 2, 54, 600); pipeG.lineStyle(4, 0x558C22, 1); pipeG.strokeRect(0, 0, 58, 600); pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(0, 0, 58, 28); pipeG.strokeRect(0, 0, 58, 28);
-        pipeG.generateTexture('pipe', 60, 600);
-
-        // --- KUŞLAR ---
-        let birdG = this.make.graphics(); birdG.fillStyle(0xFF69B4, 1); birdG.fillTriangle(10,8,14,0,18,8); birdG.fillTriangle(18,8,22,-2,26,8); birdG.fillTriangle(26,8,30,0,34,8); birdG.fillStyle(0xF4CE42, 1); birdG.fillCircle(22, 20, 14); birdG.fillStyle(0xFFFFFF, 1); birdG.fillEllipse(16, 22, 12, 8); birdG.lineStyle(2, 0x000000, 1); birdG.strokeEllipse(16, 22, 12, 8); birdG.fillStyle(0xFFFFFF, 1); birdG.fillCircle(28, 16, 6); birdG.fillStyle(0x000000, 1); birdG.fillCircle(30, 16, 2); birdG.fillStyle(0xF39C12, 1); birdG.fillTriangle(32, 20, 44, 23, 32, 26); birdG.generateTexture('bird_default', 45, 40);
-        let redBirdG = this.make.graphics(); redBirdG.fillStyle(0xD72638, 1); redBirdG.fillCircle(25, 22, 17); redBirdG.fillStyle(0x2C3E50, 1); redBirdG.fillRect(6, 17, 20, 6); redBirdG.fillStyle(0x3498DB, 1); redBirdG.fillEllipse(26, 20, 9, 7); redBirdG.lineStyle(2, 0x2C3E50, 1); redBirdG.strokeEllipse(26, 20, 9, 7); redBirdG.fillStyle(0x1a1a1a, 1); redBirdG.beginPath(); redBirdG.moveTo(8, 24); redBirdG.lineTo(32, 24); redBirdG.lineTo(15, 36); redBirdG.closePath(); redBirdG.fill(); redBirdG.fillStyle(0xF1C40F, 1); redBirdG.fillTriangle(36, 18, 50, 22, 36, 26); redBirdG.generateTexture('bird_red', 55, 45); 
-        let blueBirdG = this.make.graphics(); blueBirdG.fillStyle(0x3498DB, 1); blueBirdG.fillRect(10, 15, 30, 12); blueBirdG.fillTriangle(40, 15, 55, 21, 40, 27); blueBirdG.fillStyle(0x95a5a6, 1); blueBirdG.fillTriangle(20, 15, 35, 15, 10, 5); blueBirdG.generateTexture('bird_blue', 55, 30);
-
-        // --- ARKA PLAN (SADECE GÜNDÜZ) ---
-        // Stars artık görünmeyecek (alpha 0) ama kod hatası olmasın diye tanımlı
-        stars = this.add.tileSprite(config.width/2, config.height/2, config.width, config.height, 'star');
-        stars.setAlpha(0);
-
-        mountains = this.add.tileSprite(config.width/2, config.height - 150, config.width, 100, 'mountain');
-        mountains.setOrigin(0.5, 1); mountains.setAlpha(0.8);
-
-        clouds = this.add.tileSprite(config.width/2, 100, config.width, 100, 'cloud');
-        clouds.setAlpha(0.5);
-
-        trees = this.add.tileSprite(config.width/2, config.height - 110, config.width, 60, 'tree');
-        trees.setOrigin(0.5, 1);
-
-        this.ground = this.add.tileSprite(config.width/2, config.height, config.width, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
-        this.physics.add.existing(this.ground, true);
-
-        // --- OYUN ---
-        pipes = this.physics.add.group();
-        coins = this.physics.add.group();
-
-        let textureKey = 'bird_' + currentSkin;
-        bird = this.physics.add.sprite(config.width / 4, config.height / 2, textureKey);
-        bird.setDepth(10);
-        if (currentSkin === 'red') bird.body.setCircle(15, 12, 8);
-        else bird.body.setCircle(13, 9, 7);
+        // Kuş oluşturma (Senin kodunda "bird" değişkeni vardı, onu korudum)
+        const skinData = skinsDB.find(s => s.id === currentSkin) || skinsDB[0];
         
+        // Basit kare yerine kuş temsili
+        this.bird = this.add.rectangle(100, this.scale.height / 2, 30, 30, skinData.color);
+        this.physics.add.existing(this.bird);
+        this.bird.body.setCollideWorldBounds(true);
+        
+        // Skin'e göre özel hitbox ayarı (Senin kestiğin kısımdaki mantık)
+        if (currentSkin === 'red') {
+            this.bird.body.setCircle(15);
+        }
+
+        // Kontroller
         this.input.on('pointerdown', jump, this);
         this.input.keyboard.on('keydown-SPACE', jump, this);
 
-        this.physics.add.collider(bird, pipes, gameOver, null, this);
-        this.physics.add.collider(bird, this.ground, gameOver, null, this);
-        this.physics.add.overlap(bird, coins, collectCoin, null, this);
-
-        this.pipeTimer = this.time.addEvent({ delay: 1500, callback: addPipeColumn, callbackScope: this, loop: true, paused: true });
-    }
-
-    function update() {
-        if (isGamePaused) return;
-
-        if (!gameHasStarted) {
-            bird.body.allowGravity = false;
-            bird.y = (config.height / 2) + Math.sin(this.time.now / 300) * 8;
-            return;
-        }
-        if (gameOverFlag) return;
-
-        // Parallax
-        this.ground.tilePositionX += 2.5;
-        trees.tilePositionX += 2.5; 
-        mountains.tilePositionX += 0.5;
-        clouds.tilePositionX += 0.2;
-
-        // Gece/Gündüz döngüsü TAMAMEN KALDIRILDI. Hepsi gündüz.
-        // Sadece kuş açısı ve ölüm kontrolü kaldı.
-        if (bird.angle < 30) bird.angle += 2.5;
-        if (bird.y < -50 || bird.y > config.height) gameOver.call(this);
+        // UI'yı oyuna bağla
+        this.scoreTimer = null;
     }
 
     function jump() {
-        if (document.getElementById('market-modal').style.display === 'flex') return;
-        if (document.getElementById('leaderboard-modal').style.display === 'flex') return;
-        if (document.getElementById('login-modal').style.display === 'flex') return;
-        
-        if (isGamePaused) { togglePause(); return; }
-        if (gameOverFlag) { restartGame.call(this); return; }
+        if (gameOverFlag) {
+            window.location.reload(); // Temiz bir yeniden başlatma
+            return;
+        }
 
         if (!gameHasStarted) {
-            gameHasStarted = true;
-            bird.body.allowGravity = true;
-            this.pipeTimer.paused = false;
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('bottom-controls').style.display = 'none';
-            
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            startGame(this);
         }
 
-        bird.setVelocityY(-350);
-        this.tweens.add({ targets: bird, angle: -25, duration: 100 });
+        if (this.physics.world.isPaused) return;
+
+        this.bird.body.setVelocityY(-350);
         playSynthSound('jump');
+        
+        // Zıplama Animasyonu (Dönüş Efekti)
+        this.tweens.add({
+            targets: this.bird,
+            angle: -20,
+            duration: 100,
+            onComplete: () => {
+                this.tweens.add({ targets: this.bird, angle: 0, duration: 100, delay: 100 });
+            }
+        });
     }
 
-    function addPipeColumn() {
-        if (gameOverFlag || isGamePaused) return;
+    function startGame(scene) {
+        gameHasStarted = true;
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('bottom-controls').style.display = 'none'; // Menüyü gizle
+        
+        scene.bird.body.setGravityY(1000); // Yerçekimini başlat
+        
+        addPipe(scene);
+        scene.time.addEvent({
+            delay: 1500, // Boru sıklığı
+            callback: () => addPipe(scene),
+            loop: true
+        });
+    }
 
-        let currentGap = Math.max(85, 140 - (score * 0.5));
-        const minPipePiece = 80; 
-        const maxAvailableY = config.height - 110 - currentGap - minPipePiece;
-        let pipeY;
-        let isExtreme = Math.random() < 0.50;
+    function addPipe(scene) {
+        if(gameOverFlag) return;
+        
+        const gap = 170; // Boru aralığı
+        const pipeWidth = 60;
+        const minHeight = 100;
+        const maxHeight = scene.scale.height - gap - minHeight;
+        const pipeHeight = Phaser.Math.Between(minHeight, maxHeight);
 
-        if (isExtreme) {
-            let goTop = Math.random() < 0.5;
-            if (goTop) pipeY = minPipePiece; 
-            else pipeY = maxAvailableY; 
-        } else {
-            pipeY = Phaser.Math.Between(minPipePiece, maxAvailableY);
+        // Üst Boru
+        let topPipe = scene.add.rectangle(scene.scale.width + 50, pipeHeight / 2, pipeWidth, pipeHeight, 0x2ecc71);
+        scene.physics.add.existing(topPipe);
+        topPipe.body.allowGravity = false;
+        topPipe.body.setVelocityX(-200);
+        topPipe.body.immovable = true;
+        scene.pipes.add(topPipe);
+
+        // Alt Boru
+        let bottomPipeY = pipeHeight + gap + ((scene.scale.height - (pipeHeight + gap)) / 2);
+        let bottomPipeH = scene.scale.height - (pipeHeight + gap);
+        let bottomPipe = scene.add.rectangle(scene.scale.width + 50, bottomPipeY, pipeWidth, bottomPipeH, 0x2ecc71);
+        scene.physics.add.existing(bottomPipe);
+        bottomPipe.body.allowGravity = false;
+        bottomPipe.body.setVelocityX(-200);
+        bottomPipe.body.immovable = true;
+        scene.pipes.add(bottomPipe);
+
+        // Skor Çizgisi (Görünmez tetikleyici)
+        let scoreLine = scene.add.rectangle(scene.scale.width + 50, scene.scale.height / 2, 1, scene.scale.height, 0x000000, 0);
+        scene.physics.add.existing(scoreLine);
+        scoreLine.body.allowGravity = false;
+        scoreLine.body.setVelocityX(-200);
+        scoreLine.isScoreLine = true;
+        scene.pipes.add(scoreLine);
+    }
+
+    function update() {
+        if (!gameHasStarted || gameOverFlag) return;
+
+        // Kuşun düşerken burnunu aşağı eğmesi
+        if (this.bird.body.velocity.y > 0) {
+            this.bird.angle += 1;
+            if(this.bird.angle > 20) this.bird.angle = 20;
         }
 
-        let topPipe = pipes.create(config.width + 80, pipeY, 'pipe').setOrigin(0.5, 1).setFlipY(true);
-        let bottomPipe = pipes.create(config.width + 80, pipeY + currentGap, 'pipe').setOrigin(0.5, 0);
-
-        [topPipe, bottomPipe].forEach(p => {
-            p.body.allowGravity = false;
-            p.setVelocityX(-200);
-        });
-
-        let coinY = pipeY + (currentGap / 2);
-        let coin = coins.create(config.width + 80, coinY, 'coin');
-        coin.setVelocityX(-200);
-        coin.body.allowGravity = false;
-        
-        this.tweens.add({ targets: coin, scaleX: 0, duration: 600, yoyo: true, repeat: -1 });
-
-        this.time.delayedCall(1500, () => {
-             if (!gameOverFlag && gameHasStarted && !isGamePaused) {
-                score += 1;
+        // Çarpışma Kontrolleri
+        this.physics.overlap(this.bird, this.pipes, (bird, pipe) => {
+            if (pipe.isScoreLine) {
+                pipe.destroy(); // Çizgiyi yok et ki tekrar saymasın
+                score++;
                 document.getElementById('current-score').innerText = score;
-             }
+                playSynthSound('coin');
+                
+                // Her 5 skorda 1 coin ver
+                if (score % 5 === 0) {
+                    totalCoins++;
+                    document.getElementById('total-coins').innerText = totalCoins;
+                    localStorage.setItem('flappy_coins', totalCoins);
+                }
+            } else {
+                hitPipe(); // Boruya çarptı
+            }
+        });
+
+        // Ekran dışına çıkarsa ölür
+        if (this.bird.y > this.scale.height || this.bird.y < 0) {
+            hitPipe();
+        }
+        
+        // Ekranı terk eden boruları temizle (Performans için)
+        this.pipes.children.each(pipe => {
+            if (pipe.x < -50) pipe.destroy();
         });
     }
 
-    function collectCoin(bird, coin) {
-        coin.disableBody(true, true);
-        totalCoins += 1;
-        document.getElementById('total-coins').innerText = totalCoins;
-        localStorage.setItem('flappy_coins', totalCoins);
-        playSynthSound('coin');
-    }
-
-    function gameOver() {
+    function hitPipe() {
         if (gameOverFlag) return;
         gameOverFlag = true;
-        
-        this.physics.pause();
-        bird.setTint(0xff0000);
         playSynthSound('dead');
+        
+        // Fiziği durdur ve kuşu kızart
+        game.scene.scenes[0].physics.pause();
+        game.scene.scenes[0].bird.setTint(0xff0000);
 
-        // REKOR KONTROLÜ VE OTOMATİK KAYIT
+        // En yüksek skoru kaydet
         if (score > bestScore) {
             bestScore = score;
             localStorage.setItem('flappy_best', bestScore);
             document.getElementById('best-score').innerText = bestScore;
-            
-            // Eğer rekor kırıldıysa ve isim varsa otomatik gönder
-            if(window.autoSubmitScore) {
-                window.autoSubmitScore(score);
-            }
-        } else {
-            document.getElementById('new-record-msg').style.display = 'none';
         }
-        localStorage.setItem('flappy_coins', totalCoins);
 
-        document.getElementById('start-msg').innerText = "TEKRAR DENE";
+        // UI Güncelle
+        document.getElementById('start-msg').innerText = "OYUN BİTTİ\nTEKRAR İÇİN DOKUN";
         document.getElementById('start-screen').style.display = 'flex';
-        document.getElementById('bottom-controls').style.display = 'flex';
-        
-        // Manuel kayıt butonu artık yok, otomatik yapılıyor.
+        document.getElementById('bottom-controls').style.display = 'flex'; // Menüyü geri getir
+
+        // Veritabanına gönder
+        if (window.autoSubmitScore) window.autoSubmitScore(score);
     }
 
-    function restartGame() {
-        score = 0; isGamePaused = false;
-        game.scene.scenes[0].cameras.main.setBackgroundColor('#4ec0ca'); 
+    function togglePause() {
+        if (!gameHasStarted || gameOverFlag) return;
+        const scene = game.scene.scenes[0];
         
-        gameOverFlag = false;
-        gameHasStarted = false;
-        document.getElementById('current-score').innerText = "0";
-        document.getElementById('start-msg').innerText = "BAŞLAMAK İÇİN DOKUN";
-        document.getElementById('pause-msg').style.display = 'none';
-        document.getElementById('new-record-msg').style.display = 'none';
-        
-        document.getElementById('btn-pause').innerText = '⏸️';
-
-        this.scene.restart();
+        if (scene.physics.world.isPaused) {
+            scene.physics.resume();
+            document.getElementById('pause-msg').style.display = 'none';
+            document.getElementById('btn-pause').innerText = '⏸️';
+        } else {
+            scene.physics.pause();
+            document.getElementById('pause-msg').style.display = 'block';
+            document.getElementById('btn-pause').innerText = '▶️';
+        }
     }
     </script>
 </body>
