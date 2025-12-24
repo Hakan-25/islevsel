@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Flappy Hakan (Winged Edition)</title>
+    <title>HakanTools | Flappy Hakan (Market Edition)</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -11,10 +11,10 @@
         /* TEMEL AYARLAR */
         body { margin: 0; padding: 0; background-color: #4ec0ca; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; }
         
-        /* UI KATMANI - DÜZENLEME YAPILDI */
+        /* UI KATMANI */
         #ui-container {
             position: fixed; 
-            top: 20px; /* En tepeye alındı */
+            top: 20px; 
             left: 0; 
             width: 100%;
             text-align: center; 
@@ -24,11 +24,11 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            gap: 5px; /* Boşluklar azaltıldı */
+            gap: 5px; 
         }
 
         #current-score {
-            font-size: 60px; /* Yazı boyutu oyun alanını kapatmamak için biraz küçültüldü */
+            font-size: 60px; 
             font-weight: 900; 
             line-height: 1;
             text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
@@ -40,10 +40,10 @@
             display: flex; 
             gap: 15px; 
             align-items: center;
-            background: rgba(0, 0, 0, 0.4); /* Biraz daha koyu yapıldı okunabilirlik için */
+            background: rgba(0, 0, 0, 0.4); 
             padding: 8px 20px; 
             border-radius: 50px;
-            font-size: 16px; /* İstatistikler küçültüldü */
+            font-size: 16px; 
             font-weight: 700;
             backdrop-filter: blur(4px);
             border: 1px solid rgba(255,255,255,0.3);
@@ -62,12 +62,50 @@
         }
         .back-btn:active { transform: translateX(-50%) translateY(4px); box-shadow: 0 2px 0 #3da0a9; }
         
-        /* BAŞLANGIÇ MESAJI */
-        #start-msg {
+        /* BAŞLANGIÇ MESAJI VE MARKET BUTONU KAPSAYICISI */
+        #start-screen {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 24px; color: white; font-weight: bold; text-shadow: 2px 2px 0 #000;
-            animation: pulse 1s infinite; pointer-events: none; z-index: 90;
+            text-align: center; z-index: 90; display: flex; flex-direction: column; gap: 20px; align-items: center;
         }
+
+        #start-msg {
+            font-size: 24px; color: white; font-weight: bold; text-shadow: 2px 2px 0 #000;
+            animation: pulse 1s infinite; pointer-events: none;
+        }
+
+        #market-btn {
+            background: #f1c40f; color: #fff; border: none; padding: 10px 30px;
+            border-radius: 30px; font-weight: 900; font-size: 16px; cursor: pointer;
+            box-shadow: 0 4px 0 #d35400; text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+            pointer-events: auto; transition: 0.1s;
+        }
+        #market-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #d35400; }
+
+        /* MARKET MODAL (PENCERE) */
+        #market-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center;
+        }
+        .market-content {
+            background: white; width: 300px; padding: 20px; border-radius: 15px;
+            text-align: center; border: 4px solid #4ec0ca;
+        }
+        .skin-item {
+            background: #f0f0f0; padding: 10px; border-radius: 10px; margin: 10px 0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .skin-name { font-weight: bold; color: #333; }
+        .action-btn-small {
+            padding: 5px 15px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer;
+        }
+        .btn-buy { background: #2ecc71; color: white; }
+        .btn-equip { background: #3498db; color: white; }
+        .btn-equipped { background: #95a5a6; color: white; cursor: default; }
+        .btn-close {
+            background: #e74c3c; color: white; border: none; padding: 10px 20px;
+            border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
@@ -86,11 +124,115 @@
         <div id="current-score">0</div>
     </div>
 
-    <div id="start-msg">BAŞLAMAK İÇİN DOKUN</div>
+    <div id="start-screen">
+        <div id="start-msg">BAŞLAMAK İÇİN DOKUN</div>
+        <button id="market-btn" onclick="toggleMarket(true)">🛒 MARKET</button>
+    </div>
+
+    <div id="market-modal">
+        <div class="market-content">
+            <h2 style="margin-top:0; color:#4ec0ca;">KUŞ MARKETİ</h2>
+            <div style="margin-bottom:15px;">Paran: <span id="market-coins">0</span> 💰</div>
+            
+            <div id="skins-list">
+                </div>
+
+            <button class="btn-close" onclick="toggleMarket(false)">KAPAT</button>
+        </div>
+    </div>
+
     <a href="index.html" class="back-btn">ANA MENÜ</a>
 
     <script>
-    // --- SES SİSTEMİ (Aynı) ---
+    // --- VERİ YÖNETİMİ ---
+    let bestScore = localStorage.getItem('flappy_best') || 0;
+    let totalCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
+    
+    // Market Verileri
+    let ownedSkins = JSON.parse(localStorage.getItem('flappy_ownedSkins')) || ['default'];
+    let currentSkin = localStorage.getItem('flappy_currentSkin') || 'default';
+
+    // Market Ürünleri
+    const skinsDB = [
+        { id: 'default', name: 'Sarı Kuş', price: 0 },
+        { id: 'red', name: 'Kızıl Baron', price: 350 }
+    ];
+
+    document.getElementById('best-score').innerText = bestScore;
+    document.getElementById('total-coins').innerText = totalCoins;
+
+    // --- MARKET FONKSİYONLARI ---
+    function toggleMarket(show) {
+        const modal = document.getElementById('market-modal');
+        const startScreen = document.getElementById('start-screen');
+        
+        if (show) {
+            modal.style.display = 'flex';
+            // Start butonuna basınca oyun başlamasın diye propagation durdurulmalı
+            // Ama burada basitçe modal açıyoruz.
+            renderMarket();
+        } else {
+            modal.style.display = 'none';
+        }
+    }
+
+    function renderMarket() {
+        const list = document.getElementById('skins-list');
+        const coinDisplay = document.getElementById('market-coins');
+        coinDisplay.innerText = totalCoins;
+        list.innerHTML = '';
+
+        skinsDB.forEach(skin => {
+            const item = document.createElement('div');
+            item.className = 'skin-item';
+            
+            let btnHtml = '';
+            
+            if (ownedSkins.includes(skin.id)) {
+                if (currentSkin === skin.id) {
+                    btnHtml = `<button class="action-btn-small btn-equipped">SEÇİLİ</button>`;
+                } else {
+                    btnHtml = `<button class="action-btn-small btn-equip" onclick="equipSkin('${skin.id}')">SEÇ</button>`;
+                }
+            } else {
+                if (totalCoins >= skin.price) {
+                    btnHtml = `<button class="action-btn-small btn-buy" onclick="buySkin('${skin.id}', ${skin.price})">${skin.price} 💰</button>`;
+                } else {
+                    btnHtml = `<button class="action-btn-small" style="background:#ccc; cursor:not-allowed;">${skin.price} 💰</button>`;
+                }
+            }
+
+            item.innerHTML = `<span class="skin-name">${skin.name}</span> ${btnHtml}`;
+            list.appendChild(item);
+        });
+    }
+
+    function buySkin(id, price) {
+        if (totalCoins >= price && !ownedSkins.includes(id)) {
+            totalCoins -= price;
+            ownedSkins.push(id);
+            localStorage.setItem('flappy_coins', totalCoins);
+            localStorage.setItem('flappy_ownedSkins', JSON.stringify(ownedSkins));
+            
+            // UI Güncelle
+            document.getElementById('total-coins').innerText = totalCoins;
+            playSynthSound('coin'); // Satın alma sesi
+            renderMarket();
+        }
+    }
+
+    function equipSkin(id) {
+        if (ownedSkins.includes(id)) {
+            currentSkin = id;
+            localStorage.setItem('flappy_currentSkin', currentSkin);
+            renderMarket();
+            
+            // Oyunu yeniden yükle ki yeni kuş gelsin
+            game.scene.scenes[0].restartGame();
+        }
+    }
+
+    // --- SES SİSTEMİ ---
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const audioCtx = new AudioContext();
 
@@ -141,13 +283,8 @@
 
     let bird, pipes, coins;
     let score = 0;
-    let bestScore = localStorage.getItem('flappy_best') || 0;
-    let totalCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
     let gameHasStarted = false;
     let gameOverFlag = false;
-
-    document.getElementById('best-score').innerText = bestScore;
-    document.getElementById('total-coins').innerText = totalCoins;
 
     const game = new Phaser.Game(config);
 
@@ -187,31 +324,41 @@
         pipeG.strokeRect(0, 0, 58, 28);
         pipeG.generateTexture('pipe', 60, 600);
 
-        // KUŞ TASARIMI (KANAT EKLENDİ)
+        // --- KUŞ DOKULARINI OLUŞTURMA ---
+        
+        // 1. DEFAULT (SARI) KUŞ
         let birdG = this.make.graphics();
         birdG.fillStyle(0xFF69B4, 1); // Taç
         birdG.fillTriangle(10, 8, 14, 0, 18, 8); birdG.fillTriangle(18, 8, 22, -2, 26, 8); birdG.fillTriangle(26, 8, 30, 0, 34, 8);
-        
         birdG.fillStyle(0xF4CE42, 1); birdG.fillCircle(22, 20, 14); // Gövde
-        
-        // --- YENİ KANAT (Buraya Eklendi) ---
-        birdG.fillStyle(0xFFFFFF, 1); // Beyaz Kanat
-        birdG.fillEllipse(16, 22, 12, 8); 
-        birdG.lineStyle(2, 0x000000, 1); // Siyah çerçeve
-        birdG.strokeEllipse(16, 22, 12, 8);
-        // -----------------------------------
-
+        birdG.fillStyle(0xFFFFFF, 1); birdG.fillEllipse(16, 22, 12, 8); // Kanat
+        birdG.lineStyle(2, 0x000000, 1); birdG.strokeEllipse(16, 22, 12, 8);
         birdG.fillStyle(0xFFFFFF, 1); birdG.fillCircle(28, 16, 6); // Göz
         birdG.fillStyle(0x000000, 1); birdG.fillCircle(30, 16, 2); // Göz bebeği
         birdG.fillStyle(0xF39C12, 1); birdG.fillTriangle(32, 20, 44, 23, 32, 26); // Gaga
-        birdG.generateTexture('bird', 45, 40);
+        birdG.generateTexture('bird_default', 45, 40);
+
+        // 2. RED (KIZIL) KUŞ - YENİ
+        let redBirdG = this.make.graphics();
+        redBirdG.fillStyle(0x000000, 1); // Siyah Taç
+        redBirdG.fillTriangle(10, 8, 14, 0, 18, 8); redBirdG.fillTriangle(18, 8, 22, -2, 26, 8); redBirdG.fillTriangle(26, 8, 30, 0, 34, 8);
+        redBirdG.fillStyle(0xD72638, 1); redBirdG.fillCircle(22, 20, 14); // Kırmızı Gövde
+        redBirdG.fillStyle(0x2C3E50, 1); redBirdG.fillEllipse(16, 22, 12, 8); // Koyu Mavi Kanat
+        redBirdG.lineStyle(2, 0xFFFFFF, 1); redBirdG.strokeEllipse(16, 22, 12, 8); // Beyaz Çerçeve
+        redBirdG.fillStyle(0xFFFFFF, 1); redBirdG.fillCircle(28, 16, 6); 
+        redBirdG.fillStyle(0x000000, 1); redBirdG.fillCircle(30, 16, 2); 
+        redBirdG.fillStyle(0xF1C40F, 1); redBirdG.fillTriangle(32, 20, 44, 23, 32, 26); // Altın Gaga
+        redBirdG.generateTexture('bird_red', 45, 40);
+
+        // ------------------------------
 
         // GRUPLAR
         pipes = this.physics.add.group();
         coins = this.physics.add.group();
 
-        // OYUNCU
-        bird = this.physics.add.sprite(config.width / 4, config.height / 2, 'bird');
+        // OYUNCU (SEÇİLİ KUŞA GÖRE SPRITE OLUŞTUR)
+        let textureKey = 'bird_' + currentSkin;
+        bird = this.physics.add.sprite(config.width / 4, config.height / 2, textureKey);
         bird.setDepth(10);
         bird.body.setCircle(13, 9, 7); 
         
@@ -253,13 +400,16 @@
     }
 
     function jump() {
+        // Eğer market açıksa zıplama
+        if (document.getElementById('market-modal').style.display === 'flex') return;
+
         if (gameOverFlag) { restartGame.call(this); return; }
 
         if (!gameHasStarted) {
             gameHasStarted = true;
             bird.body.allowGravity = true;
             this.pipeTimer.paused = false;
-            document.getElementById('start-msg').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'none'; // Butonu ve yazıyı gizle
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
@@ -333,7 +483,8 @@
         localStorage.setItem('flappy_coins', totalCoins);
 
         document.getElementById('start-msg').innerText = "TEKRAR DENE";
-        document.getElementById('start-msg').style.display = 'block';
+        document.getElementById('start-screen').style.display = 'flex'; // Ekranı geri getir
+        // Yanınca market butonu da geri gelsin
     }
 
     function restartGame() {
@@ -341,6 +492,7 @@
         gameHasStarted = false;
         score = 0;
         document.getElementById('current-score').innerText = "0";
+        document.getElementById('start-msg').innerText = "BAŞLAMAK İÇİN DOKUN";
         this.scene.restart();
     }
     </script>
