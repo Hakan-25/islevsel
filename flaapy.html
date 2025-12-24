@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Flappy Hakan (Red Baron V2)</title>
+    <title>HakanTools | Flappy Hakan (Red Baron V3)</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
         /* TEMEL AYARLAR */
-        body { margin: 0; padding: 0; background-color: #4ec0ca; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; }
+        body { margin: 0; padding: 0; background-color: #4ec0ca; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; user-select: none; -webkit-user-select: none; }
         
         /* UI KATMANI */
         #ui-container {
@@ -26,6 +26,33 @@
             align-items: center; 
             gap: 5px; 
         }
+
+        /* --- YENİ EKLENEN: SAĞ ÜST KONTROLLER --- */
+        #top-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 101;
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: 0.1s;
+        }
+        .icon-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.6); }
 
         #current-score {
             font-size: 60px; 
@@ -52,22 +79,21 @@
 
         .stat-box { display: flex; align-items: center; gap: 6px; }
 
-        /* --- ALT BUTON GRUBU (YENİ DÜZEN) --- */
+        /* --- ALT BUTON GRUBU --- */
         #bottom-controls {
             position: fixed; 
-            bottom: 15%; /* Mobilde parmak hizası */
+            bottom: 15%; 
             left: 0; 
             width: 100%;
             display: flex; 
             justify-content: center; 
             gap: 20px; 
             z-index: 100;
-            pointer-events: none; /* Boşluklara tıklayınca oyun algılasın */
+            pointer-events: none; 
         }
 
         /* ANA MENÜ BUTONU */
         .back-btn { 
-            /* Pozisyonu artık bottom-controls yönetiyor */
             pointer-events: auto; 
             padding: 15px 30px; 
             background: #ffffff; 
@@ -93,10 +119,13 @@
             font-size: 24px; color: white; font-weight: bold; text-shadow: 2px 2px 0 #000;
             animation: pulse 1s infinite; pointer-events: none;
         }
+        #pause-msg {
+            font-size: 30px; color: white; font-weight: 900; text-shadow: 3px 3px 0 #000;
+            display: none; pointer-events: none;
+        }
 
         /* MARKET BUTONU */
         #market-btn {
-            /* Pozisyonu artık bottom-controls yönetiyor */
             pointer-events: auto;
             background: #f1c40f; 
             color: #fff; 
@@ -112,7 +141,7 @@
         }
         #market-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #d35400; }
 
-        /* MARKET MODAL (PENCERE) */
+        /* MARKET MODAL */
         #market-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center;
@@ -142,6 +171,11 @@
 </head>
 <body>
 
+    <div id="top-controls">
+        <div class="icon-btn" id="btn-sound" onclick="toggleMute()">🔊</div>
+        <div class="icon-btn" id="btn-pause" onclick="togglePause()">⏸️</div>
+    </div>
+
     <div id="ui-container">
         <div class="sub-stats">
             <div class="stat-box">
@@ -157,6 +191,7 @@
 
     <div id="start-screen">
         <div id="start-msg">BAŞLAMAK İÇİN DOKUN</div>
+        <div id="pause-msg">OYUN DURAKLATILDI</div>
     </div>
 
     <div id="bottom-controls">
@@ -188,14 +223,70 @@
     // Market Ürünleri
     const skinsDB = [
         { id: 'default', name: 'Sarı Kuş', price: 0 },
-        { id: 'red', name: 'Kızıl Baron', price: 350 }
+        { id: 'red', name: 'Kızıl Baron', price: 350 },
+        { id: 'blue', name: 'Jet Hakan', price: 500 } // Bonus: Yeni Skin
     ];
 
     document.getElementById('best-score').innerText = bestScore;
     document.getElementById('total-coins').innerText = totalCoins;
 
+    // --- SES YÖNETİMİ (GELİŞMİŞ) ---
+    let isMuted = false;
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        const btn = document.getElementById('btn-sound');
+        if (isMuted) {
+            btn.innerText = '🔇';
+            if (audioCtx.state === 'running') audioCtx.suspend();
+        } else {
+            btn.innerText = '🔊';
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+    }
+
+    function playSynthSound(type) {
+        if (isMuted) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'jump') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(350, now);
+            osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(); osc.stop(now + 0.1);
+        } else if (type === 'coin') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(1200, now);
+            osc.frequency.exponentialRampToValueAtTime(1800, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.start(); osc.stop(now + 0.15);
+        } else if (type === 'dead') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, now);
+            osc.frequency.exponentialRampToValueAtTime(50, now + 0.3);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            osc.start(); osc.stop(now + 0.3);
+        }
+    }
+
     // --- MARKET FONKSİYONLARI ---
     function toggleMarket(show) {
+        // Oyun başladıysa market açılmasın
+        if (gameHasStarted && !gameOverFlag) return;
+
         const modal = document.getElementById('market-modal');
         if (show) { 
             modal.style.display = 'flex'; 
@@ -267,38 +358,38 @@
         }
     }
 
-    // --- SES SİSTEMİ ---
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const audioCtx = new AudioContext();
+    // --- OYUN DURDURMA (PAUSE) ---
+    let isGamePaused = false;
+    function togglePause() {
+        if (!gameHasStarted || gameOverFlag) return; // Sadece oyun oynanırken çalışsın
 
-    function playSynthSound(type) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
+        const scene = game.scene.scenes[0];
+        const btn = document.getElementById('btn-pause');
+        const startScreen = document.getElementById('start-screen');
+        const pauseMsg = document.getElementById('pause-msg');
+        const startMsg = document.getElementById('start-msg');
 
-        if (type === 'jump') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(350, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(500, audioCtx.currentTime + 0.1);
-            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        } else if (type === 'coin') {
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1800, audioCtx.currentTime + 0.1);
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.15);
-        } else if (type === 'dead') {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
-            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        if (!isGamePaused) {
+            // Durdur
+            isGamePaused = true;
+            scene.physics.pause();
+            scene.pipeTimer.paused = true;
+            btn.innerText = '▶️'; // Play ikonu
+            
+            startScreen.style.display = 'flex';
+            startMsg.style.display = 'none';
+            pauseMsg.style.display = 'block';
+
+        } else {
+            // Devam Et
+            isGamePaused = false;
+            scene.physics.resume();
+            scene.pipeTimer.paused = false;
+            btn.innerText = '⏸️'; // Pause ikonu
+            
+            startScreen.style.display = 'none';
+            pauseMsg.style.display = 'none';
+            startMsg.style.display = 'block';
         }
     }
 
@@ -368,6 +459,7 @@
         pipeG.generateTexture('pipe', 60, 600);
 
         // --- KUŞLAR ---
+        // SARI KUŞ
         let birdG = this.make.graphics();
         birdG.fillStyle(0xFF69B4, 1); birdG.fillTriangle(10,8,14,0,18,8); birdG.fillTriangle(18,8,22,-2,26,8); birdG.fillTriangle(26,8,30,0,34,8);
         birdG.fillStyle(0xF4CE42, 1); birdG.fillCircle(22, 20, 14);
@@ -375,15 +467,24 @@
         birdG.fillStyle(0xFFFFFF, 1); birdG.fillCircle(28, 16, 6); birdG.fillStyle(0x000000, 1); birdG.fillCircle(30, 16, 2); birdG.fillStyle(0xF39C12, 1); birdG.fillTriangle(32, 20, 44, 23, 32, 26);
         birdG.generateTexture('bird_default', 45, 40);
 
-        // KIZIL BARON (Yan Profil - Düzeltilmiş)
+        // KIZIL BARON
         let redBirdG = this.make.graphics();
         redBirdG.fillStyle(0xD72638, 1); redBirdG.fillCircle(25, 22, 17); 
-        redBirdG.fillStyle(0x2C3E50, 1); redBirdG.fillRect(6, 17, 20, 6); // Kayış
-        redBirdG.fillStyle(0x3498DB, 1); redBirdG.fillEllipse(26, 20, 9, 7); // Cam
-        redBirdG.lineStyle(2, 0x2C3E50, 1); redBirdG.strokeEllipse(26, 20, 9, 7); // Çerçeve
-        redBirdG.fillStyle(0x1a1a1a, 1); redBirdG.beginPath(); redBirdG.moveTo(8, 24); redBirdG.lineTo(32, 24); redBirdG.lineTo(15, 36); redBirdG.closePath(); redBirdG.fill(); // Kanat
-        redBirdG.fillStyle(0xF1C40F, 1); redBirdG.fillTriangle(36, 18, 50, 22, 36, 26); // Gaga
+        redBirdG.fillStyle(0x2C3E50, 1); redBirdG.fillRect(6, 17, 20, 6);
+        redBirdG.fillStyle(0x3498DB, 1); redBirdG.fillEllipse(26, 20, 9, 7);
+        redBirdG.lineStyle(2, 0x2C3E50, 1); redBirdG.strokeEllipse(26, 20, 9, 7);
+        redBirdG.fillStyle(0x1a1a1a, 1); redBirdG.beginPath(); redBirdG.moveTo(8, 24); redBirdG.lineTo(32, 24); redBirdG.lineTo(15, 36); redBirdG.closePath(); redBirdG.fill();
+        redBirdG.fillStyle(0xF1C40F, 1); redBirdG.fillTriangle(36, 18, 50, 22, 36, 26);
         redBirdG.generateTexture('bird_red', 55, 45); 
+
+        // JET HAKAN (MAVİ) - YENİ
+        let blueBirdG = this.make.graphics();
+        blueBirdG.fillStyle(0x3498DB, 1); // Gövde mavi
+        blueBirdG.fillRect(10, 15, 30, 12);
+        blueBirdG.fillTriangle(40, 15, 55, 21, 40, 27); // Burun
+        blueBirdG.fillStyle(0x95a5a6, 1); // Kanat gri
+        blueBirdG.fillTriangle(20, 15, 35, 15, 10, 5);
+        blueBirdG.generateTexture('bird_blue', 55, 30);
 
         // --- ARKA PLAN ---
         stars = this.add.tileSprite(config.width/2, config.height/2, config.width, config.height, 'star');
@@ -422,6 +523,8 @@
     }
 
     function update() {
+        if (isGamePaused) return; // Duraklatıldıysa güncelleme yapma
+
         if (!gameHasStarted) {
             bird.body.allowGravity = false;
             bird.y = (config.height / 2) + Math.sin(this.time.now / 300) * 8;
@@ -453,6 +556,7 @@
 
     function jump() {
         if (document.getElementById('market-modal').style.display === 'flex') return;
+        if (isGamePaused) { togglePause(); return; } // Pause halindeyken tıklarsan devam etsin mi? İsteğe bağlı.
         if (gameOverFlag) { restartGame.call(this); return; }
 
         if (!gameHasStarted) {
@@ -460,7 +564,6 @@
             bird.body.allowGravity = true;
             this.pipeTimer.paused = false;
             document.getElementById('start-screen').style.display = 'none';
-            // Butonları da gizle
             document.getElementById('bottom-controls').style.display = 'none';
             
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -472,7 +575,7 @@
     }
 
     function addPipeColumn() {
-        if (gameOverFlag) return;
+        if (gameOverFlag || isGamePaused) return;
 
         let currentGap = Math.max(85, 140 - (score * 0.5));
         const minPipePiece = 80; 
@@ -505,7 +608,7 @@
         this.tweens.add({ targets: coin, scaleX: 0, duration: 600, yoyo: true, repeat: -1 });
 
         this.time.delayedCall(1500, () => {
-             if (!gameOverFlag && gameHasStarted) {
+             if (!gameOverFlag && gameHasStarted && !isGamePaused) {
                 score += 1;
                 document.getElementById('current-score').innerText = score;
              }
@@ -539,16 +642,21 @@
         document.getElementById('start-screen').style.display = 'flex';
         // Butonları geri getir
         document.getElementById('bottom-controls').style.display = 'flex';
+        // Sağ üst butonları göstermeye devam et ama pause işe yaramayabilir
     }
 
     function restartGame() {
-        score = 0; isNight = false;
+        score = 0; isNight = false; isGamePaused = false;
         game.scene.scenes[0].cameras.main.setBackgroundColor('#4ec0ca'); 
         
         gameOverFlag = false;
         gameHasStarted = false;
         document.getElementById('current-score').innerText = "0";
         document.getElementById('start-msg').innerText = "BAŞLAMAK İÇİN DOKUN";
+        document.getElementById('pause-msg').style.display = 'none';
+        
+        document.getElementById('btn-pause').innerText = '⏸️';
+
         this.scene.restart();
     }
     </script>
