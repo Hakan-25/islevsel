@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Flappy Hakan (Red Baron Side View)</title>
+    <title>HakanTools | Flappy Hakan (Red Baron V2)</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -52,19 +52,40 @@
 
         .stat-box { display: flex; align-items: center; gap: 6px; }
 
+        /* --- ALT BUTON GRUBU (YENİ DÜZEN) --- */
+        #bottom-controls {
+            position: fixed; 
+            bottom: 15%; /* Mobilde parmak hizası */
+            left: 0; 
+            width: 100%;
+            display: flex; 
+            justify-content: center; 
+            gap: 20px; 
+            z-index: 100;
+            pointer-events: none; /* Boşluklara tıklayınca oyun algılasın */
+        }
+
         /* ANA MENÜ BUTONU */
         .back-btn { 
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
-            padding: 15px 40px; background: #ffffff; color: #4ec0ca; 
-            text-decoration: none; border-radius: 50px; font-weight: 900; font-size: 16px;
-            box-shadow: 0 6px 0 #3da0a9; transition: 0.1s; z-index: 100; 
-            pointer-events: auto; text-transform: uppercase; letter-spacing: 1px;
+            /* Pozisyonu artık bottom-controls yönetiyor */
+            pointer-events: auto; 
+            padding: 15px 30px; 
+            background: #ffffff; 
+            color: #4ec0ca; 
+            text-decoration: none; 
+            border-radius: 50px; 
+            font-weight: 900; 
+            font-size: 16px;
+            box-shadow: 0 6px 0 #3da0a9; 
+            transition: 0.1s; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
         }
-        .back-btn:active { transform: translateX(-50%) translateY(4px); box-shadow: 0 2px 0 #3da0a9; }
+        .back-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #3da0a9; }
         
-        /* BAŞLANGIÇ MESAJI VE MARKET BUTONU KAPSAYICISI */
+        /* BAŞLANGIÇ MESAJI */
         #start-screen {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
             text-align: center; z-index: 90; display: flex; flex-direction: column; gap: 20px; align-items: center;
         }
 
@@ -73,13 +94,23 @@
             animation: pulse 1s infinite; pointer-events: none;
         }
 
+        /* MARKET BUTONU */
         #market-btn {
-            background: #f1c40f; color: #fff; border: none; padding: 10px 30px;
-            border-radius: 30px; font-weight: 900; font-size: 16px; cursor: pointer;
-            box-shadow: 0 4px 0 #d35400; text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
-            pointer-events: auto; transition: 0.1s;
+            /* Pozisyonu artık bottom-controls yönetiyor */
+            pointer-events: auto;
+            background: #f1c40f; 
+            color: #fff; 
+            border: none; 
+            padding: 15px 30px; 
+            border-radius: 50px; 
+            font-weight: 900; 
+            font-size: 16px; 
+            cursor: pointer;
+            box-shadow: 0 6px 0 #d35400; 
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+            transition: 0.1s;
         }
-        #market-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #d35400; }
+        #market-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #d35400; }
 
         /* MARKET MODAL (PENCERE) */
         #market-modal {
@@ -126,7 +157,11 @@
 
     <div id="start-screen">
         <div id="start-msg">BAŞLAMAK İÇİN DOKUN</div>
+    </div>
+
+    <div id="bottom-controls">
         <button id="market-btn" onclick="toggleMarket(true)">🛒 MARKET</button>
+        <a href="index.html" class="back-btn">ANA MENÜ</a>
     </div>
 
     <div id="market-modal">
@@ -140,8 +175,6 @@
             <button class="btn-close" onclick="toggleMarket(false)">KAPAT</button>
         </div>
     </div>
-
-    <a href="index.html" class="back-btn">ANA MENÜ</a>
 
     <script>
     // --- VERİ YÖNETİMİ ---
@@ -164,13 +197,11 @@
     // --- MARKET FONKSİYONLARI ---
     function toggleMarket(show) {
         const modal = document.getElementById('market-modal');
-        const startScreen = document.getElementById('start-screen');
-        
-        if (show) {
-            modal.style.display = 'flex';
-            renderMarket();
-        } else {
-            modal.style.display = 'none';
+        if (show) { 
+            modal.style.display = 'flex'; 
+            renderMarket(); 
+        } else { 
+            modal.style.display = 'none'; 
         }
     }
 
@@ -224,8 +255,15 @@
             localStorage.setItem('flappy_currentSkin', currentSkin);
             renderMarket();
             
-            // Oyunu yeniden yükle
-            game.scene.scenes[0].restartGame();
+            // --- ANINDA KUŞANMA ---
+            if (game.scene.scenes[0] && game.scene.scenes[0].bird) {
+                let scene = game.scene.scenes[0];
+                scene.bird.setTexture('bird_' + currentSkin);
+                
+                // Hitbox güncelle
+                if (currentSkin === 'red') scene.bird.body.setCircle(15, 12, 8);
+                else scene.bird.body.setCircle(13, 9, 7);
+            }
         }
     }
 
@@ -270,7 +308,8 @@
         type: Phaser.AUTO,
         width: isMobile ? window.innerWidth : 400,
         height: isMobile ? window.innerHeight : 600,
-        transparent: true,
+        transparent: false,
+        backgroundColor: '#4ec0ca',
         physics: {
             default: 'arcade',
             arcade: { gravity: { y: 1100 }, debug: false }
@@ -279,109 +318,99 @@
     };
 
     let bird, pipes, coins;
+    let mountains, trees, clouds, stars; 
     let score = 0;
     let gameHasStarted = false;
     let gameOverFlag = false;
+    let isNight = false;
 
     const game = new Phaser.Game(config);
 
     function create() {
         // --- GRAFİKLER ---
         
+        // 1. Bulut
         let cloudG = this.make.graphics();
-        cloudG.fillStyle(0xFFFFFF, 1);
-        cloudG.fillCircle(20, 20, 20); cloudG.fillCircle(45, 20, 25); cloudG.fillCircle(75, 20, 20);
+        cloudG.fillStyle(0xFFFFFF, 1); cloudG.fillCircle(20, 20, 20); cloudG.fillCircle(45, 20, 25); cloudG.fillCircle(75, 20, 20);
         cloudG.generateTexture('cloud', 100, 50);
-        
-        this.add.image(config.width * 0.2, config.height * 0.2, 'cloud').setAlpha(0.6);
-        this.add.image(config.width * 0.8, config.height * 0.3, 'cloud').setAlpha(0.5).setScale(0.8);
-        this.add.image(config.width * 0.5, config.height * 0.1, 'cloud').setAlpha(0.4).setScale(1.2);
 
+        // 2. Yıldız
+        let starG = this.make.graphics();
+        starG.fillStyle(0xFFFFFF, 1); starG.fillCircle(4, 4, 4);
+        starG.generateTexture('star', 8, 8);
+
+        // 3. Dağ
+        let mountG = this.make.graphics();
+        mountG.fillStyle(0x607D8B, 1);
+        mountG.fillTriangle(0, 100, 100, 0, 200, 100);
+        mountG.generateTexture('mountain', 200, 100);
+
+        // 4. Ağaç
+        let treeG = this.make.graphics();
+        treeG.fillStyle(0x8D6E63, 1); treeG.fillRect(10, 30, 10, 30);
+        treeG.fillStyle(0x4CAF50, 1); treeG.fillCircle(15, 20, 15);
+        treeG.generateTexture('tree', 30, 60);
+
+        // 5. Zemin
         let groundG = this.make.graphics();
         groundG.fillStyle(0xDED895, 1); groundG.fillRect(0, 15, 400, 100);
         groundG.fillStyle(0x73BF2E, 1); groundG.fillRect(0, 0, 400, 15);
         groundG.lineStyle(3, 0x558C22, 1); groundG.strokeRect(0, 0, 400, 15);
         groundG.generateTexture('ground', 400, 110);
 
+        // 6. Nesneler
         let coinG = this.make.graphics();
-        coinG.fillStyle(0xFFD700, 1); coinG.fillCircle(16, 16, 16);
-        coinG.lineStyle(2, 0xB8860B, 1); coinG.strokeCircle(16, 16, 16);
-        coinG.fillStyle(0xFFFACD, 1); coinG.fillCircle(16, 16, 10);
-        coinG.fillStyle(0xB8860B, 1); coinG.fillRect(14, 9, 4, 14); 
+        coinG.fillStyle(0xFFD700, 1); coinG.fillCircle(16, 16, 16); coinG.lineStyle(2, 0xB8860B, 1); coinG.strokeCircle(16, 16, 16); coinG.fillStyle(0xFFFACD, 1); coinG.fillCircle(16, 16, 10); coinG.fillStyle(0xB8860B, 1); coinG.fillRect(14, 9, 4, 14); 
         coinG.generateTexture('coin', 32, 32);
 
         let pipeG = this.make.graphics();
-        pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(2, 2, 54, 600);
-        pipeG.lineStyle(4, 0x558C22, 1); pipeG.strokeRect(0, 0, 58, 600);
-        pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(0, 0, 58, 28);
-        pipeG.strokeRect(0, 0, 58, 28);
+        pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(2, 2, 54, 600); pipeG.lineStyle(4, 0x558C22, 1); pipeG.strokeRect(0, 0, 58, 600); pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(0, 0, 58, 28); pipeG.strokeRect(0, 0, 58, 28);
         pipeG.generateTexture('pipe', 60, 600);
 
-        // --- KUŞ DOKULARINI OLUŞTURMA ---
-        
-        // 1. DEFAULT (SARI) KUŞ
+        // --- KUŞLAR ---
         let birdG = this.make.graphics();
-        birdG.fillStyle(0xFF69B4, 1); // Taç
-        birdG.fillTriangle(10, 8, 14, 0, 18, 8); birdG.fillTriangle(18, 8, 22, -2, 26, 8); birdG.fillTriangle(26, 8, 30, 0, 34, 8);
-        birdG.fillStyle(0xF4CE42, 1); birdG.fillCircle(22, 20, 14); // Gövde
-        birdG.fillStyle(0xFFFFFF, 1); birdG.fillEllipse(16, 22, 12, 8); // Kanat
-        birdG.lineStyle(2, 0x000000, 1); birdG.strokeEllipse(16, 22, 12, 8);
-        birdG.fillStyle(0xFFFFFF, 1); birdG.fillCircle(28, 16, 6); // Göz
-        birdG.fillStyle(0x000000, 1); birdG.fillCircle(30, 16, 2); // Göz bebeği
-        birdG.fillStyle(0xF39C12, 1); birdG.fillTriangle(32, 20, 44, 23, 32, 26); // Gaga
+        birdG.fillStyle(0xFF69B4, 1); birdG.fillTriangle(10,8,14,0,18,8); birdG.fillTriangle(18,8,22,-2,26,8); birdG.fillTriangle(26,8,30,0,34,8);
+        birdG.fillStyle(0xF4CE42, 1); birdG.fillCircle(22, 20, 14);
+        birdG.fillStyle(0xFFFFFF, 1); birdG.fillEllipse(16, 22, 12, 8); birdG.lineStyle(2, 0x000000, 1); birdG.strokeEllipse(16, 22, 12, 8);
+        birdG.fillStyle(0xFFFFFF, 1); birdG.fillCircle(28, 16, 6); birdG.fillStyle(0x000000, 1); birdG.fillCircle(30, 16, 2); birdG.fillStyle(0xF39C12, 1); birdG.fillTriangle(32, 20, 44, 23, 32, 26);
         birdG.generateTexture('bird_default', 45, 40);
 
-        // 2. KIZIL BARON (YENİLENMİŞ - YAN PROFİL GÖZLÜK)
+        // KIZIL BARON (Yan Profil - Düzeltilmiş)
         let redBirdG = this.make.graphics();
-        
-        // Kırmızı Gövde
-        redBirdG.fillStyle(0xD72638, 1);
-        redBirdG.fillCircle(22, 20, 16); 
-
-        // Gözlük Kayışı (Kafanın yan tarafında arkaya doğru)
-        redBirdG.fillStyle(0x2C3E50, 1); // Koyu çerçeve rengi
-        redBirdG.fillRect(6, 17, 20, 6); // Arkaya giden bant
-
-        // Yan Gözlük Camı (Eliptik, yandan görünüm)
-        redBirdG.fillStyle(0x3498DB, 1); // Mavi cam
-        redBirdG.fillEllipse(26, 20, 9, 7); // Gözün üzerine oturan lens
-        // Gözlük Çerçevesi (Cama kontur)
-        redBirdG.lineStyle(2, 0x2C3E50, 1);
-        redBirdG.strokeEllipse(26, 20, 9, 7);
-
-        // Siyah Sivri Kanat
-        redBirdG.fillStyle(0x1a1a1a, 1);
-        redBirdG.beginPath();
-        redBirdG.moveTo(8, 24);
-        redBirdG.lineTo(32, 24);
-        redBirdG.lineTo(15, 36);
-        redBirdG.closePath();
-        redBirdG.fill();
-
-        // Altın Gaga
-        redBirdG.fillStyle(0xF1C40F, 1);
-        redBirdG.fillTriangle(36, 18, 50, 22, 36, 26);
-
+        redBirdG.fillStyle(0xD72638, 1); redBirdG.fillCircle(25, 22, 17); 
+        redBirdG.fillStyle(0x2C3E50, 1); redBirdG.fillRect(6, 17, 20, 6); // Kayış
+        redBirdG.fillStyle(0x3498DB, 1); redBirdG.fillEllipse(26, 20, 9, 7); // Cam
+        redBirdG.lineStyle(2, 0x2C3E50, 1); redBirdG.strokeEllipse(26, 20, 9, 7); // Çerçeve
+        redBirdG.fillStyle(0x1a1a1a, 1); redBirdG.beginPath(); redBirdG.moveTo(8, 24); redBirdG.lineTo(32, 24); redBirdG.lineTo(15, 36); redBirdG.closePath(); redBirdG.fill(); // Kanat
+        redBirdG.fillStyle(0xF1C40F, 1); redBirdG.fillTriangle(36, 18, 50, 22, 36, 26); // Gaga
         redBirdG.generateTexture('bird_red', 55, 45); 
 
-        // ------------------------------
+        // --- ARKA PLAN ---
+        stars = this.add.tileSprite(config.width/2, config.height/2, config.width, config.height, 'star');
+        stars.setAlpha(0);
 
+        mountains = this.add.tileSprite(config.width/2, config.height - 150, config.width, 100, 'mountain');
+        mountains.setOrigin(0.5, 1); mountains.setAlpha(0.8);
+
+        clouds = this.add.tileSprite(config.width/2, 100, config.width, 100, 'cloud');
+        clouds.setAlpha(0.5);
+
+        trees = this.add.tileSprite(config.width/2, config.height - 110, config.width, 60, 'tree');
+        trees.setOrigin(0.5, 1);
+
+        this.ground = this.add.tileSprite(config.width/2, config.height, config.width, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
+        this.physics.add.existing(this.ground, true);
+
+        // --- OYUN ---
         pipes = this.physics.add.group();
         coins = this.physics.add.group();
 
         let textureKey = 'bird_' + currentSkin;
         bird = this.physics.add.sprite(config.width / 4, config.height / 2, textureKey);
         bird.setDepth(10);
-        // Kızıl Baron biraz daha büyük olduğu için hitbox'ı ayarlayalım
-        if (currentSkin === 'red') {
-            bird.body.setCircle(16, 10, 5);
-        } else {
-            bird.body.setCircle(13, 9, 7);
-        }
+        if (currentSkin === 'red') bird.body.setCircle(15, 12, 8);
+        else bird.body.setCircle(13, 9, 7);
         
-        this.ground = this.add.tileSprite(config.width/2, config.height, config.width, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
-        this.physics.add.existing(this.ground, true);
-
         this.input.on('pointerdown', jump, this);
         this.input.keyboard.on('keydown-SPACE', jump, this);
 
@@ -389,13 +418,7 @@
         this.physics.add.collider(bird, this.ground, gameOver, null, this);
         this.physics.add.overlap(bird, coins, collectCoin, null, this);
 
-        this.pipeTimer = this.time.addEvent({
-            delay: 1500,
-            callback: addPipeColumn,
-            callbackScope: this,
-            loop: true,
-            paused: true
-        });
+        this.pipeTimer = this.time.addEvent({ delay: 1500, callback: addPipeColumn, callbackScope: this, loop: true, paused: true });
     }
 
     function update() {
@@ -404,17 +427,32 @@
             bird.y = (config.height / 2) + Math.sin(this.time.now / 300) * 8;
             return;
         }
-
         if (gameOverFlag) return;
 
+        // Parallax
         this.ground.tilePositionX += 2.5;
+        trees.tilePositionX += 2.5; 
+        mountains.tilePositionX += 0.5;
+        clouds.tilePositionX += 0.2;
+
+        // Gece/Gündüz
+        let cycle = Math.floor(score / 25);
+        if (cycle % 2 === 1 && !isNight) {
+            isNight = true;
+            this.cameras.main.setBackgroundColor('#2c3e50'); 
+            stars.setAlpha(1); mountains.setTint(0x555555); trees.setTint(0x555555); this.ground.setTint(0x999999);
+        } else if (cycle % 2 === 0 && isNight) {
+            isNight = false;
+            this.cameras.main.setBackgroundColor('#4ec0ca'); 
+            stars.setAlpha(0); mountains.clearTint(); trees.clearTint(); this.ground.clearTint();
+        }
+
         if (bird.angle < 30) bird.angle += 2.5;
         if (bird.y < -50 || bird.y > config.height) gameOver.call(this);
     }
 
     function jump() {
         if (document.getElementById('market-modal').style.display === 'flex') return;
-
         if (gameOverFlag) { restartGame.call(this); return; }
 
         if (!gameHasStarted) {
@@ -422,6 +460,9 @@
             bird.body.allowGravity = true;
             this.pipeTimer.paused = false;
             document.getElementById('start-screen').style.display = 'none';
+            // Butonları da gizle
+            document.getElementById('bottom-controls').style.display = 'none';
+            
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
@@ -496,12 +537,16 @@
 
         document.getElementById('start-msg').innerText = "TEKRAR DENE";
         document.getElementById('start-screen').style.display = 'flex';
+        // Butonları geri getir
+        document.getElementById('bottom-controls').style.display = 'flex';
     }
 
     function restartGame() {
+        score = 0; isNight = false;
+        game.scene.scenes[0].cameras.main.setBackgroundColor('#4ec0ca'); 
+        
         gameOverFlag = false;
         gameHasStarted = false;
-        score = 0;
         document.getElementById('current-score').innerText = "0";
         document.getElementById('start-msg').innerText = "BAŞLAMAK İÇİN DOKUN";
         this.scene.restart();
