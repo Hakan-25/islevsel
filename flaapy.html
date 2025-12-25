@@ -3,686 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Flappy Hakan (Final Edition)</title>
+    <title>HakanTools | Flappy Hakan (Millimetric Edition)</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
         /* TEMEL AYARLAR */
-        body { margin: 0; padding: 0; background-color: #4ec0ca; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; user-select: none; -webkit-user-select: none; }
+        body { margin: 0; padding: 0; background-color: #4ec0ca; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; }
         
         /* UI KATMANI */
         #ui-container {
-            position: fixed; top: 20px; left: 0; width: 100%;
+            position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
             text-align: center; color: white; z-index: 100; pointer-events: none;
-            display: flex; flex-direction: column; align-items: center; gap: 5px; 
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
         }
-
-        /* SAĞ ÜST KONTROLLER */
-        #top-controls {
-            position: fixed; top: 20px; right: 20px; z-index: 101; display: flex; gap: 10px;
-        }
-
-        .icon-btn {
-            background: rgba(0, 0, 0, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.5); color: white;
-            width: 45px; height: 45px; border-radius: 50%;
-            font-size: 20px; display: flex; justify-content: center; align-items: center;
-            cursor: pointer; backdrop-filter: blur(4px); transition: 0.1s;
-        }
-        .icon-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.6); }
 
         #current-score {
-            font-size: 60px; font-weight: 900; line-height: 1;
-            text-shadow: 3px 3px 0 rgba(0,0,0,0.2); font-variant-numeric: tabular-nums; margin-bottom: 5px;
+            font-size: 80px; font-weight: 900; line-height: 1;
+            text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+            font-variant-numeric: tabular-nums;
         }
 
         .sub-stats {
-            display: flex; gap: 15px; align-items: center;
-            background: rgba(0, 0, 0, 0.4); padding: 8px 20px; border-radius: 50px;
-            font-size: 16px; font-weight: 700; backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex; gap: 20px; align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 25px; border-radius: 50px;
+            font-size: 20px; font-weight: 700;
+            backdrop-filter: blur(4px);
+            border: 2px solid rgba(255,255,255,0.4);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
-        .stat-box { display: flex; align-items: center; gap: 6px; }
+        .stat-box { display: flex; align-items: center; gap: 8px; }
 
-        /* --- ALT BUTON GRUBU --- */
-        #bottom-controls {
-            position: fixed; bottom: 15%; left: 0; width: 100%;
-            display: flex; justify-content: center; gap: 15px; z-index: 100; pointer-events: none; 
+        /* ANA MENÜ BUTONU */
+        .back-btn { 
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
+            padding: 15px 40px; background: #ffffff; color: #4ec0ca; 
+            text-decoration: none; border-radius: 50px; font-weight: 900; font-size: 16px;
+            box-shadow: 0 6px 0 #3da0a9; transition: 0.1s; z-index: 100; 
+            pointer-events: auto; text-transform: uppercase; letter-spacing: 1px;
         }
-
-        /* ORTAK BUTON STİLİ */
-        .menu-btn { 
-            pointer-events: auto; padding: 12px 20px; 
-            border-radius: 50px; font-weight: 900; font-size: 14px;
-            text-transform: uppercase; letter-spacing: 1px; border: none; cursor: pointer;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.2); transition: 0.1s; color: white;
-            text-decoration: none; display: flex; align-items: center; gap: 5px;
-        }
-        .menu-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
-
-        /* ÖZEL RENKLER */
-        .btn-market { background: #f1c40f; box-shadow: 0 5px 0 #d35400; }
-        .btn-leaderboard { background: #9b59b6; box-shadow: 0 5px 0 #8e44ad; }
-        .btn-menu { background: #ffffff; color: #4ec0ca; box-shadow: 0 5px 0 #3da0a9; }
-        .btn-login { background: #2ecc71; color:white; width: 100%; margin-top:10px; box-shadow: 0 5px 0 #27ae60; justify-content: center;}
-
-        /* MODALLAR */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center;
-        }
-        .modal-content {
-            background: white; width: 320px; padding: 25px; border-radius: 20px;
-            text-align: center; border: 4px solid #4ec0ca; position: relative;
-        }
-        .close-btn {
-            position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #aaa;
-        }
-
-        /* GİRİŞ EKRANI ÖZEL */
-        #login-modal { display: flex; z-index: 300; background: #4ec0ca; }
-        .login-box { 
-            background: white; padding: 30px; border-radius: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; width: 300px;
-        }
-        .login-input {
-            width: 85%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; 
-            border-radius: 10px; font-size: 16px; text-align: center; font-weight: bold; outline: none;
-        }
-        .login-input:focus { border-color: #4ec0ca; }
-
-        /* SIRALAMA LİSTESİ */
-        .leaderboard-list {
-            max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 15px;
-        }
-        .score-row {
-            display: flex; justify-content: space-between; padding: 8px 0;
-            border-bottom: 1px solid #eee; font-weight: bold; color: #555;
-        }
-        .score-row:nth-child(1) { color: #f1c40f; font-size: 1.2em; }
-
-        /* BAŞLANGIÇ EKRANI */
-        #start-screen {
-            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            text-align: center; z-index: 90; display: none; /* Login kontrolü ile açılacak */
-            flex-direction: column; gap: 10px; align-items: center;
-        }
+        .back-btn:active { transform: translateX(-50%) translateY(4px); box-shadow: 0 2px 0 #3da0a9; }
+        
+        /* BAŞLANGIÇ MESAJI */
         #start-msg {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 24px; color: white; font-weight: bold; text-shadow: 2px 2px 0 #000;
-            animation: pulse 1s infinite; pointer-events: none;
+            animation: pulse 1s infinite; pointer-events: none; z-index: 90;
         }
-        #pause-msg {
-            font-size: 30px; color: white; font-weight: 900; text-shadow: 3px 3px 0 #000;
-            display: none; pointer-events: none;
-        }
-        #new-record-msg { 
-            color: #f1c40f; font-weight: 900; font-size: 18px; text-shadow: 1px 1px 0 #000; 
-            margin-top: 5px; display: none; 
-        }
-
-        /* MARKET ÖGELERİ */
-        .skin-item {
-            background: #f0f0f0; padding: 10px; border-radius: 10px; margin: 10px 0;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .action-btn-small { padding: 5px 15px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; }
-        .btn-buy { background: #2ecc71; color: white; }
-        .btn-equip { background: #3498db; color: white; }
-        .btn-equipped { background: #95a5a6; color: white; cursor: default; }
-
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="login-modal" class="modal-overlay">
-        <div class="login-box">
-            <h1 style="color:#4ec0ca; margin-top:0;">HOŞGELDİN</h1>
-            <p style="color:#666;">Sıralamada görünmek için bir isim belirle.</p>
-            <input type="text" id="username-input" class="login-input" placeholder="Kullanıcı Adı" maxlength="12">
-            <button class="menu-btn btn-login" onclick="saveUsername()">OYUNA BAŞLA</button>
-            <p id="login-error" style="color:red; font-size:12px; display:none; margin-top:5px; font-weight:bold;"></p>
-        </div>
-    </div>
-
-    <div id="top-controls">
-        <div class="icon-btn" id="btn-sound" onclick="toggleMute()">🔊</div>
-        <div class="icon-btn" id="btn-pause" onclick="togglePause()">⏸️</div>
-    </div>
-
     <div id="ui-container">
+        <div id="current-score">0</div>
         <div class="sub-stats">
             <div class="stat-box">
                 <span>🏆</span> <span id="best-score">0</span>
             </div>
-            <div style="width: 1px; background: rgba(255,255,255,0.4); height: 15px;"></div>
+            <div style="width: 2px; background: rgba(255,255,255,0.4); height: 20px;"></div>
             <div class="stat-box">
                 <span>💰</span> <span id="total-coins">0</span>
             </div>
         </div>
-        <div id="current-score">0</div>
-        <div id="display-username" style="font-size: 14px; margin-top:5px; opacity: 0.8; font-weight: bold;"></div>
     </div>
 
-    <div id="start-screen">
-        <div id="start-msg">BAŞLAMAK İÇİN DOKUN</div>
-        <div id="pause-msg">OYUN DURAKLATILDI</div>
-        <div id="new-record-msg">YENİ REKOR! KAYDEDİLDİ ✅</div>
-    </div>
-
-    <div id="bottom-controls">
-        <button class="menu-btn btn-market" onclick="toggleMarket(true)">🛒 MARKET</button>
-        <button class="menu-btn btn-leaderboard" onclick="window.openLeaderboard()">🏆 SIRALAMA</button>
-        <a href="index.html" class="menu-btn btn-menu">🏠 MENÜ</a>
-    </div>
-
-    <div id="market-modal" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-btn" onclick="toggleMarket(false)">&times;</span>
-            <h2 style="margin-top:0; color:#4ec0ca;">KUŞ MARKETİ</h2>
-            <div style="margin-bottom:15px;">Paran: <span id="market-coins">0</span> 💰</div>
-            <div id="skins-list"></div>
-        </div>
-    </div>
-
-    <div id="leaderboard-modal" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-btn" onclick="document.getElementById('leaderboard-modal').style.display='none'">&times;</span>
-            <h2 style="margin-top:0; color:#9b59b6;">🏆 EN İYİ 10</h2>
-            <div class="leaderboard-list" id="leaderboard-content">
-                Yükleniyor...
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-        import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBW8xNsDjp3duXyuPukuBKNlOYw-uv6W1c",
-            authDomain: "hakantools-a44c0.firebaseapp.com",
-            projectId: "hakantools-a44c0",
-            storageBucket: "hakantools-a44c0.firebasestorage.app",
-            messagingSenderId: "216753237718",
-            appId: "1:216753237718:web:ea012c7dc4fdb7e7d72377",
-            measurementId: "G-4GWK9BS40T"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getFirestore(app);
-
-        // OTOMATİK SKOR GÖNDERME FONKSİYONU
-        window.autoSubmitScore = async function(score) {
-            const name = localStorage.getItem('flappy_username');
-            if(!name) return; // İsim yoksa kaydetme
-
-            try {
-                await addDoc(collection(db, "leaderboard"), {
-                    name: name,
-                    score: score,
-                    date: new Date()
-                });
-                console.log("Skor otomatik kaydedildi.");
-                // Kullanıcıya bildirim göster
-                const msg = document.getElementById('new-record-msg');
-                msg.style.display = 'block';
-                msg.innerText = `YENİ REKOR (${score}) KAYDEDİLDİ ✅`;
-            } catch (e) {
-                console.error("Skor kaydedilemedi: ", e);
-            }
-        };
-
-        window.openLeaderboard = async function() {
-            if (typeof gameHasStarted !== 'undefined' && gameHasStarted && !gameOverFlag) return;
-
-            const modal = document.getElementById('leaderboard-modal');
-            const content = document.getElementById('leaderboard-content');
-            modal.style.display = 'flex';
-            content.innerHTML = "Veriler yükleniyor...";
-
-            try {
-                const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10));
-                const querySnapshot = await getDocs(q);
-                
-                let html = "";
-                let rank = 1;
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    let medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
-                    html += `
-                        <div class="score-row">
-                            <span style="width:40px;">${medal}</span>
-                            <span style="flex-grow:1;">${data.name}</span>
-                            <span>${data.score}</span>
-                        </div>
-                    `;
-                    rank++;
-                });
-
-                if(html === "") html = "<p>Henüz kayıt yok.</p>";
-                content.innerHTML = html;
-
-            } catch (e) {
-                console.error(e);
-                content.innerHTML = "Veri çekilemedi. Bağlantınızı kontrol edin.";
-            }
-        };
-    </script>
+    <div id="start-msg">BAŞLAMAK İÇİN DOKUN</div>
+    <a href="index.html" class="back-btn">ANA MENÜ</a>
 
     <script>
-    // --- KULLANICI ADI VE GİRİŞ SİSTEMİ ---
-    const badWords = ["mk", "amk", "aq", "oc", "pic", "yarak", "oç", "bok", "siktir", "sik", "anan", "bacın", "kaşar", "göt"];
-
-    function checkLoginStatus() {
-        const savedName = localStorage.getItem('flappy_username');
-        if (savedName) {
-            document.getElementById('login-modal').style.display = 'none';
-            document.getElementById('start-screen').style.display = 'flex';
-            document.getElementById('display-username').innerText = savedName;
-        } else {
-            document.getElementById('login-modal').style.display = 'flex';
-            document.getElementById('start-screen').style.display = 'none';
-        }
-    }
-
-    function saveUsername() {
-        const input = document.getElementById('username-input');
-        const errorMsg = document.getElementById('login-error');
-        let name = input.value.trim();
-
-        if (name.length < 3) {
-            errorMsg.innerText = "İsim en az 3 karakter olmalı.";
-            errorMsg.style.display = 'block';
-            return;
-        }
-
-        let isBad = false;
-        badWords.forEach(word => {
-            if (name.toLowerCase().includes(word)) isBad = true;
-        });
-
-        if (isBad) {
-            errorMsg.innerText = "Bu ismi kullanamazsın!";
-            errorMsg.style.display = 'block';
-            return;
-        }
-
-        localStorage.setItem('flappy_username', name);
-        checkLoginStatus();
-    }
-
-    window.onload = function() {
-        checkLoginStatus();
-    };
-
-    // --- VERİ YÖNETİMİ ---
-    let bestScore = parseInt(localStorage.getItem('flappy_best')) || 0;
-    let totalCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
-    
-    // Market Verileri
-    let ownedSkins = JSON.parse(localStorage.getItem('flappy_ownedSkins')) || ['default'];
-    let currentSkin = localStorage.getItem('flappy_currentSkin') || 'default';
-
-    // Market Ürünleri
-    const skinsDB = [
-        { id: 'default', name: 'Sarı Kuş', price: 0, color: 0xffff00 },
-        { id: 'red', name: 'Kızıl Baron', price: 350, color: 0xff0000 },
-        { id: 'blue', name: 'Jet Hakan', price: 500, color: 0x0000ff }
-    ];
-
-    document.getElementById('best-score').innerText = bestScore;
-    document.getElementById('total-coins').innerText = totalCoins;
-
-    // --- SES YÖNETİMİ ---
-    let isMuted = false;
+    // --- SES SİSTEMİ (Değişmedi) ---
     const AudioContext = window.AudioContext || window.webkitAudioContext;
-    let audioCtx = new AudioContext();
-
-    function toggleMute() {
-        isMuted = !isMuted;
-        const btn = document.getElementById('btn-sound');
-        if (isMuted) {
-            btn.innerText = '🔇';
-            if (audioCtx.state === 'running') audioCtx.suspend();
-        } else {
-            btn.innerText = '🔊';
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }
-    }
+    const audioCtx = new AudioContext();
 
     function playSynthSound(type) {
-        if (isMuted) return;
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        
         const osc = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
         osc.connect(gainNode);
         gainNode.connect(audioCtx.destination);
 
-        const now = audioCtx.currentTime;
-
         if (type === 'jump') {
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(350, now);
-            osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
-            gainNode.gain.setValueAtTime(0.3, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-            osc.start(); osc.stop(now + 0.1);
+            osc.frequency.setValueAtTime(350, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(500, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
         } else if (type === 'coin') {
             osc.type = 'square';
-            osc.frequency.setValueAtTime(1200, now);
-            osc.frequency.exponentialRampToValueAtTime(1800, now + 0.1);
-            gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-            osc.start(); osc.stop(now + 0.15);
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1800, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
         } else if (type === 'dead') {
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(200, now);
-            osc.frequency.exponentialRampToValueAtTime(50, now + 0.3);
-            gainNode.gain.setValueAtTime(0.3, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-            osc.start(); osc.stop(now + 0.3);
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
         }
     }
 
-    // --- MARKET FONKSİYONLARI ---
-    function toggleMarket(show) {
-        if (window.gameHasStarted && !window.gameOverFlag) return;
-
-        const modal = document.getElementById('market-modal');
-        if (show) { 
-            modal.style.display = 'flex'; 
-            renderMarket(); 
-        } else { 
-            modal.style.display = 'none'; 
-        }
-    }
-
-    function renderMarket() {
-        const list = document.getElementById('skins-list');
-        const coinDisplay = document.getElementById('market-coins');
-        coinDisplay.innerText = totalCoins;
-        list.innerHTML = '';
-
-        skinsDB.forEach(skin => {
-            const item = document.createElement('div');
-            item.className = 'skin-item';
-            
-            let btnHtml = '';
-            
-            if (ownedSkins.includes(skin.id)) {
-                if (currentSkin === skin.id) {
-                    btnHtml = `<button class="action-btn-small btn-equipped">SEÇİLİ</button>`;
-                } else {
-                    btnHtml = `<button class="action-btn-small btn-equip" onclick="equipSkin('${skin.id}')">SEÇ</button>`;
-                }
-            } else {
-                if (totalCoins >= skin.price) {
-                    btnHtml = `<button class="action-btn-small btn-buy" onclick="buySkin('${skin.id}', ${skin.price})">${skin.price} 💰</button>`;
-                } else {
-                    btnHtml = `<button class="action-btn-small" style="background:#ccc; cursor:not-allowed;">${skin.price} 💰</button>`;
-                }
-            }
-            item.innerHTML = `<span class="skin-name">${skin.name}</span> ${btnHtml}`;
-            list.appendChild(item);
-        });
-    }
-
-    // EKSİK OLAN KISIM BURADAN İTİBAREN DÜZELTİLDİ
-    window.buySkin = function(id, price) {
-        if (totalCoins >= price && !ownedSkins.includes(id)) {
-            totalCoins -= price;
-            ownedSkins.push(id);
-            localStorage.setItem('flappy_coins', totalCoins);
-            localStorage.setItem('flappy_ownedSkins', JSON.stringify(ownedSkins));
-            
-            // UI Güncelle
-            document.getElementById('total-coins').innerText = totalCoins;
-            renderMarket();
-        }
-    };
-
-    window.equipSkin = function(id) {
-        if(ownedSkins.includes(id)) {
-            currentSkin = id;
-            localStorage.setItem('flappy_currentSkin', currentSkin);
-            renderMarket();
-            
-            // Eğer oyun henüz başlamadıysa kuşu güncelle (restart gerekebilir)
-            // Phaser sahnesini yeniden başlatarak skin değişimini uygula
-            if (window.gameScene) {
-                window.gameScene.scene.restart();
-            }
-        }
-    };
-
-    // --- PHASER OYUN MANTIĞI (EKLENDİ) ---
-    window.gameHasStarted = false;
-    window.gameOverFlag = false;
-    let score = 0;
-
-    class MainScene extends Phaser.Scene {
-        constructor() {
-            super({ key: 'MainScene' });
-        }
-
-        create() {
-            // Global erişim için
-            window.gameScene = this;
-            window.gameHasStarted = false;
-            window.gameOverFlag = false;
-            score = 0;
-            document.getElementById('current-score').innerText = score;
-            document.getElementById('new-record-msg').style.display = 'none';
-            document.getElementById('start-screen').style.display = 'flex';
-            document.getElementById('start-msg').innerText = "BAŞLAMAK İÇİN DOKUN";
-
-            // Arkaplan
-            this.cameras.main.setBackgroundColor('#4ec0ca');
-
-            // Kuş Rengi
-            let skinData = skinsDB.find(s => s.id === currentSkin) || skinsDB[0];
-            let birdColor = skinData.color || 0xffff00;
-
-            // Kuşu çiz (Grafik olarak, resim yok)
-            let birdG = this.make.graphics();
-            birdG.fillStyle(birdColor, 1);
-            birdG.fillRect(0, 0, 30, 30);
-            birdG.lineStyle(2, 0x000000, 1);
-            birdG.strokeRect(0,0,30,30);
-            // Göz
-            birdG.fillStyle(0xffffff, 1);
-            birdG.fillRect(20, 5, 8, 8);
-            birdG.fillStyle(0x000000, 1);
-            birdG.fillRect(24, 7, 2, 2);
-            
-            birdG.generateTexture('bird', 30, 30);
-
-            // Boru Texture Oluştur
-            let pipeG = this.make.graphics();
-            pipeG.fillStyle(0x73bf2e, 1);
-            pipeG.fillRect(0, 0, 60, 600);
-            pipeG.lineStyle(3, 0x558c22, 1);
-            pipeG.strokeRect(0,0,60,600);
-            pipeG.generateTexture('pipe', 60, 600);
-
-            // Oyuncu (Fizik)
-            this.player = this.physics.add.sprite(100, 300, 'bird');
-            this.player.setCollideWorldBounds(true);
-            this.player.body.gravity.y = 0; // Başlangıçta düşme yok
-
-            // Boru Grubu
-            this.pipes = this.physics.add.group();
-            
-            // Girdi Kontrolü
-            this.input.on('pointerdown', this.jump, this);
-            this.input.keyboard.on('keydown-SPACE', this.jump, this);
-
-            // Çarpışma
-            this.physics.add.collider(this.player, this.pipes, this.hitPipe, null, this);
-            
-            // Timer (Boru üretimi)
-            this.pipeTimer = this.time.addEvent({
-                delay: 1500,
-                callback: this.addRowOfPipes,
-                callbackScope: this,
-                loop: true,
-                paused: true
-            });
-
-            // Pause kontrolü için
-            this.isPaused = false;
-        }
-
-        jump() {
-            // Login olmamışsa başlatma
-            if(document.getElementById('login-modal').style.display === 'flex') return;
-            // Market açıksa başlatma
-            if(document.getElementById('market-modal').style.display === 'flex') return;
-
-            if (window.gameOverFlag) {
-                this.scene.restart();
-                return;
-            }
-
-            if (!window.gameHasStarted) {
-                window.gameHasStarted = true;
-                this.player.body.gravity.y = 1000;
-                this.pipeTimer.paused = false;
-                document.getElementById('start-screen').style.display = 'none';
-                document.getElementById('bottom-controls').style.display = 'none';
-            }
-
-            this.player.setVelocityY(-350);
-            playSynthSound('jump');
-        }
-
-        addRowOfPipes() {
-            // Delik pozisyonu (1 ile 5 arası rastgele bir blok)
-            // Ekran yüksekliği yaklaşık 8-9 blok varsayalım.
-            const hole = Math.floor(Math.random() * 5) + 1;
-            
-            // Üst Boru
-            let topPipe = this.pipes.create(400, (hole * 60) - 600 + 30, 'pipe'); // Yükseklik ayarı
-            topPipe.setOrigin(0, 0);
-            topPipe.body.allowGravity = false;
-            topPipe.setVelocityX(-200);
-            topPipe.checkWorldBounds = true;
-            topPipe.outOfBoundsKill = true;
-
-            // Alt Boru (Arada 2.5 boru boşluk)
-            let bottomPipe = this.pipes.create(400, (hole * 60) + 150, 'pipe');
-            bottomPipe.setOrigin(0, 0);
-            bottomPipe.body.allowGravity = false;
-            bottomPipe.setVelocityX(-200);
-            bottomPipe.checkWorldBounds = true;
-            bottomPipe.outOfBoundsKill = true;
-            bottomPipe.isScored = false; // Puan kontrolü için
-        }
-
-        update() {
-            if (!window.gameHasStarted || window.gameOverFlag) return;
-
-            // Açı efekti
-            if (this.player.body.velocity.y < 0) {
-                this.player.angle = -20;
-            } else if (this.player.body.velocity.y > 0) {
-                this.player.angle += 2;
-                if (this.player.angle > 90) this.player.angle = 90;
-            }
-
-            // Yer kontrolü (Ölüm)
-            if (this.player.y > Number(this.game.config.height) - 20 || this.player.y < 0) {
-                this.hitPipe();
-            }
-
-            // Skor Kontrolü
-            this.pipes.getChildren().forEach(pipe => {
-                if (!pipe.isScored && pipe.x < this.player.x && pipe.y > 300) { // Sadece alt boruyu say
-                    pipe.isScored = true;
-                    this.increaseScore();
-                }
-            });
-        }
-
-        increaseScore() {
-            score += 1;
-            document.getElementById('current-score').innerText = score;
-            playSynthSound('coin');
-            
-            // Para kazanma (Her 5 puanda 1 coin)
-            if(score % 5 === 0) {
-                totalCoins++;
-                localStorage.setItem('flappy_coins', totalCoins);
-                document.getElementById('total-coins').innerText = totalCoins;
-            }
-        }
-
-        hitPipe() {
-            if(window.gameOverFlag) return;
-            
-            this.physics.pause();
-            window.gameOverFlag = true;
-            window.gameHasStarted = false;
-            playSynthSound('dead');
-            
-            this.player.setTint(0xff0000);
-
-            // En iyi skor
-            if (score > bestScore) {
-                bestScore = score;
-                localStorage.setItem('flappy_best', bestScore);
-                document.getElementById('best-score').innerText = bestScore;
-                
-                // Firebase'e gönder
-                if(window.autoSubmitScore) window.autoSubmitScore(score);
-            }
-
-            // Arayüzü getir
-            document.getElementById('start-msg').innerText = "TEKRAR DENE";
-            document.getElementById('start-screen').style.display = 'flex';
-            document.getElementById('bottom-controls').style.display = 'flex';
-        }
-    }
-
+    // --- PHASER AYARLARI ---
+    const isMobile = window.innerWidth < 768;
     const config = {
         type: Phaser.AUTO,
-        width: window.innerWidth > 480 ? 400 : window.innerWidth,
-        height: window.innerHeight,
-        parent: 'body',
+        width: isMobile ? window.innerWidth : 400,
+        height: isMobile ? window.innerHeight : 600,
+        transparent: true,
         physics: {
             default: 'arcade',
-            arcade: {
-                gravity: { y: 0 },
-                debug: false
+            arcade: { 
+                gravity: { y: 1100 }, 
+                debug: false 
             }
         },
-        scene: MainScene,
-        transparent: true
+        scene: { create: create, update: update }
     };
+
+    // --- DEĞİŞKENLER ---
+    let bird, pipes, coins;
+    let score = 0;
+    let bestScore = localStorage.getItem('flappy_best') || 0;
+    let totalCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
+    let gameHasStarted = false;
+    let gameOverFlag = false;
+
+    // UI İlk Yükleme
+    document.getElementById('best-score').innerText = bestScore;
+    document.getElementById('total-coins').innerText = totalCoins;
 
     const game = new Phaser.Game(config);
 
-    // Pause butonu için
-    window.togglePause = function() {
-        if (!window.gameHasStarted || window.gameOverFlag) return;
-        const scene = game.scene.scenes[0];
+    // --- CREATE FONKSİYONU (Yüklemeler) ---
+    function create() {
+        // 1. GRAFİK OLUŞTURMA (Texture Generation)
+        // Bulut
+        let cloudG = this.make.graphics();
+        cloudG.fillStyle(0xFFFFFF, 1);
+        cloudG.fillCircle(20, 20, 20); cloudG.fillCircle(45, 20, 25); cloudG.fillCircle(75, 20, 20);
+        cloudG.generateTexture('cloud', 100, 50);
         
-        if (scene.physics.world.isPaused) {
-            scene.physics.resume();
-            scene.pipeTimer.paused = false;
-            document.getElementById('pause-msg').style.display = 'none';
-        } else {
-            scene.physics.pause();
-            scene.pipeTimer.paused = true;
-            document.getElementById('pause-msg').style.display = 'block';
+        // Arkaplan süsleri
+        this.add.image(config.width * 0.2, config.height * 0.2, 'cloud').setAlpha(0.6);
+        this.add.image(config.width * 0.8, config.height * 0.3, 'cloud').setAlpha(0.5).setScale(0.8);
+        this.add.image(config.width * 0.5, config.height * 0.1, 'cloud').setAlpha(0.4).setScale(1.2);
+
+        // Zemin
+        let groundG = this.make.graphics();
+        groundG.fillStyle(0xDED895, 1); groundG.fillRect(0, 15, 400, 100);
+        groundG.fillStyle(0x73BF2E, 1); groundG.fillRect(0, 0, 400, 15);
+        groundG.lineStyle(3, 0x558C22, 1); groundG.strokeRect(0, 0, 400, 15);
+        groundG.generateTexture('ground', 400, 110);
+
+        // Altın
+        let coinG = this.make.graphics();
+        coinG.fillStyle(0xFFD700, 1); coinG.fillCircle(16, 16, 16);
+        coinG.lineStyle(2, 0xB8860B, 1); coinG.strokeCircle(16, 16, 16);
+        coinG.fillStyle(0xFFFACD, 1); coinG.fillCircle(16, 16, 10);
+        coinG.fillStyle(0xB8860B, 1); coinG.fillRect(14, 9, 4, 14); 
+        coinG.generateTexture('coin', 32, 32);
+
+        // Boru (Standart Yeşil)
+        let pipeG = this.make.graphics();
+        pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(2, 2, 54, 600);
+        pipeG.lineStyle(4, 0x558C22, 1); pipeG.strokeRect(0, 0, 58, 600);
+        pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(0, 0, 58, 28);
+        pipeG.strokeRect(0, 0, 58, 28);
+        pipeG.generateTexture('pipe', 60, 600);
+
+        // Kuş (Kral Tasarım)
+        let birdG = this.make.graphics();
+        birdG.fillStyle(0xFF69B4, 1); // Taç
+        birdG.fillTriangle(10, 8, 14, 0, 18, 8); birdG.fillTriangle(18, 8, 22, -2, 26, 8); birdG.fillTriangle(26, 8, 30, 0, 34, 8);
+        birdG.fillStyle(0xF4CE42, 1); birdG.fillCircle(22, 20, 14); // Gövde
+        birdG.fillStyle(0xFFFFFF, 1); birdG.fillCircle(28, 16, 6); // Göz
+        birdG.fillStyle(0x000000, 1); birdG.fillCircle(30, 16, 2); // Göz bebeği
+        birdG.fillStyle(0xF39C12, 1); birdG.fillTriangle(32, 20, 44, 23, 32, 26); // Gaga
+        birdG.generateTexture('bird', 45, 40);
+
+        // 2. FİZİK GRUPLARI
+        pipes = this.physics.add.group();
+        coins = this.physics.add.group();
+
+        // 3. OYUNCU (KUŞ)
+        bird = this.physics.add.sprite(config.width / 4, config.height / 2, 'bird');
+        bird.setDepth(10);
+        bird.body.setCircle(13, 9, 7); 
+        
+        // 4. ZEMİN (Hareketli)
+        this.ground = this.add.tileSprite(config.width/2, config.height, config.width, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
+        this.physics.add.existing(this.ground, true);
+
+        // 5. GİRDİ (Input)
+        this.input.on('pointerdown', jump, this);
+        this.input.keyboard.on('keydown-SPACE', jump, this);
+
+        // 6. ÇARPIŞMALAR (Collider)
+        this.physics.add.collider(bird, pipes, gameOver, null, this);
+        this.physics.add.collider(bird, this.ground, gameOver, null, this);
+        this.physics.add.overlap(bird, coins, collectCoin, null, this);
+
+        // 7. BORU ÜRETİCİSİ (Loop)
+        this.pipeTimer = this.time.addEvent({
+            delay: 1500,
+            callback: addPipeColumn,
+            callbackScope: this,
+            loop: true,
+            paused: true
+        });
+    }
+
+    // --- UPDATE FONKSİYONU (Her karede çalışır) ---
+    function update() {
+        // Oyun başlamadıysa kuşu havada süzdür
+        if (!gameHasStarted) {
+            bird.body.allowGravity = false;
+            bird.y = (config.height / 2) + Math.sin(this.time.now / 300) * 8;
+            return;
         }
-    };
+
+        if (gameOverFlag) return;
+
+        // Zemini kaydır
+        this.ground.tilePositionX += 2.5;
+
+        // Kuşun burnunu dik/aşağı yap
+        if (bird.angle < 30) bird.angle += 2.5;
+
+        // Ekran dışına çıkarsa öldür
+        if (bird.y < -50 || bird.y > config.height) gameOver.call(this);
+    }
+
+    // --- ZIPLAMA ---
+    function jump() {
+        if (gameOverFlag) {
+            restartGame.call(this);
+            return;
+        }
+
+        if (!gameHasStarted) {
+            gameHasStarted = true;
+            bird.body.allowGravity = true;
+            this.pipeTimer.paused = false;
+            document.getElementById('start-msg').style.display = 'none';
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        bird.setVelocityY(-350);
+        this.tweens.add({ targets: bird, angle: -25, duration: 100 });
+        playSynthSound('jump');
+    }
+
+    // --- MİLİMETRİK BORU HESAPLAMA ---
+    function addPipeColumn() {
+        if (gameOverFlag) return;
+
+        // A) DİNAMİK ARALIK HESABI (Gap Calculation)
+        // Başlangıç: 140px.
+        // Formül: Her skor arttığında 0.5px daralır.
+        // Limit: 85px'in altına düşmez (İmkansız olmasın).
+        let currentGap = Math.max(85, 140 - (score * 0.5));
+        
+        // Boru sınırları (Üst ve alt min boşluk)
+        const minPipePiece = 80; 
+        const maxAvailableY = config.height - 110 - currentGap - minPipePiece; // 110 zemin
+
+        // B) POZİSYON BELİRLEME (%50 EXTREME MOD)
+        let pipeY;
+        let isExtreme = Math.random() < 0.50; // %50 ihtimal
+
+        if (isExtreme) {
+            // "Extreme" modda ya en tepeye ya en dibe yapışır
+            let goTop = Math.random() < 0.5;
+            if (goTop) {
+                // En yukarı (Üst boru minimum boyda)
+                pipeY = minPipePiece; 
+            } else {
+                // En aşağı (Alt boru minimum boyda)
+                pipeY = maxAvailableY; 
+            }
+        } else {
+            // Normal modda rastgele bir yer (Klasik Flappy)
+            pipeY = Phaser.Math.Between(minPipePiece, maxAvailableY);
+        }
+
+        // C) BORULARI YARATMA
+        // Üst Boru
+        let topPipe = pipes.create(config.width + 80, pipeY, 'pipe')
+            .setOrigin(0.5, 1) // Alt noktası referans
+            .setFlipY(true);   // Ters çevir
+        
+        // Alt Boru
+        let bottomPipe = pipes.create(config.width + 80, pipeY + currentGap, 'pipe')
+            .setOrigin(0.5, 0); // Üst noktası referans
+
+        // Boru Fizik Ayarları
+        [topPipe, bottomPipe].forEach(p => {
+            p.body.allowGravity = false;
+            p.setVelocityX(-200); // Hız
+        });
+
+        // D) ALTIN EKLEME
+        let coinY = pipeY + (currentGap / 2);
+        let coin = coins.create(config.width + 80, coinY, 'coin');
+        coin.setVelocityX(-200);
+        coin.body.allowGravity = false;
+        
+        // Altın animasyonu
+        this.tweens.add({
+            targets: coin, scaleX: 0, duration: 600, yoyo: true, repeat: -1
+        });
+
+        // E) SKOR GÜNCELLEME (Geçtikten sonra)
+        this.time.delayedCall(1500, () => {
+             if (!gameOverFlag && gameHasStarted) {
+                score += 1;
+                document.getElementById('current-score').innerText = score;
+             }
+        });
+    }
+
+    // --- ALTIN TOPLAMA ---
+    function collectCoin(bird, coin) {
+        coin.disableBody(true, true);
+        totalCoins += 1;
+        document.getElementById('total-coins').innerText = totalCoins;
+        localStorage.setItem('flappy_coins', totalCoins);
+        playSynthSound('coin');
+    }
+
+    // --- OYUN BİTİŞİ (GAME OVER) ---
+    function gameOver() {
+        if (gameOverFlag) return;
+        gameOverFlag = true;
+        
+        this.physics.pause();
+        bird.setTint(0xff0000);
+        playSynthSound('dead');
+
+        // Rekor Kontrolü
+        if (score > bestScore) {
+            bestScore = score;
+            localStorage.setItem('flappy_best', bestScore);
+            document.getElementById('best-score').innerText = bestScore;
+        }
+        // Para kaydı
+        localStorage.setItem('flappy_coins', totalCoins);
+
+        document.getElementById('start-msg').innerText = "TEKRAR DENE";
+        document.getElementById('start-msg').style.display = 'block';
+    }
+
+    // --- YENİDEN BAŞLAT ---
+    function restartGame() {
+        gameOverFlag = false;
+        gameHasStarted = false;
+        score = 0;
+        document.getElementById('current-score').innerText = "0";
+        this.scene.restart();
+    }
     </script>
 </body>
 </html>
