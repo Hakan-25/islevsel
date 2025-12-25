@@ -189,17 +189,31 @@
         }).catch((err) => alert("Hata: " + err.message));
     }
 
-    function verileriGuncelle(uid) {
-        db.collection("leaderboard").doc(uid).get().then((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                localStorage.setItem('flappy_best', data.score);
-                localStorage.setItem('flappy_coins', data.coins || 0);
-                if(document.getElementById('best-score')) document.getElementById('best-score').innerText = data.score;
-                if(document.getElementById('total-coins')) document.getElementById('total-coins').innerText = data.coins || 0;
-            }
-        });
-    }
+    // Eski verileriGuncelle fonksiyonunu sil, bunu yapıştır:
+function verileriGuncelle(uid) {
+    // .get() yerine .onSnapshot() kullanıyoruz
+    db.collection("leaderboard").doc(uid).onSnapshot((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            
+            // Yeni verileri hafızaya al
+            localStorage.setItem('flappy_best', data.score);
+            localStorage.setItem('flappy_coins', data.coins || 0);
+            
+            // Değişkenleri güncelle (Oyun içi değişkenler)
+            bestScore = data.score;
+            totalCoins = data.coins || 0;
+            
+            // Ekrana anında yansıt
+            if(document.getElementById('best-score')) 
+                document.getElementById('best-score').innerText = data.score;
+            if(document.getElementById('total-coins')) 
+                document.getElementById('total-coins').innerText = data.coins || 0;
+                
+            console.log("Veritabanından canlı güncelleme geldi!");
+        }
+    });
+}
 
     function skoruDatabaseYaz(yeniSkor, toplamPara) {
         const uid = localStorage.getItem('hakan_flappy_uid');
@@ -396,3 +410,4 @@
     </script>
 </body>
 </html>
+
