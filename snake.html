@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HakanTools | Snake 3310</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* GENEL AYARLAR */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: none; /* Mobilde kaydırmayı engelle */
+        }
+
+        /* NOKIA EKRAN ÇERÇEVESİ */
+        .phone-case {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .screen-container {
+            background-color: #9bbc0f; /* Nokia Yeşili */
+            border: 4px solid #43523d;
+            border-radius: 5px;
+            position: relative;
+            width: 340px;
+            height: 340px;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* UI KATMANI (SKORLAR) */
+        .ui-bar {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'VT323', monospace;
+            font-size: 24px;
+            color: #0f380f;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* MOBİL KONTROLLER */
+        .mobile-controls {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 60px 60px 60px;
+            grid-template-rows: 60px 60px;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        /* Mobilde göster, PC'de gizle (Media Query) */
+        @media (min-width: 768px) {
+            .mobile-controls { display: none; }
+        }
+
+        .d-btn {
+            background: #e0e0e0;
+            border: 2px solid #999;
+            border-radius: 50%;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 0 #999;
+            transition: 0.1s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .d-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #999; background: #ccc; }
+        
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
+        .btn-down { grid-column: 2; grid-row: 2; }
+        .btn-right { grid-column: 3; grid-row: 2; }
+
+        /* MODALLAR (Flappy Hakan tarzı ama yeşil tema) */
+        #login-modal, #leaderboard-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 200;
+            display: flex; justify-content: center; align-items: center;
+        }
+        
+        .modal-content {
+            background: #9bbc0f; /* Retro Yeşil */
+            padding: 30px; border-radius: 10px; text-align: center;
+            box-shadow: 0 0 20px rgba(155, 188, 15, 0.4); 
+            border: 4px solid #0f380f;
+            width: 80%; max-width: 400px;
+            font-family: 'VT323', monospace;
+        }
+
+        .modal-content h2 {
+            color: #0f380f; margin: 0 0 20px 0; font-size: 36px; text-transform: uppercase;
+        }
+        
+        .modal-input {
+            width: 80%; padding: 10px; font-size: 24px; 
+            border: 2px solid #0f380f; background: #8bac0f;
+            color: #0f380f; text-align: center; font-family: 'VT323', monospace;
+            outline: none; margin-bottom: 20px;
+        }
+        
+        .modal-btn, .close-btn {
+            background: #0f380f; color: #9bbc0f; padding: 10px 30px; border: none;
+            font-size: 24px; cursor: pointer; font-family: 'VT323', monospace;
+            border: 2px solid #0f380f; transition: 0.1s;
+        }
+        .modal-btn:hover { background: #1a5c1a; }
+
+        .hidden { display: none !important; }
+
+        /* LİDERLİK TABLOSU BUTONU */
+        .leaderboard-btn {
+            position: fixed; top: 20px; right: 20px; 
+            background: #9bbc0f; width: 50px; height: 50px; border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 24px; cursor: pointer; z-index: 100;
+            border: 3px solid #0f380f; color: #0f380f;
+        }
+
+        /* LİSTE STİLİ */
+        #leaderboard-list {
+            list-style: none; padding: 0; margin: 20px 0; max-height: 250px; overflow-y: auto; text-align: left;
+        }
+        .leaderboard-item {
+            background: rgba(15, 56, 15, 0.1); margin-bottom: 5px; padding: 5px 10px;
+            border-bottom: 1px solid #0f380f; color: #0f380f; display: flex; justify-content: space-between;
+            font-size: 24px;
+        }
+
+        /* START MESSAGE */
+        #start-msg {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 30px; color: #0f380f; font-weight: bold; font-family: 'VT323', monospace;
+            animation: blink 1s infinite; pointer-events: none;
+            display: none; width: 100%; text-align: center;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* GERİ DÖN BUTONU */
+        .back-btn { 
+            position: fixed; bottom: 20px; left: 20px; 
+            padding: 10px 20px; background: #333; color: #fff; 
+            text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px;
+            z-index: 100; font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="leaderboard-btn" onclick="openLeaderboard()"><i class="fas fa-trophy"></i></button>
+    <a href="index.html" class="back-btn">← ANA MENÜ</a>
+
+    <div class="phone-case">
+        <div class="screen-container">
+            <div class="ui-bar">
+                <span>SKOR: <span id="current-score">0</span></span>
+                <span>EN İYİ: <span id="best-score">0</span></span>
+            </div>
+            <div id="start-msg">BAŞLAMAK İÇİN<br>BİR TUŞA BAS</div>
+            <canvas id="gameCanvas" width="340" height="340"></canvas>
+        </div>
+    </div>
+
+    <div class="mobile-controls">
+        <button class="d-btn btn-up" ontouchstart="mobileInput('up')" onclick="mobileInput('up')"><i class="fas fa-arrow-up"></i></button>
+        <button class="d-btn btn-left" ontouchstart="mobileInput('left')" onclick="mobileInput('left')"><i class="fas fa-arrow-left"></i></button>
+        <button class="d-btn btn-down" ontouchstart="mobileInput('down')" onclick="mobileInput('down')"><i class="fas fa-arrow-down"></i></button>
+        <button class="d-btn btn-right" ontouchstart="mobileInput('right')" onclick="mobileInput('right')"><i class="fas fa-arrow-right"></i></button>
+    </div>
+
+    <div id="login-modal">
+        <div class="modal-content">
+            <h2>SNAKE 3310</h2>
+            <p style="font-size:18px;">Rumuzunu Gir Pilot:</p>
+            <input type="text" id="nickname-input" class="modal-input" placeholder="RUMUZ" maxlength="10">
+            <button class="modal-btn" onclick="kullaniciKaydet()">BAŞLA</button>
+        </div>
+    </div>
+
+    <div id="leaderboard-modal" class="hidden">
+        <div class="modal-content">
+            <h2>EN İYİ YILANCILAR</h2>
+            <div id="loading-text">Yükleniyor...</div>
+            <ul id="leaderboard-list"></ul>
+            <button class="close-btn" onclick="closeLeaderboard()">KAPAT</button>
+        </div>
+    </div>
+
+    <script>
+    // --- FIREBASE AYARLARI (Flappy Hakan ile aynı config) ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyBW8xNsDjp3duXyuPukuBKNlOYw-uv6W1c",
+        authDomain: "hakantools-a44c0.firebaseapp.com",
+        projectId: "hakantools-a44c0",
+        storageBucket: "hakantools-a44c0.firebasestorage.app",
+        messagingSenderId: "216753237718",
+        appId: "1:216753237718:web:ea012c7dc4fdb7e7d72377",
+        measurementId: "G-4GWK9BS40T"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // --- DEĞİŞKENLER ---
+    // Flappy Hakan ile karışmaması için farklı ID kullanıyoruz
+    const LOCAL_UID_KEY = 'hakan_snake_uid'; 
+    const LOCAL_BEST_KEY = 'snake_best';
+    const COLLECTION_NAME = 'snake_leaderboard'; // Yeni Koleksiyon
+
+    let gameInterval;
+    let isGameRunning = false;
+    let isGameOverState = false;
+
+    // --- KULLANICI İŞLEMLERİ ---
+    window.addEventListener('load', () => {
+        const kayitliID = localStorage.getItem(LOCAL_UID_KEY);
+        // Yerel en yüksek skoru ekrana yaz
+        const localBest = localStorage.getItem(LOCAL_BEST_KEY) || 0;
+        document.getElementById('best-score').innerText = localBest;
+
+        if (kayitliID) {
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('start-msg').style.display = 'block';
+            verileriGuncelle(kayitliID); // Veritabanından son durumu çek
+        }
+    });
+
+    function kullaniciKaydet() {
+        const isim = document.getElementById('nickname-input').value.trim();
+        if (isim === "") { alert("İsim yazman lazım!"); return; }
+
+        const localBest = parseInt(localStorage.getItem(LOCAL_BEST_KEY)) || 0;
+
+        db.collection(COLLECTION_NAME).add({
+            name: isim, 
+            score: localBest, 
+            date: new Date().toLocaleString('tr-TR')
+        }).then((docRef) => {
+            localStorage.setItem(LOCAL_UID_KEY, docRef.id);
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('start-msg').style.display = 'block';
+        }).catch((err) => alert("Hata: " + err.message));
+    }
+
+    function verileriGuncelle(uid) {
+        db.collection(COLLECTION_NAME).doc(uid).onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                // Veritabanındaki skor daha yüksekse yerel hafızayı güncelle
+                const localBest = parseInt(localStorage.getItem(LOCAL_BEST_KEY)) || 0;
+                if(data.score > localBest) {
+                    localStorage.setItem(LOCAL_BEST_KEY, data.score);
+                    document.getElementById('best-score').innerText = data.score;
+                }
+            }
+        });
+    }
+
+    function skoruDatabaseYaz(yeniSkor) {
+        const uid = localStorage.getItem(LOCAL_UID_KEY);
+        if (!uid) return;
+
+        const docRef = db.collection(COLLECTION_NAME).doc(uid);
+        db.runTransaction((t) => {
+            return t.get(docRef).then((doc) => {
+                if (!doc.exists) throw "Hata";
+                const eski = doc.data().score || 0;
+                // Sadece daha yüksek skor yaptıysa güncelle
+                if (yeniSkor > eski) {
+                    t.update(docRef, { score: yeniSkor, date: new Date().toLocaleString('tr-TR') });
+                    return yeniSkor;
+                }
+                return eski;
+            });
+        }).then((finalScore) => {
+            // Başarılı güncelleme sonrası işlemler (gerekirse)
+            console.log("Skor senkronize edildi:", finalScore);
+        });
+    }
+
+    // --- LİDERLİK TABLOSU ---
+    function openLeaderboard() {
+        const modal = document.getElementById('leaderboard-modal');
+        const list = document.getElementById('leaderboard-list');
+        const loading = document.getElementById('loading-text');
+        
+        modal.classList.remove('hidden');
+        list.innerHTML = "";
+        loading.style.display = "block";
+
+        db.collection(COLLECTION_NAME)
+          .orderBy("score", "desc")
+          .limit(10)
+          .get()
+          .then((querySnapshot) => {
+              loading.style.display = "none";
+              let rank = 1;
+              querySnapshot.forEach((doc) => {
+                  const data = doc.data();
+                  const item = document.createElement('li');
+                  item.className = 'leaderboard-item';
+                  
+                  // İlk 3'e özel ikon ekle
+                  let icon = rank === 1 ? '👑' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
+                  
+                  item.innerHTML = `
+                      <span>${icon} ${data.name}</span>
+                      <span>${data.score}</span>
+                  `;
+                  list.appendChild(item);
+                  rank++;
+              });
+          })
+          .catch((error) => {
+              loading.innerText = "Hata: " + error.message;
+          });
+    }
+
+    function closeLeaderboard() {
+        document.getElementById('leaderboard-modal').classList.add('hidden');
+    }
+
+    // --- OYUN MANTIĞI (CANVAS) ---
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Ayarlar
+    const gridSize = 20; // Kare boyutu
+    const tileCount = canvas.width / gridSize;
+    
+    // Oyun Değişkenleri
+    let score = 0;
+    let playerX = 10;
+    let playerY = 10;
+    let velocityX = 0;
+    let velocityY = 0;
+    let trail = [];
+    let tail = 3;
+    let appleX = 5;
+    let appleY = 5;
+
+    function startGame() {
+        if(isGameRunning) return;
+        
+        // Modallar açıksa başlama
+        if(!document.getElementById('login-modal').classList.contains('hidden')) return;
+        if(!document.getElementById('leaderboard-modal').classList.contains('hidden')) return;
+
+        isGameRunning = true;
+        isGameOverState = false;
+        document.getElementById('start-msg').style.display = 'none';
+        
+        // Sıfırla
+        score = 0;
+        tail = 3;
+        playerX = 10; playerY = 10;
+        velocityX = 1; velocityY = 0; // Sağa doğru başla
+        document.getElementById('current-score').innerText = score;
+        
+        gameInterval = setInterval(gameLoop, 1000/10); // 10 FPS (Retro hız)
+    }
+
+    function gameLoop() {
+        // Hareket
+        playerX += velocityX;
+        playerY += velocityY;
+
+        // Duvarlardan geçiş (3310 stili)
+        if(playerX < 0) playerX = tileCount - 1;
+        if(playerX > tileCount - 1) playerX = 0;
+        if(playerY < 0) playerY = tileCount - 1;
+        if(playerY > tileCount - 1) playerY = 0;
+
+        // Arka Plan Temizle
+        ctx.fillStyle = "#9bbc0f";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Yılanı Çiz
+        ctx.fillStyle = "#0f380f";
+        for(let i=0; i<trail.length; i++) {
+            // Yılan parçalarını biraz küçük çiz ki kareler belli olsun
+            ctx.fillRect(trail[i].x * gridSize + 1, trail[i].y * gridSize + 1, gridSize - 2, gridSize - 2);
+            
+            // Kendine çarpma kontrolü
+            if(trail[i].x == playerX && trail[i].y == playerY) {
+                gameOver();
+                return;
+            }
+        }
+
+        // Kuyruk mantığı
+        trail.push({x: playerX, y: playerY});
+        while(trail.length > tail) {
+            trail.shift();
+        }
+
+        // Yem Çiz
+        // Yemi Nokia stili içi dolu kare çizelim
+        ctx.fillStyle = "#0f380f"; 
+        // Yeme yanıp sönme efekti verelim mi? Hayır, orjinal kalsın.
+        ctx.fillRect(appleX * gridSize + 2, appleY * gridSize + 2, gridSize - 4, gridSize - 4);
+
+        // Yem yeme kontrolü
+        if(appleX == playerX && appleY == playerY) {
+            tail++;
+            score += 10; // Her yem 10 puan
+            document.getElementById('current-score').innerText = score;
+            
+            // Yeni yem konumu (Yılanın üstüne gelmesin)
+            // Basitlik için rastgele atıyoruz, çok nadir üst üste gelir
+            appleX = Math.floor(Math.random() * tileCount);
+            appleY = Math.floor(Math.random() * tileCount);
+        }
+    }
+
+    function gameOver() {
+        clearInterval(gameInterval);
+        isGameRunning = false;
+        isGameOverState = true;
+        
+        // En iyi skor kontrolü
+        const localBest = parseInt(localStorage.getItem(LOCAL_BEST_KEY)) || 0;
+        if(score > localBest) {
+            localStorage.setItem(LOCAL_BEST_KEY, score);
+            document.getElementById('best-score').innerText = score;
+        }
+        
+        // Veritabanına yaz
+        skoruDatabaseYaz(score);
+        
+        document.getElementById('start-msg').innerHTML = "OYUN BİTTİ<br>SKOR: " + score + "<br>TEKRAR DENE";
+        document.getElementById('start-msg').style.display = 'block';
+    }
+
+    // --- KONTROLLER ---
+    
+    // Klavye
+    document.addEventListener('keydown', keyPush);
+    function keyPush(evt) {
+        // Eğer oyun başlamadıysa veya bittiyse ve bir tuşa basıldıysa başlat
+        if(!isGameRunning) {
+             // Sadece yön tuşları veya Space/Enter ile başlat
+             if([37,38,39,40,32,13].includes(evt.keyCode)) {
+                 startGame();
+                 return;
+             }
+        }
+
+        switch(evt.keyCode) {
+            case 37: if(velocityX == 1) return; velocityX = -1; velocityY = 0; break; // Sol
+            case 38: if(velocityY == 1) return; velocityX = 0; velocityY = -1; break; // Yukarı
+            case 39: if(velocityX == -1) return; velocityX = 1; velocityY = 0; break; // Sağ
+            case 40: if(velocityY == -1) return; velocityX = 0; velocityY = 1; break; // Aşağı
+        }
+    }
+
+    // Mobil Butonlar
+    window.mobileInput = function(dir) {
+        if(!isGameRunning) {
+            startGame();
+            // İlk hareketi de algılasın diye devam ediyoruz
+        }
+
+        switch(dir) {
+            case 'left': if(velocityX == 1) return; velocityX = -1; velocityY = 0; break;
+            case 'up': if(velocityY == 1) return; velocityX = 0; velocityY = -1; break;
+            case 'right': if(velocityX == -1) return; velocityX = 1; velocityY = 0; break;
+            case 'down': if(velocityY == -1) return; velocityX = 0; velocityY = 1; break;
+        }
+    };
+    </script>
+</body>
+</html>
