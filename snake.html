@@ -217,7 +217,7 @@
     </div>
 
     <script>
-    // --- FIREBASE AYARLARI (Flappy Hakan ile aynı config) ---
+    // --- FIREBASE AYARLARI ---
     const firebaseConfig = {
         apiKey: "AIzaSyBW8xNsDjp3duXyuPukuBKNlOYw-uv6W1c",
         authDomain: "hakantools-a44c0.firebaseapp.com",
@@ -232,26 +232,25 @@
     const db = firebase.firestore();
 
     // --- DEĞİŞKENLER ---
-    // Flappy Hakan ile karışmaması için farklı ID kullanıyoruz
     const LOCAL_UID_KEY = 'hakan_snake_uid'; 
     const LOCAL_BEST_KEY = 'snake_best';
-    const COLLECTION_NAME = 'snake_leaderboard'; // Yeni Koleksiyon
+    const COLLECTION_NAME = 'snake_leaderboard';
 
     let gameInterval;
     let isGameRunning = false;
     let isGameOverState = false;
+    let changingDirection = false; // HIZLI BASMA HATASI İÇİN EKLENDİ
 
     // --- KULLANICI İŞLEMLERİ ---
     window.addEventListener('load', () => {
         const kayitliID = localStorage.getItem(LOCAL_UID_KEY);
-        // Yerel en yüksek skoru ekrana yaz
         const localBest = localStorage.getItem(LOCAL_BEST_KEY) || 0;
         document.getElementById('best-score').innerText = localBest;
 
         if (kayitliID) {
             document.getElementById('login-modal').classList.add('hidden');
             document.getElementById('start-msg').style.display = 'block';
-            verileriGuncelle(kayitliID); // Veritabanından son durumu çek
+            verileriGuncelle(kayitliID);
         }
     });
 
@@ -276,7 +275,6 @@
         db.collection(COLLECTION_NAME).doc(uid).onSnapshot((doc) => {
             if (doc.exists) {
                 const data = doc.data();
-                // Veritabanındaki skor daha yüksekse yerel hafızayı güncelle
                 const localBest = parseInt(localStorage.getItem(LOCAL_BEST_KEY)) || 0;
                 if(data.score > localBest) {
                     localStorage.setItem(LOCAL_BEST_KEY, data.score);
@@ -295,7 +293,6 @@
             return t.get(docRef).then((doc) => {
                 if (!doc.exists) throw "Hata";
                 const eski = doc.data().score || 0;
-                // Sadece daha yüksek skor yaptıysa güncelle
                 if (yeniSkor > eski) {
                     t.update(docRef, { score: yeniSkor, date: new Date().toLocaleString('tr-TR') });
                     return yeniSkor;
@@ -303,7 +300,6 @@
                 return eski;
             });
         }).then((finalScore) => {
-            // Başarılı güncelleme sonrası işlemler (gerekirse)
             console.log("Skor senkronize edildi:", finalScore);
         });
     }
@@ -329,14 +325,8 @@
                   const data = doc.data();
                   const item = document.createElement('li');
                   item.className = 'leaderboard-item';
-                  
-                  // İlk 3'e özel ikon ekle
                   let icon = rank === 1 ? '👑' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
-                  
-                  item.innerHTML = `
-                      <span>${icon} ${data.name}</span>
-                      <span>${data.score}</span>
-                  `;
+                  item.innerHTML = `<span>${icon} ${data.name}</span><span>${data.score}</span>`;
                   list.appendChild(item);
                   rank++;
               });
@@ -354,11 +344,9 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    // Ayarlar
-    const gridSize = 20; // Kare boyutu
+    const gridSize = 20;
     const tileCount = canvas.width / gridSize;
     
-    // Oyun Değişkenleri
     let score = 0;
     let playerX = 10;
     let playerY = 10;
@@ -372,7 +360,6 @@
     function startGame() {
         if(isGameRunning) return;
         
-        // Modallar açıksa başlama
         if(!document.getElementById('login-modal').classList.contains('hidden')) return;
         if(!document.getElementById('leaderboard-modal').classList.contains('hidden')) return;
 
@@ -380,64 +367,54 @@
         isGameOverState = false;
         document.getElementById('start-msg').style.display = 'none';
         
-        // Sıfırla
         score = 0;
         tail = 3;
         playerX = 10; playerY = 10;
-        velocityX = 1; velocityY = 0; // Sağa doğru başla
+        velocityX = 1; velocityY = 0; 
+        changingDirection = false; // Başlarken sıfırla
         document.getElementById('current-score').innerText = score;
         
-        gameInterval = setInterval(gameLoop, 1000/10); // 10 FPS (Retro hız)
+        gameInterval = setInterval(gameLoop, 1000/10); 
     }
 
     function gameLoop() {
-        // Hareket
+        // Her döngü başında yeni tuş girişine izin ver
+        changingDirection = false; 
+
         playerX += velocityX;
         playerY += velocityY;
 
-        // Duvarlardan geçiş (3310 stili)
         if(playerX < 0) playerX = tileCount - 1;
         if(playerX > tileCount - 1) playerX = 0;
         if(playerY < 0) playerY = tileCount - 1;
         if(playerY > tileCount - 1) playerY = 0;
 
-        // Arka Plan Temizle
         ctx.fillStyle = "#9bbc0f";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Yılanı Çiz
         ctx.fillStyle = "#0f380f";
         for(let i=0; i<trail.length; i++) {
-            // Yılan parçalarını biraz küçük çiz ki kareler belli olsun
             ctx.fillRect(trail[i].x * gridSize + 1, trail[i].y * gridSize + 1, gridSize - 2, gridSize - 2);
             
-            // Kendine çarpma kontrolü
             if(trail[i].x == playerX && trail[i].y == playerY) {
                 gameOver();
                 return;
             }
         }
 
-        // Kuyruk mantığı
         trail.push({x: playerX, y: playerY});
         while(trail.length > tail) {
             trail.shift();
         }
 
-        // Yem Çiz
-        // Yemi Nokia stili içi dolu kare çizelim
         ctx.fillStyle = "#0f380f"; 
-        // Yeme yanıp sönme efekti verelim mi? Hayır, orjinal kalsın.
         ctx.fillRect(appleX * gridSize + 2, appleY * gridSize + 2, gridSize - 4, gridSize - 4);
 
-        // Yem yeme kontrolü
         if(appleX == playerX && appleY == playerY) {
             tail++;
-            score += 10; // Her yem 10 puan
+            score += 10; 
             document.getElementById('current-score').innerText = score;
             
-            // Yeni yem konumu (Yılanın üstüne gelmesin)
-            // Basitlik için rastgele atıyoruz, çok nadir üst üste gelir
             appleX = Math.floor(Math.random() * tileCount);
             appleY = Math.floor(Math.random() * tileCount);
         }
@@ -448,14 +425,12 @@
         isGameRunning = false;
         isGameOverState = true;
         
-        // En iyi skor kontrolü
         const localBest = parseInt(localStorage.getItem(LOCAL_BEST_KEY)) || 0;
         if(score > localBest) {
             localStorage.setItem(LOCAL_BEST_KEY, score);
             document.getElementById('best-score').innerText = score;
         }
         
-        // Veritabanına yaz
         skoruDatabaseYaz(score);
         
         document.getElementById('start-msg').innerHTML = "OYUN BİTTİ<br>SKOR: " + score + "<br>TEKRAR DENE";
@@ -464,23 +439,40 @@
 
     // --- KONTROLLER ---
     
-    // Klavye
     document.addEventListener('keydown', keyPush);
     function keyPush(evt) {
-        // Eğer oyun başlamadıysa veya bittiyse ve bir tuşa basıldıysa başlat
         if(!isGameRunning) {
-             // Sadece yön tuşları veya Space/Enter ile başlat
              if([37,38,39,40,32,13].includes(evt.keyCode)) {
+                 evt.preventDefault(); // Sayfa kaymasını engelle
                  startGame();
                  return;
              }
         }
 
+        // HATA DÜZELTME: Eğer bu turda zaten yön değiştirdiyse, ikinci tuşu yoksay.
+        if (changingDirection) return;
+
         switch(evt.keyCode) {
-            case 37: if(velocityX == 1) return; velocityX = -1; velocityY = 0; break; // Sol
-            case 38: if(velocityY == 1) return; velocityX = 0; velocityY = -1; break; // Yukarı
-            case 39: if(velocityX == -1) return; velocityX = 1; velocityY = 0; break; // Sağ
-            case 40: if(velocityY == -1) return; velocityX = 0; velocityY = 1; break; // Aşağı
+            case 37: // Sol
+                if(velocityX == 1) return; // Sağa gidiyorsa sola dönemez
+                velocityX = -1; velocityY = 0; 
+                changingDirection = true; // Yön değişti, bir sonraki kareye kadar kilitle
+                break;
+            case 38: // Yukarı
+                if(velocityY == 1) return; 
+                velocityX = 0; velocityY = -1; 
+                changingDirection = true;
+                break;
+            case 39: // Sağ
+                if(velocityX == -1) return; 
+                velocityX = 1; velocityY = 0; 
+                changingDirection = true;
+                break;
+            case 40: // Aşağı
+                if(velocityY == -1) return; 
+                velocityX = 0; velocityY = 1; 
+                changingDirection = true;
+                break;
         }
     }
 
@@ -488,14 +480,31 @@
     window.mobileInput = function(dir) {
         if(!isGameRunning) {
             startGame();
-            // İlk hareketi de algılasın diye devam ediyoruz
         }
 
+        if (changingDirection) return;
+
         switch(dir) {
-            case 'left': if(velocityX == 1) return; velocityX = -1; velocityY = 0; break;
-            case 'up': if(velocityY == 1) return; velocityX = 0; velocityY = -1; break;
-            case 'right': if(velocityX == -1) return; velocityX = 1; velocityY = 0; break;
-            case 'down': if(velocityY == -1) return; velocityX = 0; velocityY = 1; break;
+            case 'left': 
+                if(velocityX == 1) return; 
+                velocityX = -1; velocityY = 0; 
+                changingDirection = true;
+                break;
+            case 'up': 
+                if(velocityY == 1) return; 
+                velocityX = 0; velocityY = -1; 
+                changingDirection = true;
+                break;
+            case 'right': 
+                if(velocityX == -1) return; 
+                velocityX = 1; velocityY = 0; 
+                changingDirection = true;
+                break;
+            case 'down': 
+                if(velocityY == -1) return; 
+                velocityX = 0; velocityY = 1; 
+                changingDirection = true;
+                break;
         }
     };
     </script>
