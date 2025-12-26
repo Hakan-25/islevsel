@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Snake 3310 Pro</title>
+    <title>HakanTools | Snake 3310 Smooth</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -12,7 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        /* GENEL AYARLAR */
+        /* --- GENEL AYARLAR --- */
         body {
             margin: 0;
             padding: 0;
@@ -24,10 +24,10 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            touch-action: none;
+            touch-action: none; /* Mobilde sayfa kaymasını engeller */
         }
 
-        /* NOKIA EKRAN ÇERÇEVESİ */
+        /* --- TELEFON KASASI --- */
         .phone-case {
             background-color: #34495e;
             padding: 15px;
@@ -37,8 +37,9 @@
             border: 2px solid #2c3e50;
         }
 
+        /* --- EKRAN ALANI --- */
         .screen-container {
-            background-color: #9bbc0f; /* Klasik Yeşil */
+            background-color: #9bbc0f; /* Nokia Yeşili */
             border: 6px solid #43523d;
             border-radius: 8px;
             position: relative;
@@ -52,146 +53,132 @@
             margin: 0 auto;
         }
 
-        /* UI KATMANI (SKORLAR) */
+        /* --- UI (SKOR TABELASI) --- */
         .ui-bar {
-            position: absolute;
-            top: 5px;
-            left: 8px;
+            position: absolute; 
+            top: 5px; 
+            left: 8px; 
             right: 8px;
-            display: flex;
+            display: flex; 
             justify-content: space-between;
-            font-family: 'VT323', monospace;
-            font-size: 26px;
+            font-family: 'VT323', monospace; 
+            font-size: 26px; 
             color: #0f380f;
-            z-index: 10;
+            z-index: 10; 
             pointer-events: none;
             text-shadow: 1px 1px 0 rgba(155, 188, 15, 0.5);
         }
 
-        /* MOBİL KONTROLLER (D-PAD DÜZENİ) */
+        /* --- MOBİL KONTROLLER --- */
         .mobile-controls {
             margin-top: 25px;
             display: grid;
-            grid-template-columns: 70px 70px 70px; /* 3 Sütun */
-            grid-template-rows: 60px 60px 60px;    /* 3 Satır */
+            grid-template-columns: 70px 70px 70px;
+            grid-template-rows: 60px 60px 60px;
             gap: 5px;
             justify-content: center;
             align-items: center;
         }
         
-        /* PC'de gizle */
-        @media (min-width: 768px) {
-            .mobile-controls { display: none; }
+        /* PC'de kontrolleri gizle */
+        @media (min-width: 768px) { 
+            .mobile-controls { display: none; } 
         }
 
         .d-btn {
             background: linear-gradient(145deg, #e6e6e6, #cccccc);
-            border: 2px solid #999;
+            border: 2px solid #999; 
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
+            width: 60px; 
+            height: 60px; 
+            font-size: 24px; 
             color: #333;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
+            cursor: pointer; 
+            display: flex; 
+            justify-content: center; 
             align-items: center;
             box-shadow: 0 6px 0 #888, 0 10px 10px rgba(0,0,0,0.2);
-            transition: 0.1s;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            margin: auto; /* Hücre içinde ortala */
+            transition: 0.1s; 
+            user-select: none; 
+            -webkit-tap-highlight-color: transparent; 
+            margin: auto;
         }
-        .d-btn:active { 
+        .d-btn:active, .d-btn.active-state { 
             transform: translateY(6px); 
             box-shadow: 0 0 0 #888, inset 0 2px 5px rgba(0,0,0,0.2); 
             background: #bbb; 
         }
         
-        /* IZGARA YERLEŞİMİ (CROSS / ARTI ŞEKLİ) */
-        .btn-up    { grid-column: 2; grid-row: 1; }
-        .btn-left  { grid-column: 1; grid-row: 2; }
-        /* ORTASI BOŞ (2,2) */
+        /* Tuş Yerleşimi */
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
         .btn-right { grid-column: 3; grid-row: 2; }
-        .btn-down  { grid-column: 2; grid-row: 3; }
+        .btn-down { grid-column: 2; grid-row: 3; }
 
-        /* MODALLAR */
+        /* --- MODALLAR (Açılır Pencereler) --- */
         #login-modal, #leaderboard-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 200;
-            display: flex; justify-content: center; align-items: center;
+            display: flex; justify-content: center; align-items: center; 
             backdrop-filter: blur(5px);
         }
         
         .modal-content {
-            background: #9bbc0f;
-            padding: 30px; border-radius: 15px; text-align: center;
+            background: #9bbc0f; 
+            padding: 30px; 
+            border-radius: 15px; 
+            text-align: center;
             box-shadow: 0 0 30px rgba(155, 188, 15, 0.3); 
             border: 4px solid #0f380f;
-            width: 85%; max-width: 400px;
+            width: 85%; max-width: 400px; 
             font-family: 'VT323', monospace;
         }
-
-        .modal-content h2 {
-            color: #0f380f; margin: 0 0 20px 0; font-size: 42px; text-transform: uppercase; letter-spacing: 2px;
+        
+        .modal-content h2 { 
+            color: #0f380f; margin: 0 0 20px 0; font-size: 42px; text-transform: uppercase; letter-spacing: 2px; 
         }
         
         .modal-input {
-            width: 80%; padding: 12px; font-size: 28px; 
-            border: 3px solid #0f380f; background: #8bac0f;
-            color: #0f380f; text-align: center; font-family: 'VT323', monospace;
-            outline: none; margin-bottom: 25px; border-radius: 5px;
+            width: 80%; padding: 12px; font-size: 28px; border: 3px solid #0f380f; background: #8bac0f;
+            color: #0f380f; text-align: center; font-family: 'VT323', monospace; outline: none; margin-bottom: 25px; border-radius: 5px;
         }
         
         .modal-btn, .close-btn {
-            background: #0f380f; color: #9bbc0f; padding: 12px 35px; border: none;
-            font-size: 28px; cursor: pointer; font-family: 'VT323', monospace;
-            border: 3px solid #0f380f; transition: 0.2s; border-radius: 5px;
+            background: #0f380f; color: #9bbc0f; padding: 12px 35px; border: none; font-size: 28px; cursor: pointer;
+            font-family: 'VT323', monospace; border: 3px solid #0f380f; transition: 0.2s; border-radius: 5px;
         }
         .modal-btn:hover { background: #1a5c1a; transform: scale(1.05); }
-
         .hidden { display: none !important; }
 
-        /* LİDERLİK TABLOSU BUTONU */
+        /* --- LİDERLİK TABLOSU --- */
         .leaderboard-btn {
-            position: fixed; top: 20px; right: 20px; 
-            background: #9bbc0f; width: 55px; height: 55px; border-radius: 12px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 26px; cursor: pointer; z-index: 100;
-            border: 3px solid #0f380f; color: #0f380f;
-            box-shadow: 0 4px 0 #0f380f;
+            position: fixed; top: 20px; right: 20px; background: #9bbc0f; width: 55px; height: 55px;
+            border-radius: 12px; display: flex; justify-content: center; align-items: center;
+            font-size: 26px; cursor: pointer; z-index: 100; border: 3px solid #0f380f; color: #0f380f; box-shadow: 0 4px 0 #0f380f;
         }
         .leaderboard-btn:active { transform: translateY(4px); box-shadow: none; }
 
-        /* LİSTE STİLİ */
-        #leaderboard-list {
-            list-style: none; padding: 0; margin: 20px 0; max-height: 250px; overflow-y: auto; text-align: left;
-        }
+        #leaderboard-list { list-style: none; padding: 0; margin: 20px 0; max-height: 250px; overflow-y: auto; text-align: left; }
         .leaderboard-item {
             background: rgba(15, 56, 15, 0.1); margin-bottom: 8px; padding: 8px 12px;
             border-bottom: 2px solid #0f380f; color: #0f380f; display: flex; justify-content: space-between;
             font-size: 26px; border-radius: 4px;
         }
 
-        /* START MESSAGE */
+        /* --- BAŞLANGIÇ MESAJI --- */
         #start-msg {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 32px; color: #0f380f; font-weight: bold; font-family: 'VT323', monospace;
-            animation: blink 1.5s infinite; pointer-events: none;
-            display: none; width: 100%; text-align: center;
-            text-shadow: 2px 2px 0px rgba(155, 188, 15, 0.8);
-            z-index: 20;
+            animation: blink 1.5s infinite; pointer-events: none; display: none; width: 100%; text-align: center;
+            text-shadow: 2px 2px 0px rgba(155, 188, 15, 0.8); z-index: 20;
         }
         @keyframes blink { 50% { opacity: 0.3; } }
 
-        /* GERİ DÖN BUTONU */
+        /* --- GERİ DÖN BUTONU --- */
         .back-btn { 
-            position: fixed; bottom: 20px; left: 20px; 
-            padding: 12px 24px; background: #2c3e50; color: #fff; 
-            text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px;
-            z-index: 100; font-family: 'Inter', sans-serif;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            position: fixed; bottom: 20px; left: 20px; padding: 12px 24px; background: #2c3e50; color: #fff; 
+            text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; z-index: 100;
+            font-family: 'Inter', sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
         }
     </style>
 </head>
@@ -212,10 +199,10 @@
     </div>
 
     <div class="mobile-controls">
-        <button class="d-btn btn-up" ontouchstart="mobileInput('up')" onclick="mobileInput('up')"><i class="fas fa-arrow-up"></i></button>
-        <button class="d-btn btn-left" ontouchstart="mobileInput('left')" onclick="mobileInput('left')"><i class="fas fa-arrow-left"></i></button>
-        <button class="d-btn btn-right" ontouchstart="mobileInput('right')" onclick="mobileInput('right')"><i class="fas fa-arrow-right"></i></button>
-        <button class="d-btn btn-down" ontouchstart="mobileInput('down')" onclick="mobileInput('down')"><i class="fas fa-arrow-down"></i></button>
+        <button class="d-btn btn-up" onclick="mobileInput('up')"><i class="fas fa-arrow-up"></i></button>
+        <button class="d-btn btn-left" onclick="mobileInput('left')"><i class="fas fa-arrow-left"></i></button>
+        <button class="d-btn btn-right" onclick="mobileInput('right')"><i class="fas fa-arrow-right"></i></button>
+        <button class="d-btn btn-down" onclick="mobileInput('down')"><i class="fas fa-arrow-down"></i></button>
     </div>
 
     <div id="login-modal">
@@ -237,7 +224,7 @@
     </div>
 
     <script>
-    // --- FIREBASE AYARLARI ---
+    // --- 1. FIREBASE AYARLARI ---
     const firebaseConfig = {
         apiKey: "AIzaSyBW8xNsDjp3duXyuPukuBKNlOYw-uv6W1c",
         authDomain: "hakantools-a44c0.firebaseapp.com",
@@ -251,57 +238,48 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // --- DEĞİŞKENLER ---
     const LOCAL_UID_KEY = 'hakan_snake_uid'; 
     const LOCAL_BEST_KEY = 'snake_best';
     const COLLECTION_NAME = 'snake_leaderboard';
 
+    // --- 2. OYUN DEĞİŞKENLERİ ---
     let gameInterval;
     let isGameRunning = false;
-    let changingDirection = false;
-
-    // --- SES MOTORU (AudioContext) ---
-    // Harici dosya gerektirmez, kod ile ses üretir.
+    
+    // --- 3. SES MOTORU ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     function playSound(type) {
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
-        
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         
         if (type === 'eat') {
-            // Yeme sesi: Kısa, yüksek perdeli "bip"
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
             oscillator.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
             gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.1);
+            oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.1);
         } else if (type === 'die') {
-            // Yanma sesi: Düşük perdeli, azalan "bzzzt"
             oscillator.type = 'sawtooth';
             oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
             oscillator.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
             gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.3);
+            oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.3);
         }
     }
 
-    // --- KULLANICI İŞLEMLERİ ---
+    // --- 4. FIREBASE VE KULLANICI İŞLEMLERİ ---
     window.addEventListener('load', () => {
         const kayitliID = localStorage.getItem(LOCAL_UID_KEY);
         const localBest = localStorage.getItem(LOCAL_BEST_KEY) || 0;
         document.getElementById('best-score').innerText = localBest;
-
+        
         if (kayitliID) {
             document.getElementById('login-modal').classList.add('hidden');
             document.getElementById('start-msg').style.display = 'block';
@@ -313,15 +291,11 @@
         const isim = document.getElementById('nickname-input').value.trim();
         if (isim === "") { alert("İsim yazman lazım!"); return; }
         
-        // Ses sistemini başlat (Mobil tarayıcılar için kullanıcı etkileşimi şart)
         if (audioCtx.state === 'suspended') audioCtx.resume();
-
+        
         const localBest = parseInt(localStorage.getItem(LOCAL_BEST_KEY)) || 0;
-
         db.collection(COLLECTION_NAME).add({
-            name: isim, 
-            score: localBest, 
-            date: new Date().toLocaleString('tr-TR')
+            name: isim, score: localBest, date: new Date().toLocaleString('tr-TR')
         }).then((docRef) => {
             localStorage.setItem(LOCAL_UID_KEY, docRef.id);
             document.getElementById('login-modal').classList.add('hidden');
@@ -345,7 +319,7 @@
     function skoruDatabaseYaz(yeniSkor) {
         const uid = localStorage.getItem(LOCAL_UID_KEY);
         if (!uid) return;
-
+        
         const docRef = db.collection(COLLECTION_NAME).doc(uid);
         db.runTransaction((t) => {
             return t.get(docRef).then((doc) => {
@@ -357,212 +331,211 @@
                 }
                 return eski;
             });
-        }).then((finalScore) => {
-            console.log("Skor senkronize edildi:", finalScore);
-        });
+        }).then((res) => console.log("Skor senkronize edildi."));
     }
 
-    // --- LİDERLİK TABLOSU ---
     function openLeaderboard() {
         const modal = document.getElementById('leaderboard-modal');
         const list = document.getElementById('leaderboard-list');
         const loading = document.getElementById('loading-text');
         
         modal.classList.remove('hidden');
-        list.innerHTML = "";
-        loading.style.display = "block";
-
-        db.collection(COLLECTION_NAME)
-          .orderBy("score", "desc")
-          .limit(10)
-          .get()
-          .then((querySnapshot) => {
-              loading.style.display = "none";
-              let rank = 1;
-              querySnapshot.forEach((doc) => {
-                  const data = doc.data();
-                  const item = document.createElement('li');
+        list.innerHTML = ""; loading.style.display = "block";
+        
+        db.collection(COLLECTION_NAME).orderBy("score", "desc").limit(10).get()
+          .then((snapshot) => {
+              loading.style.display = "none"; let rank = 1;
+              snapshot.forEach((doc) => {
+                  const data = doc.data(); 
+                  const item = document.createElement('li'); 
                   item.className = 'leaderboard-item';
                   let icon = rank === 1 ? '👑' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
                   item.innerHTML = `<span>${icon} ${data.name}</span><span>${data.score}</span>`;
-                  list.appendChild(item);
-                  rank++;
+                  list.appendChild(item); rank++;
               });
-          })
-          .catch((error) => {
-              loading.innerText = "Hata: " + error.message;
           });
     }
-
-    function closeLeaderboard() {
-        document.getElementById('leaderboard-modal').classList.add('hidden');
+    
+    function closeLeaderboard() { 
+        document.getElementById('leaderboard-modal').classList.add('hidden'); 
     }
 
-    // --- OYUN MANTIĞI (CANVAS) ---
+    // --- 5. OYUN MANTIĞI (AKICI HAREKET) ---
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    const gridSize = 20;
+    const gridSize = 20; 
     const tileCount = canvas.width / gridSize;
-    
+    const moveSpeed = 4; // HAREKET HIZI (20'ye tam bölünen bir sayı olmalı: 2, 4, 5 gibi)
+
     let score = 0;
-    let playerX = 10;
-    let playerY = 10;
+    // Koordinatlar artık piksel cinsinden
+    let playerX = 160; 
+    let playerY = 160;
     let velocityX = 0;
     let velocityY = 0;
+    
+    // Tuşlara basıldığında hemen yön değişmez, bir sonraki "Grid" hizasında değişir
+    let nextVelocityX = 0;
+    let nextVelocityY = 0;
+
     let trail = [];
-    let tail = 3;
-    let appleX = 5;
+    let tailLength = 3; // Mantıksal uzunluk
+    
+    let appleX = 5; // Elma Grid koordinatında (0-16 arası)
     let appleY = 5;
 
-    // Oyunu başlatan fonksiyon (Başlatır ve ilk yönü verir)
     function startGame(initialVelX, initialVelY) {
         if(isGameRunning) return;
-        
-        // Modal açıksa başlama
         if(!document.getElementById('login-modal').classList.contains('hidden')) return;
         if(!document.getElementById('leaderboard-modal').classList.contains('hidden')) return;
-
-        // Ses motorunu uyandır
         if (audioCtx.state === 'suspended') audioCtx.resume();
 
         isGameRunning = true;
         document.getElementById('start-msg').style.display = 'none';
         
         score = 0;
-        tail = 3;
-        playerX = 10; playerY = 10;
-        trail = []; // Kuyruğu temizle
+        tailLength = 3;
+        playerX = 160; playerY = 160;
+        trail = [];
         
-        // Parametre olarak gelen yön varsa onu uygula, yoksa sağa git
+        // Başlangıç yönü
         if(initialVelX !== undefined) {
-            velocityX = initialVelX;
-            velocityY = initialVelY;
+            nextVelocityX = initialVelX; nextVelocityY = initialVelY;
         } else {
-            velocityX = 1; velocityY = 0; 
+            nextVelocityX = 1; nextVelocityY = 0; 
         }
+        velocityX = nextVelocityX; velocityY = nextVelocityY;
 
-        changingDirection = false;
         document.getElementById('current-score').innerText = score;
-        
-        // Önceki interval varsa temizle
         if(gameInterval) clearInterval(gameInterval);
-        gameInterval = setInterval(gameLoop, 1000/6); // Hızı biraz artırdım
+        
+        // FPS AYARI: Akıcı olması için saniyede 50 kare (1000/50)
+        gameInterval = setInterval(gameLoop, 1000/50); 
     }
 
     function gameLoop() {
-        changingDirection = false; 
+        // --- 1. Hizalama ve Yön Değişimi ---
+        // Yılan sadece tam kareye oturduğunda (mod 20 == 0) yön değiştirebilir.
+        if (playerX % gridSize === 0 && playerY % gridSize === 0) {
+            // Eğer yeni bir yön emri varsa uygula
+            if (velocityX !== 0 && nextVelocityX !== 0 && velocityX !== nextVelocityX) { /* Aynı eksen */ }
+            else if (velocityY !== 0 && nextVelocityY !== 0 && velocityY !== nextVelocityY) { /* Aynı eksen */ }
+            else {
+                // Geri dönüşü (180 derece) engelle
+                if (!(velocityX === 1 && nextVelocityX === -1) && 
+                    !(velocityX === -1 && nextVelocityX === 1) &&
+                    !(velocityY === 1 && nextVelocityY === -1) &&
+                    !(velocityY === -1 && nextVelocityY === 1)) {
+                        velocityX = nextVelocityX;
+                        velocityY = nextVelocityY;
+                }
+            }
+        }
 
-        playerX += velocityX;
-        playerY += velocityY;
+        // --- 2. Hareket (Piksel Piksel) ---
+        playerX += velocityX * moveSpeed;
+        playerY += velocityY * moveSpeed;
 
-        // Duvarlardan geçiş
-        if(playerX < 0) playerX = tileCount - 1;
-        if(playerX > tileCount - 1) playerX = 0;
-        if(playerY < 0) playerY = tileCount - 1;
-        if(playerY > tileCount - 1) playerY = 0;
+        // --- 3. Duvarlardan Geçiş (Işınlanma Yok, Ekranın Tersinden Çıkma Var) ---
+        if (playerX >= canvas.width) playerX = 0;
+        else if (playerX < 0) playerX = canvas.width - gridSize;
+        
+        if (playerY >= canvas.height) playerY = 0;
+        else if (playerY < 0) playerY = canvas.height - gridSize;
 
-        // Arka Plan
+        // --- 4. Çizim ---
         ctx.fillStyle = "#9bbc0f";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // YILAN ÇİZİMİ (DAHA GERÇEKÇİ / YUVARLAK)
+        // Kuyruk Hesaplama (Piksel bazlı olduğu için formül farklı)
+        let requiredTrailLength = tailLength * (gridSize / moveSpeed);
+
+        trail.push({x: playerX, y: playerY});
+        while(trail.length > requiredTrailLength) {
+            trail.shift();
+        }
+
+        // Yılanı Çiz
         ctx.fillStyle = "#0f380f";
         for(let i=0; i<trail.length; i++) {
-            // Yılan parçası
-            let x = trail[i].x * gridSize;
-            let y = trail[i].y * gridSize;
-            
-            // Yuvarlak gövde çiz
             ctx.beginPath();
-            ctx.arc(x + gridSize/2, y + gridSize/2, (gridSize/2) - 1, 0, 2 * Math.PI);
+            ctx.arc(trail[i].x + gridSize/2, trail[i].y + gridSize/2, (gridSize/2) - 1, 0, 2*Math.PI);
             ctx.fill();
             
-            // Eğer bu parça kafa ise (listenin son elemanı)
-            if(i == trail.length - 1) {
-                // Gözleri ekle
-                ctx.fillStyle = "#9bbc0f"; // Göz akı rengi (ekran rengiyle aynı yaptım kontrast için)
-                
-                // Göz pozisyonlarını yöne göre ayarla
-                let eyeOffsetX1 = 0, eyeOffsetY1 = 0;
-                let eyeOffsetX2 = 0, eyeOffsetY2 = 0;
-                
-                if(velocityX == 1) { // Sağ
-                    eyeOffsetX1 = 12; eyeOffsetY1 = 5;
-                    eyeOffsetX2 = 12; eyeOffsetY2 = 15;
-                } else if (velocityX == -1) { // Sol
-                    eyeOffsetX1 = 8; eyeOffsetY1 = 5;
-                    eyeOffsetX2 = 8; eyeOffsetY2 = 15;
-                } else if (velocityY == -1) { // Yukarı
-                    eyeOffsetX1 = 5; eyeOffsetY1 = 8;
-                    eyeOffsetX2 = 15; eyeOffsetY2 = 8;
-                } else if (velocityY == 1) { // Aşağı
-                    eyeOffsetX1 = 5; eyeOffsetY1 = 12;
-                    eyeOffsetX2 = 15; eyeOffsetY2 = 12;
-                }
-
-                ctx.beginPath();
-                ctx.arc(x + eyeOffsetX1, y + eyeOffsetY1, 2, 0, 2 * Math.PI); // Sol göz
-                ctx.arc(x + eyeOffsetX2, y + eyeOffsetY2, 2, 0, 2 * Math.PI); // Sağ göz
-                ctx.fill();
-                
-                // Rengi tekrar gövde rengine çevir
-                ctx.fillStyle = "#0f380f";
-
-                // Kendi kuyruğuna çarpma kontrolü
-                if(trail[i].x == playerX && trail[i].y == playerY) {
-                    gameOver();
-                    return;
-                }
-            } else {
-                // Kuyruk kontrolü (kafa hariç)
-                if(trail[i].x == playerX && trail[i].y == playerY) {
+            // Çarpışma Kontrolü (Kendine Çarpma)
+            // Kafaya çok yakın kısımları (boyun) yoksaymak için filtre
+            if (i < trail.length - (gridSize/moveSpeed)*2) { 
+                let dx = Math.abs(playerX - trail[i].x);
+                let dy = Math.abs(playerY - trail[i].y);
+                if (dx < 5 && dy < 5) { // Çok yakınsa çarptı say
                     gameOver();
                     return;
                 }
             }
         }
-
-        trail.push({x: playerX, y: playerY});
-        while(trail.length > tail) {
-            trail.shift();
+        
+        // Gözleri Çiz (Sadece Kafaya)
+        if (trail.length > 0) {
+            let headX = playerX;
+            let headY = playerY;
+            ctx.fillStyle = "#9bbc0f"; 
+            
+            let eyeX1, eyeY1, eyeX2, eyeY2;
+            if(velocityX === 1) { // Sağ
+                eyeX1 = 12; eyeY1 = 5; eyeX2 = 12; eyeY2 = 15;
+            } else if(velocityX === -1) { // Sol
+                eyeX1 = 8; eyeY1 = 5; eyeX2 = 8; eyeY2 = 15;
+            } else if(velocityY === -1) { // Yukarı
+                eyeX1 = 5; eyeY1 = 8; eyeX2 = 15; eyeY2 = 8;
+            } else { // Aşağı
+                eyeX1 = 5; eyeY1 = 12; eyeX2 = 15; eyeY2 = 12;
+            }
+            
+            ctx.beginPath();
+            ctx.arc(headX + eyeX1, headY + eyeY1, 2, 0, 2*Math.PI);
+            ctx.arc(headX + eyeX2, headY + eyeY2, 2, 0, 2*Math.PI);
+            ctx.fill();
         }
 
-        // ELMA ÇİZİMİ (DAHA GERÇEKÇİ)
-        // Elma gölgesi
-        ctx.fillStyle = "rgba(15, 56, 15, 0.3)";
-        ctx.beginPath();
-        ctx.arc(appleX * gridSize + gridSize/2 + 2, appleY * gridSize + gridSize/2 + 2, gridSize/2 - 2, 0, 2 * Math.PI);
-        ctx.fill();
+        // Elmayı Çiz
+        let applePixelX = appleX * gridSize;
+        let applePixelY = appleY * gridSize;
 
-        // Elma kendisi
-        ctx.fillStyle = "#d32f2f"; // Kırmızımsı elma (retro palette biraz koyu durur ama belirgin olur)
-        // Eğer retro yeşil temasını bozmamak istersen #0f380f kullanabilirsin ama bu daha şık.
-        // Biz yine de koyu yeşil temaya sadık kalıp içine desen çizelim:
-        ctx.fillStyle = "#0f380f"; 
+        ctx.fillStyle = "#0f380f";
         ctx.beginPath();
-        ctx.arc(appleX * gridSize + gridSize/2, appleY * gridSize + gridSize/2, gridSize/2 - 2, 0, 2 * Math.PI);
+        ctx.arc(applePixelX + gridSize/2, applePixelY + gridSize/2, gridSize/2 - 2, 0, 2*Math.PI);
         ctx.fill();
-        
-        // Elma Sapı
+        // Sapı
         ctx.fillStyle = "#9bbc0f";
-        ctx.fillRect(appleX * gridSize + gridSize/2 - 1, appleY * gridSize + 2, 2, 4);
+        ctx.fillRect(applePixelX + gridSize/2 - 1, applePixelY + 2, 2, 4);
 
-
-        if(appleX == playerX && appleY == playerY) {
-            tail++;
-            score += 10; 
+        // Yeme Kontrolü (Mesafe bazlı)
+        let dist = Math.hypot(playerX - applePixelX, playerY - applePixelY);
+        if (dist < moveSpeed * 1.5) { // Yeterince yaklaştıysa ye
+            tailLength++;
+            score += 10;
             document.getElementById('current-score').innerText = score;
-            playSound('eat'); // Yeme sesi
-            
+            playSound('eat');
+            createSafeApple();
+        }
+    }
+
+    // Yılanın içinde çıkmayan elma oluştur
+    function createSafeApple() {
+        let safe = false;
+        while(!safe) {
             appleX = Math.floor(Math.random() * tileCount);
             appleY = Math.floor(Math.random() * tileCount);
             
-            // Elmanın yılanın üstünde doğmamasını sağla
+            let applePx = appleX * gridSize;
+            let applePy = appleY * gridSize;
+            
+            safe = true;
             for(let t of trail) {
-                if(t.x == appleX && t.y == appleY) {
-                     appleX = Math.floor(Math.random() * tileCount);
-                     appleY = Math.floor(Math.random() * tileCount);
+                if (Math.abs(t.x - applePx) < gridSize && Math.abs(t.y - applePy) < gridSize) {
+                    safe = false;
+                    break;
                 }
             }
         }
@@ -571,66 +544,43 @@
     function gameOver() {
         clearInterval(gameInterval);
         isGameRunning = false;
-        playSound('die'); // Yanma sesi
+        playSound('die');
         
         const localBest = parseInt(localStorage.getItem(LOCAL_BEST_KEY)) || 0;
         if(score > localBest) {
             localStorage.setItem(LOCAL_BEST_KEY, score);
             document.getElementById('best-score').innerText = score;
         }
-        
         skoruDatabaseYaz(score);
-        
         document.getElementById('start-msg').innerHTML = "OYUN BİTTİ<br>SKOR: " + score + "<br>TEKRAR İÇİN<br>BİR YÖNE BAS";
         document.getElementById('start-msg').style.display = 'block';
     }
 
-    // --- KONTROLLER ---
-    
+    // --- 6. GİRİŞLER (Klavye ve Dokunmatik) ---
     document.addEventListener('keydown', keyPush);
     function keyPush(evt) {
-        // Eğer oyun çalışmıyorsa ve yön tuşlarından birine basıldıysa DİREKT BAŞLAT
         if(!isGameRunning) {
-             if(evt.keyCode == 37) startGame(-1, 0); // Solla başla
-             else if(evt.keyCode == 38) startGame(0, -1); // Yukarıyla başla
-             else if(evt.keyCode == 39) startGame(1, 0); // Sağla başla
-             else if(evt.keyCode == 40) startGame(0, 1); // Aşağıyla başla
-             else if([32,13].includes(evt.keyCode)) startGame(); // Space/Enter
+             if(evt.keyCode == 37) startGame(-1, 0);
+             else if(evt.keyCode == 38) startGame(0, -1);
+             else if(evt.keyCode == 39) startGame(1, 0);
+             else if(evt.keyCode == 40) startGame(0, 1);
+             else if([32,13].includes(evt.keyCode)) startGame();
              
-             // Tuşun varsayılan kaydırma özelliğini engelle
              if([37,38,39,40,32,13].includes(evt.keyCode)) evt.preventDefault();
              return;
         }
 
-        if (changingDirection) return;
-
+        // Yönü direkt değiştirme, "istek" olarak kaydet (ızgara hizasında değişecek)
         switch(evt.keyCode) {
-            case 37: // Sol
-                if(velocityX == 1) return;
-                velocityX = -1; velocityY = 0; 
-                changingDirection = true;
-                break;
-            case 38: // Yukarı
-                if(velocityY == 1) return; 
-                velocityX = 0; velocityY = -1; 
-                changingDirection = true;
-                break;
-            case 39: // Sağ
-                if(velocityX == -1) return; 
-                velocityX = 1; velocityY = 0; 
-                changingDirection = true;
-                break;
-            case 40: // Aşağı
-                if(velocityY == -1) return; 
-                velocityX = 0; velocityY = 1; 
-                changingDirection = true;
-                break;
+            case 37: if(velocityX !== 1) { nextVelocityX = -1; nextVelocityY = 0; } break; // Sol
+            case 38: if(velocityY !== 1) { nextVelocityX = 0; nextVelocityY = -1; } break; // Yukarı
+            case 39: if(velocityX !== -1) { nextVelocityX = 1; nextVelocityY = 0; } break; // Sağ
+            case 40: if(velocityY !== -1) { nextVelocityX = 0; nextVelocityY = 1; } break; // Aşağı
         }
     }
 
-    // Mobil Butonlar
+    // MOBİL İÇİN ORTAK FONKSİYON
     window.mobileInput = function(dir) {
-        // Oyun çalışmıyorsa direkt başlat
         if(!isGameRunning) {
             if(dir == 'left') startGame(-1, 0);
             else if(dir == 'up') startGame(0, -1);
@@ -639,33 +589,47 @@
             else startGame();
             return;
         }
-
-        if (changingDirection) return;
-
         switch(dir) {
-            case 'left': 
-                if(velocityX == 1) return; 
-                velocityX = -1; velocityY = 0; 
-                changingDirection = true;
-                break;
-            case 'up': 
-                if(velocityY == 1) return; 
-                velocityX = 0; velocityY = -1; 
-                changingDirection = true;
-                break;
-            case 'right': 
-                if(velocityX == -1) return; 
-                velocityX = 1; velocityY = 0; 
-                changingDirection = true;
-                break;
-            case 'down': 
-                if(velocityY == -1) return; 
-                velocityX = 0; velocityY = 1; 
-                changingDirection = true;
-                break;
+            case 'left': if(velocityX !== 1) { nextVelocityX = -1; nextVelocityY = 0; } break;
+            case 'up': if(velocityY !== 1) { nextVelocityX = 0; nextVelocityY = -1; } break;
+            case 'right': if(velocityX !== -1) { nextVelocityX = 1; nextVelocityY = 0; } break;
+            case 'down': if(velocityY !== -1) { nextVelocityX = 0; nextVelocityY = 1; } break;
         }
     };
+
+    // MOBİL KAYDIRMA (SWIPE) MANTIĞI
+    const controlDiv = document.querySelector('.mobile-controls');
+    let lastTouchedBtn = null;
+    
+    if(controlDiv) {
+        controlDiv.addEventListener('touchmove', function(e) {
+            e.preventDefault(); // Sayfa kaymasını engelle
+            const touch = e.touches[0];
+            
+            // Parmağın altındaki elementi bul
+            const element = document.elementFromPoint(touch.clientX, touch.clientY);
+            const btn = element ? element.closest('.d-btn') : null;
+            
+            // Yeni bir butona geçildiyse tetikle
+            if (btn && btn !== lastTouchedBtn) {
+                if (btn.classList.contains('btn-up')) mobileInput('up');
+                if (btn.classList.contains('btn-left')) mobileInput('left');
+                if (btn.classList.contains('btn-right')) mobileInput('right');
+                if (btn.classList.contains('btn-down')) mobileInput('down');
+                
+                // Görsel efekt için class ekle/çıkar
+                if(lastTouchedBtn) lastTouchedBtn.classList.remove('active-state');
+                btn.classList.add('active-state');
+                
+                lastTouchedBtn = btn;
+            }
+        }, { passive: false });
+        
+        controlDiv.addEventListener('touchend', () => { 
+            if(lastTouchedBtn) lastTouchedBtn.classList.remove('active-state');
+            lastTouchedBtn = null; 
+        });
+    }
     </script>
 </body>
 </html>
-
