@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Pro Memory Match</title>
+    <title>HakanTools | Pro Memory</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap');
 
         :root {
             --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --accent: #38bdf8;
-            --success: #4ade80;
-            --error: #f43f5e;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
+            --card-back: #1e293b;
+            --accent: #0ea5e9;     /* Sky Blue */
+            --accent-glow: #38bdf8;
+            --success: #22c55e;
+            --error: #ef4444;
+            --glass: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.15);
         }
+
+        * { box-sizing: border-box; }
 
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 80%);
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -35,148 +38,143 @@
         /* --- UI HEADER --- */
         #ui-header {
             position: absolute; top: 20px;
-            display: flex; gap: 40px;
-            font-size: 1.2rem;
-            font-weight: 600;
+            display: flex; gap: 30px;
             z-index: 10;
             background: var(--glass);
-            padding: 15px 40px;
+            padding: 12px 30px;
             border-radius: 50px;
             border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
-        .stat-item span { color: var(--accent); font-weight: 800; margin-left: 8px; font-size: 1.4rem; }
+        .stat-box { display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+        .stat-label { font-size: 0.7rem; color: #94a3b8; letter-spacing: 1px; font-weight: 600; }
+        .stat-val { font-size: 1.4rem; font-weight: 900; color: var(--accent-glow); text-shadow: 0 0 15px rgba(56, 189, 248, 0.5); }
 
-        /* --- OYUN ALANI (GRID) --- */
+        /* --- OYUN ALANI --- */
         .game-board {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            width: 90vmin;
-            max-width: 600px;
-            aspect-ratio: 1;
-            perspective: 1000px; /* 3D Derinlik */
+            gap: 12px;
+            width: 95vmin;
+            max-width: 650px;
+            max-height: 80vh;
+            perspective: 1000px;
             z-index: 5;
+            margin-top: 40px;
         }
+        /* JS ile grid-template-columns ayarlanacak */
 
-        /* --- KART YAPISI --- */
+        /* --- KART STİLİ --- */
         .card {
             position: relative;
-            width: 100%; height: 100%;
+            background: transparent;
             cursor: pointer;
             transform-style: preserve-3d;
-            transform: scale(0); /* Başlangıçta görünmez */
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(0);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            aspect-ratio: 1; /* Kare */
         }
+        .card.active { transform: scale(1); }
 
-        .card.active { transform: scale(1); } /* Giriş animasyonu */
-        
         .card-inner {
-            position: relative;
-            width: 100%; height: 100%;
+            position: relative; width: 100%; height: 100%;
             text-align: center;
-            transition: transform 0.6s;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
             transform-style: preserve-3d;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        /* KART DÖNME LOGİĞİ */
         .card.flipped .card-inner { transform: rotateY(180deg); }
-        .card.matched .card-inner { box-shadow: 0 0 20px var(--success); border: 2px solid var(--success); }
+        .card.matched .card-inner { 
+            box-shadow: 0 0 25px var(--success), 0 0 10px var(--success) inset; 
+            border-color: var(--success);
+        }
         .card.shake { animation: shake 0.5s; }
 
-        /* ÖN VE ARKA YÜZ */
         .card-front, .card-back {
-            position: absolute;
-            width: 100%; height: 100%;
+            position: absolute; width: 100%; height: 100%;
             backface-visibility: hidden;
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--border);
             overflow: hidden;
-            border: 1px solid var(--border);
         }
 
-        /* ARKA (KAPALI) */
+        /* KAPALI HALİ */
         .card-front {
-            background: linear-gradient(135deg, #1e293b, #334155);
-            color: rgba(255,255,255,0.1);
-            font-size: 2rem;
-            font-weight: 900;
+            background: linear-gradient(135deg, #334155 0%, #0f172a 100%);
+            color: rgba(255,255,255,0.05);
+            font-size: 2rem; font-weight: 900;
         }
-        .card-front::after { content: '?'; }
+        .card-front::after { content: 'HT'; } /* Logo */
 
-        /* ÖN (AÇIK - RESİM) */
+        /* AÇIK HALİ */
         .card-back {
-            background: white;
+            background: #fff;
             transform: rotateY(180deg);
         }
-        .card-back img {
-            width: 100%; height: 100%; object-fit: cover;
-        }
+        .card-back img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* --- MODAL / START SCREEN --- */
+        /* --- MODAL --- */
         #modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(15, 23, 42, 0.95);
             z-index: 100;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(10px);
         }
         .modal-content {
-            text-align: center;
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            max-width: 400px;
+            background: #1e293b; padding: 40px; border-radius: 24px;
+            text-align: center; border: 1px solid var(--border);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            width: 90%; max-width: 400px;
+            position: relative; overflow: hidden;
         }
-        h1 { margin: 0 0 10px 0; font-size: 3rem; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; color: transparent; }
-        p { color: #94a3b8; margin-bottom: 30px; font-size: 1.1rem; }
-        
+        /* Modal üstündeki hareketli çizgi */
+        .modal-content::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+        }
+
+        h1 { margin: 0 0 10px; font-size: 2.5rem; color: white; letter-spacing: -1px; }
+        p { color: #94a3b8; margin-bottom: 25px; line-height: 1.5; }
+
+        input {
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            background: #0f172a; border: 2px solid var(--border);
+            border-radius: 12px; color: white; font-size: 1.1rem;
+            text-align: center; font-weight: bold; outline: none;
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(14, 165, 233, 0.2); }
+
         .btn {
-            background: linear-gradient(135deg, #38bdf8, #2563eb);
-            border: none;
-            padding: 15px 40px;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: 700;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
-            transition: 0.2s;
+            width: 100%; padding: 16px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), #2563eb);
+            color: white; font-weight: 800; font-size: 1.1rem; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(56, 189, 248, 0.4); }
-        .btn:active { transform: translateY(1px); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(14, 165, 233, 0.4); }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background: #475569; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        /* --- PREVIEW BAR --- */
-        #preview-bar-container {
-            position: absolute; bottom: 30px;
-            width: 300px; height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            display: none;
-        }
-        #preview-bar {
-            width: 100%; height: 100%;
-            background: var(--accent);
-            transform-origin: left;
-        }
+        /* LOADING BAR */
+        #loader-container { display: none; margin-top: 20px; }
+        .loader-track { width: 100%; height: 6px; background: #334155; border-radius: 10px; overflow: hidden; }
+        .loader-fill { width: 0%; height: 100%; background: var(--success); transition: width 0.3s ease; }
+        #loader-text { margin-top: 8px; font-size: 0.9rem; color: var(--success); font-weight: bold; }
 
-        /* --- CONFETTI CANVAS --- */
+        .error-msg { color: var(--error); font-size: 0.9rem; margin-top: 10px; display: none; font-weight: bold; }
+
+        /* KONFETİ */
         #confetti-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px) rotate(-5deg); }
-            75% { transform: translateX(5px) rotate(5deg); }
+            25% { transform: translateX(-6px) rotate(-6deg); }
+            75% { transform: translateX(6px) rotate(6deg); }
         }
     </style>
 </head>
@@ -185,189 +183,249 @@
     <canvas id="confetti-canvas"></canvas>
 
     <div id="ui-header">
-        <div class="stat-item">HAMLE: <span id="move-count">0</span></div>
-        <div class="stat-item">SÜRE: <span id="time-count">00:00</span></div>
-    </div>
-
-    <div class="game-board" id="game-board">
+        <div class="stat-box">
+            <span class="stat-label">SEVİYE</span>
+            <span class="stat-val" id="level-display">1</span>
         </div>
-
-    <div id="preview-bar-container">
-        <div id="preview-bar"></div>
+        <div class="stat-box">
+            <span class="stat-label">PUAN</span>
+            <span class="stat-val" id="score-display">0</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">HAMLE</span>
+            <span class="stat-val" id="moves-display">0</span>
+        </div>
     </div>
+
+    <div class="game-board" id="game-board"></div>
 
     <div id="modal-overlay">
         <div class="modal-content">
-            <h1>HakanTools</h1>
-            <p>Hafıza Kartları: 3 Saniye Ön İzleme</p>
-            <button class="btn" onclick="startGame()">OYUNU BAŞLAT</button>
+            <h1 id="modal-title">HOŞGELDİN</h1>
+            <p id="modal-desc">İsmini gir ve görsel hafızanı test et.</p>
+            
+            <div id="input-container">
+                <input type="text" id="username-input" placeholder="Oyuncu Adı" maxlength="12" autocomplete="off">
+                <button class="btn" id="action-btn" onclick="handleLogin()">BAŞLA</button>
+                <div class="error-msg" id="error-msg"></div>
+            </div>
+
+            <div id="loader-container">
+                <div class="loader-track"><div class="loader-fill" id="loader-fill"></div></div>
+                <div id="loader-text">Görseller Hazırlanıyor %0</div>
+            </div>
         </div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, where, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBW8xNsDjp3duXyuPukuBKNlOYw-uv6W1c",
+            authDomain: "hakantools-a44c0.firebaseapp.com",
+            projectId: "hakantools-a44c0",
+            storageBucket: "hakantools-a44c0.firebasestorage.app",
+            messagingSenderId: "216753237718",
+            appId: "1:216753237718:web:ea012c7dc4fdb7e7d72377",
+            measurementId: "G-4GWK9BS40T"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.submitScore = async function(score) {
+            const name = localStorage.getItem('memory_username');
+            if(!name || score <= 0) return;
+
+            try {
+                const q = query(collection(db, "leaderboard_memory"), where("name", "==", name));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const docRef = querySnapshot.docs[0];
+                    if (score > docRef.data().score) {
+                        await updateDoc(doc(db, "leaderboard_memory", docRef.id), { score: score, date: new Date() });
+                        console.log("Rekor güncellendi.");
+                    }
+                } else {
+                    await addDoc(collection(db, "leaderboard_memory"), { name: name, score: score, date: new Date() });
+                    console.log("Yeni kayıt.");
+                }
+            } catch (e) { console.error("DB Hatası:", e); }
+        };
+    </script>
+
     <script>
     /* --- AYARLAR VE VERİLER --- */
-    // Yüksek kaliteli, 400x400 görseller. ID'ler sabitlenerek her seferinde aynı kalite garanti edilir.
-    const imageIDs = [
-        "1550745165-9bc0b252726f", // Retro Tech
-        "1535268666454-1423e6635636", // Nature Mist
-        "1518791841217-8f162f1e1131", // Cat
-        "1492144534655-ae79c964c9d7", // Car
-        "1531297461318-0f8c2d087c0f", // Bird
-        "1550751827-4bd374c3f58b", // Cyberpunk City
-        "1511920170033-f8396924c348", // Coffee
-        "1451187580459-43490279c0fa"  // Metal Texture
+    // SABİT ve GÜVENİLİR Görsel Listesi (Picsum ID'leri - Doğa/Teknoloji/Soyut)
+    // 30 adet resim (En zor seviyeye yetecek kadar)
+    const imageSourceIDs = [
+        10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 
+        20, 25, 28, 29, 49, 54, 57, 58, 60, 76,
+        89, 96, 103, 117, 119, 137, 146, 152, 164, 175
     ];
-    
-    let cardsArray = [];
-    let hasFlippedCard = false;
-    let lockBoard = false;
-    let firstCard, secondCard;
+
+    // Genişletilmiş Küfür Listesi (Hem TR Hem ENG varyasyonlar)
+    const badWords = [
+        "amk", "aq", "oc", "pic", "yarak", "oç", "bok", "siktir", "sik", "anan", "bacın", 
+        "kaşar", "göt", "meme", "yarrak", "orosbu", "kahpe", "piç", "yavşak", "amcık", "got",
+        "sex", "porno", "porn", "xxx", "sikiş", "31", "masturbasyon", "çük", "penis", "vajina",
+        "fuck", "shit", "bitch", "asshole", "dick", "pussy", "bastard"
+    ];
+
+    /* --- OYUN DEĞİŞKENLERİ --- */
+    let loadedImages = {}; // Önbellek
+    let currentLevel = 1;
+    let totalScore = 0;
+    let levelScore = 0;
     let moves = 0;
-    let matches = 0;
-    let timerInterval;
-    let seconds = 0;
-    let isPreviewing = false;
+    let wrongGuesses = 0; // Hata sayacı
+    let lockBoard = false;
+    let hasFlippedCard = false;
+    let firstCard, secondCard;
+    let matchCount = 0;
+    let requiredMatches = 0;
 
-    // --- SES MOTORU (Web Audio API) ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
-    function playSound(type) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
 
-        const now = audioCtx.currentTime;
-        
-        if (type === 'flip') {
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(300, now);
-            osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
-            gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.linearRampToValueAtTime(0, now + 0.1);
-            osc.start(now); osc.stop(now + 0.1);
-        } 
-        else if (type === 'match') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(400, now);
-            osc.frequency.setValueAtTime(600, now + 0.1);
-            osc.frequency.setValueAtTime(1000, now + 0.2);
-            gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
-            osc.start(now); osc.stop(now + 0.4);
+    /* --- GİRİŞ VE PRELOADER --- */
+    window.onload = () => {
+        const savedName = localStorage.getItem('memory_username');
+        if(savedName) {
+            document.getElementById('username-input').value = savedName;
         }
-        else if (type === 'error') {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, now);
-            osc.frequency.linearRampToValueAtTime(100, now + 0.2);
-            gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
-            osc.start(now); osc.stop(now + 0.2);
+    };
+
+    function handleLogin() {
+        const input = document.getElementById('username-input');
+        const errorMsg = document.getElementById('error-msg');
+        let name = input.value.trim();
+
+        // 1. Karakter Kontrolü
+        if(name.length < 3) {
+            showError("İsim en az 3 karakter olmalı."); return;
         }
-        else if (type === 'win') {
-            // Basit bir fanfar
-            const notes = [523.25, 659.25, 783.99, 1046.50];
-            notes.forEach((note, i) => {
-                const osc2 = audioCtx.createOscillator();
-                const gain2 = audioCtx.createGain();
-                osc2.connect(gain2);
-                gain2.connect(audioCtx.destination);
-                osc2.type = 'square';
-                osc2.frequency.value = note;
-                gain2.gain.setValueAtTime(0.1, now + i*0.1);
-                gain2.gain.exponentialRampToValueAtTime(0.001, now + i*0.1 + 0.4);
-                osc2.start(now + i*0.1);
-                osc2.stop(now + i*0.1 + 0.4);
-            });
+
+        // 2. Küfür Kontrolü
+        let cleanName = name.toLowerCase();
+        let isBad = badWords.some(word => cleanName.includes(word));
+        if(isBad) {
+            showError("Bu isim uygunsuz içerik barındırıyor!"); return;
+        }
+
+        localStorage.setItem('memory_username', name);
+        startPreloader();
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('error-msg');
+        el.innerText = msg;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+
+    function startPreloader() {
+        // UI Değişimi
+        document.getElementById('input-container').style.display = 'none';
+        document.getElementById('modal-title').innerText = "YÜKLENİYOR...";
+        document.getElementById('modal-desc').innerText = "Yüksek kaliteli görseller hazırlanıyor.";
+        document.getElementById('loader-container').style.display = 'block';
+
+        let loadedCount = 0;
+        const totalImages = imageSourceIDs.length;
+
+        imageSourceIDs.forEach(id => {
+            const img = new Image();
+            img.src = `https://picsum.photos/id/${id}/400/400`; // Picsum CDN
+            img.onload = () => {
+                loadedImages[id] = img.src; // Cache'e at
+                updateLoader(++loadedCount, totalImages);
+            };
+            img.onerror = () => {
+                // Hata olursa da devam et (Yedek resim mantığı eklenebilir ama Picsum sağlamdır)
+                console.warn(`Resim ${id} yüklenemedi.`);
+                updateLoader(++loadedCount, totalImages);
+            };
+        });
+    }
+
+    function updateLoader(count, total) {
+        const percent = Math.floor((count / total) * 100);
+        document.getElementById('loader-fill').style.width = `${percent}%`;
+        document.getElementById('loader-text').innerText = `Görseller Hazırlanıyor %${percent}`;
+
+        if(count >= total) {
+            setTimeout(() => {
+                document.getElementById('modal-overlay').style.display = 'none';
+                initLevel(1);
+            }, 800);
         }
     }
 
     /* --- OYUN MANTIĞI --- */
-    function startGame() {
-        // Reset
-        document.getElementById('modal-overlay').style.display = 'none';
+    function initLevel(level) {
+        currentLevel = level;
+        document.getElementById('level-display').innerText = level;
         const board = document.getElementById('game-board');
         board.innerHTML = '';
-        moves = 0; matches = 0; seconds = 0;
-        document.getElementById('move-count').innerText = '0';
-        document.getElementById('time-count').innerText = '00:00';
         
-        // Kartları Oluştur
-        // Her resimden 2 tane al
-        let deck = [...imageIDs, ...imageIDs];
-        // Karıştır
-        deck.sort(() => 0.5 - Math.random());
+        moves = 0;
+        wrongGuesses = 0;
+        matchCount = 0;
+        updateUI();
 
-        deck.forEach(imgId => {
+        // Seviye Ayarları
+        let rows, cols, multiplier;
+        if(level === 1) {
+            cols = 4; rows = 4; multiplier = 1; // 16 Kart
+        } else {
+            cols = 4; rows = 6; multiplier = 2; // 24 Kart (Mobil uyumlu olsun diye 4 kolon, 6 satır)
+        }
+        
+        // CSS Grid Ayarla
+        board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+        // Kartları Seç ve Karıştır
+        let totalCards = rows * cols;
+        requiredMatches = totalCards / 2;
+        let selectedIDs = imageSourceIDs.slice(0, requiredMatches); // İlk n resmi al
+        let deck = [...selectedIDs, ...selectedIDs]; // Çiftle
+        deck.sort(() => 0.5 - Math.random()); // Karıştır
+
+        // Kartları DOM'a Ekle
+        deck.forEach(id => {
             const card = document.createElement('div');
             card.classList.add('card');
-            card.dataset.name = imgId;
+            card.dataset.id = id;
+            card.dataset.val = multiplier; // Puan değeri
 
-            const inner = document.createElement('div');
-            inner.classList.add('card-inner');
-
-            const front = document.createElement('div');
-            front.classList.add('card-front');
-            // Logo yerine ? işareti var CSS'de
-
-            const back = document.createElement('div');
-            back.classList.add('card-back');
-            const img = document.createElement('img');
-            img.src = `https://images.unsplash.com/photo-${imgId}?auto=format&fit=crop&w=400&q=80`;
-            back.appendChild(img);
-
-            inner.appendChild(front);
-            inner.appendChild(back);
-            card.appendChild(inner);
-            board.appendChild(card);
-
+            card.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-front"></div>
+                    <div class="card-back"><img src="${loadedImages[id]}" draggable="false"></div>
+                </div>
+            `;
             card.addEventListener('click', flipCard);
+            board.appendChild(card);
         });
 
-        // Animasyonlu Giriş
+        // Giriş Animasyonu
         const cards = document.querySelectorAll('.card');
-        cards.forEach((card, index) => {
+        cards.forEach((c, i) => setTimeout(() => c.classList.add('active'), i * 50));
+
+        // PREVIEW (3 Saniye Göster)
+        setTimeout(() => {
+            lockBoard = true;
+            cards.forEach(c => c.classList.add('flipped')); // Hepsini aç
+            
+            // Geri Sayım Çubuğu Eklenebilir (Basitlik için süre)
             setTimeout(() => {
-                card.classList.add('active');
-            }, index * 50); // Sırayla gelme efekti
-        });
-
-        // ÖN İZLEME (PREVIEW)
-        setTimeout(() => {
-            startPreview();
+                cards.forEach(c => c.classList.remove('flipped')); // Kapat
+                lockBoard = false;
+                playSound('start');
+            }, 3000); // 3 Saniye
         }, 1000);
-    }
-
-    function startPreview() {
-        isPreviewing = true;
-        lockBoard = true;
-        const cards = document.querySelectorAll('.card');
-        
-        // Hepsini aç
-        cards.forEach(card => card.classList.add('flipped'));
-
-        // Progress Bar
-        const barContainer = document.getElementById('preview-bar-container');
-        const bar = document.getElementById('preview-bar');
-        barContainer.style.display = 'block';
-        bar.style.transition = 'none';
-        bar.style.transform = 'scaleX(1)';
-
-        // 3 saniye geri sayım animasyonu
-        setTimeout(() => {
-            bar.style.transition = 'transform 3s linear';
-            bar.style.transform = 'scaleX(0)';
-        }, 50);
-
-        // 3 saniye sonra kapat ve oyunu başlat
-        setTimeout(() => {
-            cards.forEach(card => card.classList.remove('flipped'));
-            barContainer.style.display = 'none';
-            lockBoard = false;
-            isPreviewing = false;
-            startTimer();
-        }, 3050);
     }
 
     function flipCard() {
@@ -384,48 +442,59 @@
         }
 
         secondCard = this;
-        incrementMoves();
+        moves++;
+        updateUI();
         checkForMatch();
     }
 
-    function incrementMoves() {
-        moves++;
-        document.getElementById('move-count').innerText = moves;
-    }
-
     function checkForMatch() {
-        let isMatch = firstCard.dataset.name === secondCard.dataset.name;
-        isMatch ? disableCards() : unflipCards();
+        let isMatch = firstCard.dataset.id === secondCard.dataset.id;
+
+        if (isMatch) {
+            disableCards();
+        } else {
+            unflipCards();
+        }
     }
 
     function disableCards() {
-        playSound('match');
-        firstCard.classList.add('matched');
-        secondCard.classList.add('matched');
+        lockBoard = true; // Animasyon bitene kadar kilitle
+        matchCount++;
         
-        // Eşleşme Efekti (Hafif büyüme)
-        /* CSS animasyonu zaten var, JS ile dokunmaya gerek yok */
+        // Puan Hesapla (Level Çarpanı * 100)
+        let pts = parseInt(firstCard.dataset.val) * 100;
+        levelScore += pts;
+        totalScore += pts;
+        
+        playSound('match');
+        
+        setTimeout(() => {
+            firstCard.classList.add('matched');
+            secondCard.classList.add('matched');
+            resetBoard();
+            updateUI();
 
-        resetBoard();
-        matches++;
-        if (matches === 8) {
-            setTimeout(gameWin, 500);
-        }
+            if (matchCount === requiredMatches) {
+                handleLevelComplete();
+            }
+        }, 500);
     }
 
     function unflipCards() {
         lockBoard = true;
+        wrongGuesses++;
         playSound('error');
-        
-        // Hata efekti (Titreme)
-        firstCard.classList.add('shake');
-        secondCard.classList.add('shake');
+
+        setTimeout(() => {
+            firstCard.classList.add('shake');
+            secondCard.classList.add('shake');
+        }, 400);
 
         setTimeout(() => {
             firstCard.classList.remove('flipped', 'shake');
             secondCard.classList.remove('flipped', 'shake');
             resetBoard();
-        }, 1000);
+        }, 1200);
     }
 
     function resetBoard() {
@@ -433,82 +502,129 @@
         [firstCard, secondCard] = [null, null];
     }
 
-    function startTimer() {
-        clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            seconds++;
-            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            const s = (seconds % 60).toString().padStart(2, '0');
-            document.getElementById('time-count').innerText = `${m}:${s}`;
-        }, 1000);
-    }
-
-    function gameWin() {
-        clearInterval(timerInterval);
+    function handleLevelComplete() {
         playSound('win');
         startConfetti();
-        
-        setTimeout(() => {
-            // Modalı tekrar göster ama farklı mesajla
-            const modal = document.querySelector('.modal-content');
-            modal.innerHTML = `
-                <h1 style="font-size:2.5rem">TEBRİKLER!</h1>
-                <p style="color:white; font-size:1.2rem">
-                    Süre: ${document.getElementById('time-count').innerText} <br>
-                    Hamle: ${moves}
-                </p>
-                <button class="btn" onclick="location.reload()">TEKRAR OYNA</button>
-            `;
-            document.getElementById('modal-overlay').style.display = 'flex';
-        }, 1500);
+
+        // Seviye 1 Bitti mi?
+        if (currentLevel === 1) {
+            // Hata Kontrolü: 16 kartta (8 çift) için mesela 6'dan az hata yaptıysa geçsin
+            // 8 hamle idealdir. 
+            if (wrongGuesses <= 6) {
+                showModal("HARİKA!", `Seviye 1 Tamamlandı.<br>Hata: ${wrongGuesses}<br>Sonraki Seviye Yükleniyor (x2 Puan)`, false);
+                setTimeout(() => {
+                    document.getElementById('modal-overlay').style.display = 'none';
+                    initLevel(2);
+                }, 3000);
+            } else {
+                // Çok hata yaptı, oyun bitti
+                endGame(`Seviye 1 Tamam ama çok hata yaptın (${wrongGuesses}).<br>Zor seviyeye geçemedin.`);
+            }
+        } else {
+            // Seviye 2 Bitti (Oyun Sonu)
+            endGame(`TEBRİKLER ŞAMPİYON!<br>Toplam Puan: ${totalScore}`);
+        }
     }
 
-    /* --- KONFETİ MOTORU (Kütüphanesiz) --- */
+    function endGame(msg) {
+        showModal("OYUN BİTTİ", msg, true);
+        if(window.submitScore) window.submitScore(totalScore); // Firebase'e gönder
+    }
+
+    function showModal(title, desc, showButton) {
+        document.getElementById('input-container').style.display = 'none';
+        document.getElementById('loader-container').style.display = 'none';
+        document.getElementById('modal-title').innerHTML = title;
+        document.getElementById('modal-desc').innerHTML = desc;
+        
+        const btn = document.getElementById('action-btn');
+        if(showButton) {
+            document.getElementById('input-container').style.display = 'block';
+            document.getElementById('username-input').style.display = 'none'; // Inputu gizle
+            btn.innerText = "TEKRAR OYNA";
+            btn.onclick = () => location.reload();
+        }
+        document.getElementById('modal-overlay').style.display = 'flex';
+    }
+
+    function updateUI() {
+        document.getElementById('score-display').innerText = totalScore;
+        document.getElementById('moves-display').innerText = moves;
+    }
+
+    /* --- SES MOTORU --- */
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'flip') {
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.1);
+            osc.start(now); osc.stop(now + 0.1);
+        } else if (type === 'match') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.linearRampToValueAtTime(800, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'error') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'win') {
+            // Basit melodi
+            [523, 659, 784, 1046].forEach((f, i) => {
+                let o = audioCtx.createOscillator();
+                let g = audioCtx.createGain();
+                o.connect(g); g.connect(audioCtx.destination);
+                o.frequency.value = f;
+                g.gain.setValueAtTime(0.1, now + i*0.1);
+                g.gain.exponentialRampToValueAtTime(0.001, now + i*0.1 + 0.3);
+                o.start(now + i*0.1); o.stop(now + i*0.1 + 0.3);
+            });
+        }
+    }
+
+    /* --- KONFETİ MOTORU --- */
     const canvas = document.getElementById('confetti-canvas');
     const ctx = canvas.getContext('2d');
-    let confettiParticles = [];
+    let particles = [];
 
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
     function startConfetti() {
-        for (let i = 0; i < 150; i++) {
-            confettiParticles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height - canvas.height,
-                w: Math.random() * 10 + 5,
-                h: Math.random() * 10 + 5,
-                color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-                vy: Math.random() * 3 + 2,
-                vx: Math.random() * 2 - 1,
-                r: 0,
-                rs: Math.random() * 0.1 - 0.05
+        for(let i=0; i<150; i++) {
+            particles.push({
+                x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
+                color: `hsl(${Math.random()*360}, 100%, 50%)`,
+                size: Math.random()*10+5,
+                vy: Math.random()*3+2, vx: Math.random()*2-1
             });
         }
-        updateConfetti();
+        animateConfetti();
     }
 
-    function updateConfetti() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        confettiParticles.forEach((p, index) => {
-            p.y += p.vy;
-            p.x += p.vx;
-            p.r += p.rs;
-            
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.r);
+    function animateConfetti() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        particles.forEach((p, i) => {
+            p.y += p.vy; p.x += p.vx;
             ctx.fillStyle = p.color;
-            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-            ctx.restore();
-
-            if (p.y > canvas.height) confettiParticles[index].y = -10;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+            if(p.y > canvas.height) particles[i].y = -10;
         });
-        requestAnimationFrame(updateConfetti);
+        requestAnimationFrame(animateConfetti);
     }
     </script>
 </body>
