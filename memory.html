@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Memory Saga Pro</title>
+    <title>HakanTools | Memory Pro</title>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap');
 
         :root {
             --bg-dark: #0f172a;
-            --accent: #8b5cf6;     /* Violet */
-            --accent-glow: #a78bfa;
+            --primary: #6366f1;    /* Indigo */
+            --primary-glow: #818cf8;
             --glass: rgba(255, 255, 255, 0.08);
-            --border: rgba(255, 255, 255, 0.15);
+            --border: rgba(255, 255, 255, 0.1);
             --success: #10b981;
             --error: #f43f5e;
+            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
@@ -23,64 +24,88 @@
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at 50% 0%, #2e1065 0%, #0f172a 80%);
+            background-image: radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 80%);
             height: 100vh;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             font-family: 'Outfit', sans-serif; color: white; overflow: hidden;
         }
 
-        /* --- UI HEADER (SKOR TABLOSU) --- */
+        /* --- ÜST BİLGİ ÇUBUĞU (Mobil Uyumlu) --- */
         #ui-header {
-            position: absolute; top: 20px;
-            display: flex; gap: 20px;
+            margin-top: 15px;
+            display: flex; gap: 15px;
             z-index: 10;
             background: var(--glass);
-            padding: 10px 25px;
-            border-radius: 50px;
+            padding: 10px 20px;
+            border-radius: 20px;
             border: 1px solid var(--border);
             backdrop-filter: blur(12px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 95%;
+            flex-wrap: wrap; /* Mobilde taşarsa aşağı insin */
+            justify-content: center;
         }
-        .stat-box { display: flex; flex-direction: column; align-items: center; line-height: 1.1; min-width: 60px; }
-        .stat-label { font-size: 0.65rem; color: #cbd5e1; letter-spacing: 1px; font-weight: 700; text-transform: uppercase; }
-        .stat-val { font-size: 1.3rem; font-weight: 900; color: var(--accent-glow); text-shadow: 0 0 10px rgba(139, 92, 246, 0.5); }
+
+        .stat-box { 
+            display: flex; flex-direction: column; align-items: center; 
+            line-height: 1.1; min-width: 55px;
+        }
+        .stat-label { 
+            font-size: 0.6rem; color: #cbd5e1; letter-spacing: 0.5px; 
+            font-weight: 700; text-transform: uppercase; 
+        }
+        .stat-val { 
+            font-size: 1.1rem; font-weight: 900; color: white; 
+            text-shadow: 0 0 10px rgba(255,255,255,0.2); 
+        }
+        #score-val { color: var(--warning); }
 
         /* --- OYUN ALANI --- */
         .game-board {
-            display: grid; gap: 10px;
-            width: 95vmin; max-width: 600px; aspect-ratio: 1;
-            perspective: 1000px; z-index: 5; margin-top: 30px;
+            display: grid; gap: 8px;
+            width: 95vmin; max-width: 500px; aspect-ratio: 1;
+            perspective: 1000px; z-index: 5; margin-top: 20px;
+            /* Mobilde çok büyük olmasın */
+            max-height: 70vh;
         }
 
-        /* --- KART STİLLERİ --- */
+        /* --- KARTLAR --- */
         .card {
             position: relative; cursor: pointer;
             transform-style: preserve-3d; transform: scale(0);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 8px;
         }
         .card.active { transform: scale(1); }
 
         .card-inner {
             position: relative; width: 100%; height: 100%;
-            text-align: center; transition: transform 0.6s;
-            transform-style: preserve-3d; border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-align: center; transition: transform 0.5s;
+            transform-style: preserve-3d; border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
         .card.flipped .card-inner { transform: rotateY(180deg); }
-        .card.matched .card-inner { box-shadow: 0 0 20px var(--success); border: 2px solid var(--success); }
+        
+        /* Eşleşmiş Kart Stili */
+        .card.matched { cursor: default; }
+        .card.matched .card-inner { 
+            box-shadow: 0 0 15px var(--success); 
+            border: 2px solid var(--success); 
+        }
+        
         .card.shake { animation: shake 0.4s; }
 
         .card-front, .card-back {
             position: absolute; width: 100%; height: 100%;
-            backface-visibility: hidden; border-radius: 12px;
+            backface-visibility: hidden; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; border: 1px solid var(--border);
         }
 
         .card-front {
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-            color: rgba(255,255,255,0.1); font-size: 1.5rem; font-weight: 900;
+            background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);
+            color: rgba(255,255,255,0.2); font-size: 1.5rem; font-weight: 900;
         }
         .card-front::after { content: '?'; }
 
@@ -90,58 +115,65 @@
         /* --- PENCERELER (MODALS) --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.98); /* Arka planı tamamen kapatır */
-            z-index: 100;
-            display: none; /* JS ile kontrol edilir */
-            justify-content: center; align-items: center;
+            background: rgba(15, 23, 42, 0.98); z-index: 100;
+            display: none; justify-content: center; align-items: center;
+            padding: 20px;
         }
         
         .modal-content {
-            background: #1e293b; padding: 35px; border-radius: 24px;
+            background: #1e293b; padding: 30px; border-radius: 24px;
             text-align: center; border: 1px solid var(--border);
             box-shadow: 0 25px 50px rgba(0,0,0,0.6);
-            width: 90%; max-width: 400px; position: relative;
+            width: 100%; max-width: 360px; position: relative;
+            display: flex; flex-direction: column; gap: 15px;
         }
         
-        h1 { margin: 0 0 10px; font-size: 2.2rem; background: linear-gradient(to right, #a78bfa, #38bdf8); -webkit-background-clip: text; color: transparent; }
-        p { color: #94a3b8; margin-bottom: 25px; line-height: 1.4; font-size: 0.95rem; }
+        h1 { margin: 0; font-size: 1.8rem; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; color: transparent; }
+        p { color: #94a3b8; font-size: 0.9rem; margin: 0; }
 
         input {
-            width: 100%; padding: 14px; margin-bottom: 15px;
+            width: 100%; padding: 12px;
             background: #0f172a; border: 2px solid var(--border);
-            border-radius: 12px; color: white; font-size: 1.1rem;
+            border-radius: 12px; color: white; font-size: 1rem;
             text-align: center; font-weight: bold; outline: none;
         }
-        input:focus { border-color: var(--accent); }
+        input:focus { border-color: var(--primary); }
 
+        /* BUTONLAR */
+        .btn-group {
+            display: flex; flex-direction: column; gap: 10px; width: 100%;
+        }
+        
         .btn {
             width: 100%; padding: 14px; border: none; border-radius: 12px;
-            color: white; font-weight: 800; font-size: 1rem; cursor: pointer;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3); margin-top: 10px;
-            transition: 0.2s; text-transform: uppercase; letter-spacing: 1px;
+            color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        .btn:disabled { opacity: 0.5; cursor: wait; }
-
-        .btn-start { background: linear-gradient(135deg, var(--accent), #3b82f6); }
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-start { background: linear-gradient(135deg, var(--primary), #4f46e5); }
         .btn-easy { background: linear-gradient(135deg, #10b981, #059669); }
         .btn-mid { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .btn-hard { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+        .btn-menu { background: #334155; border: 1px solid #475569; }
 
         /* YÜKLEME ÇUBUĞU */
-        #loader-container { display: none; margin-top: 20px; }
+        #loader-container { display: none; margin-top: 10px; }
         .loader-track { width: 100%; height: 6px; background: #334155; border-radius: 10px; overflow: hidden; }
         .loader-fill { width: 0%; height: 100%; background: var(--success); transition: width 0.3s; }
-        #loader-text { margin-top: 8px; font-size: 0.8rem; color: var(--success); font-weight: bold; }
+        #loader-text { margin-top: 5px; font-size: 0.75rem; color: var(--success); font-weight: bold; }
 
-        .error-msg { color: var(--error); font-size: 0.85rem; margin-top: 10px; display: none; font-weight: bold; }
+        .error-msg { color: var(--error); font-size: 0.85rem; display: none; font-weight: bold; }
 
-        /* TABLOLAR */
-        .tabs { display: flex; gap: 5px; margin-bottom: 15px; justify-content: center; }
-        .tab { padding: 8px 15px; border-radius: 20px; background: rgba(255,255,255,0.05); font-size: 0.8rem; cursor: pointer; border: 1px solid transparent; }
-        .tab.active { background: var(--accent); border-color: var(--accent-glow); }
-        .leaderboard-list { max-height: 200px; overflow-y: auto; text-align: left; font-size: 0.9rem; }
-        .score-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        /* SKOR TABLOSU */
+        .tabs { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .tab { padding: 6px 12px; border-radius: 15px; background: rgba(255,255,255,0.05); font-size: 0.75rem; cursor: pointer; }
+        .tab.active { background: var(--primary); color: white; }
+        .leaderboard-list { max-height: 180px; overflow-y: auto; text-align: left; font-size: 0.85rem; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
+        .score-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
         #confetti-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
         
@@ -158,16 +190,20 @@
 
     <div id="ui-header">
         <div class="stat-box">
-            <span class="stat-label">TUR</span>
-            <span class="stat-val" id="round-display">1</span>
+            <span class="stat-label">SÜRE</span>
+            <span class="stat-val" id="time-val">00:00</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">HAMLE</span>
+            <span class="stat-val" id="moves-val">0</span>
         </div>
         <div class="stat-box">
             <span class="stat-label">PUAN</span>
-            <span class="stat-val" id="score-display">0</span>
+            <span class="stat-val" id="score-val">0</span>
         </div>
         <div class="stat-box">
             <span class="stat-label">ZORLUK</span>
-            <span class="stat-val" id="diff-display" style="font-size:1rem; margin-top:5px;">-</span>
+            <span class="stat-val" id="diff-val" style="font-size:0.9rem; margin-top:4px;">-</span>
         </div>
     </div>
 
@@ -176,34 +212,36 @@
     <div id="modal-login" class="modal-overlay">
         <div class="modal-content">
             <h1>KİMLİK</h1>
-            <p>Efsane olmak için takma adını gir.<br>(Kalıcıdır, değişmez)</p>
+            <p>Skor tablosunda görünecek isim:</p>
             <input type="text" id="username-input" placeholder="İsim Giriniz" maxlength="12" autocomplete="off">
-            <button class="btn btn-start" onclick="loginSystem.attemptLogin()">KAYDET VE DEVAM ET</button>
+            <div class="btn-group">
+                <button class="btn btn-start" onclick="loginSystem.attemptLogin()">KAYDET</button>
+            </div>
             <div class="error-msg" id="login-error"></div>
         </div>
     </div>
 
     <div id="modal-difficulty" class="modal-overlay">
         <div class="modal-content">
-            <h1>GÖREV SEÇ</h1>
-            <p>Hoşgeldin <span id="player-name-display" style="color:var(--accent-glow); font-weight:bold;"></span>.<br>Hangi zorlukta yarışmak istersin?</p>
+            <h1>YENİ OYUN</h1>
+            <p>Hoşgeldin <span id="player-name-display" style="color:var(--primary-glow); font-weight:bold;"></span>.<br>Mod seç ve başla.</p>
             
-            <div id="diff-buttons">
-                <button class="btn btn-easy" onclick="gameSystem.startPreload('easy')">KOLAY (Benzersiz)</button>
-                <button class="btn btn-mid" onclick="gameSystem.startPreload('medium')">ORTA (Benzer Temalar)</button>
-                <button class="btn btn-hard" onclick="gameSystem.startPreload('hard')">ZOR (Aşırı Benzer)</button>
+            <div id="diff-buttons" class="btn-group">
+                <button class="btn btn-easy" onclick="gameSystem.startPreload('easy')">🟢 KOLAY (16 Kart)</button>
+                <button class="btn btn-mid" onclick="gameSystem.startPreload('medium')">🟠 ORTA (20 Kart)</button>
+                <button class="btn btn-hard" onclick="gameSystem.startPreload('hard')">🔴 ZOR (24 Kart)</button>
             </div>
 
             <div id="loader-container">
                 <div class="loader-track"><div class="loader-fill" id="loader-fill"></div></div>
-                <div id="loader-text">Hazırlanıyor %0</div>
+                <div id="loader-text">Görseller Yükleniyor %0</div>
             </div>
         </div>
     </div>
 
     <div id="modal-end" class="modal-overlay">
         <div class="modal-content">
-            <h1 id="end-title">SONUÇ</h1>
+            <h1 id="end-title">OYUN BİTTİ</h1>
             <p id="end-desc">...</p>
             
             <div class="tabs">
@@ -213,7 +251,9 @@
             </div>
             <div class="leaderboard-list" id="leaderboard-content">Yükleniyor...</div>
 
-            <button class="btn btn-start" onclick="location.reload()" style="margin-top:20px;">YENİDEN BAŞLA</button>
+            <div class="btn-group">
+                <button class="btn btn-start" onclick="ui.showScreen('modal-difficulty')">TEKRAR OYNA</button>
+            </div>
         </div>
     </div>
 
@@ -235,11 +275,8 @@
         try {
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
-        } catch (e) {
-            console.error("Firebase Bağlantı Hatası:", e);
-        }
+        } catch (e) { console.error("Firebase Hatası:", e); }
 
-        // Skor Kaydetme Fonksiyonu
         window.saveScoreToFirebase = async function(score, difficulty) {
             if(!db || !localStorage.getItem('memory_username')) return;
             const name = localStorage.getItem('memory_username');
@@ -260,19 +297,17 @@
             } catch (e) { console.error("Kayıt Hatası:", e); }
         };
 
-        // Liderlik Tablosu Çekme
         window.getLeaderboard = async function(difficulty) {
             if(!db) return "<p>Bağlantı yok.</p>";
-            const colName = `memory_scores_${difficulty}`;
             try {
-                const q = query(collection(db, colName), orderBy("score", "desc"), limit(10));
+                const q = query(collection(db, `memory_scores_${difficulty}`), orderBy("score", "desc"), limit(10));
                 const querySnapshot = await getDocs(q);
                 let html = "";
                 let rank = 1;
                 querySnapshot.forEach((doc) => {
                     const d = doc.data();
                     let color = rank === 1 ? '#ffd700' : rank === 2 ? '#c0c0c0' : rank === 3 ? '#cd7f32' : 'white';
-                    html += `<div class="score-row"><span style="color:${color}; font-weight:bold;">#${rank}</span><span style="color:white;">${d.name}</span><span style="color:var(--accent-glow);">${d.score}</span></div>`;
+                    html += `<div class="score-row"><span style="color:${color}; font-weight:bold;">#${rank}</span><span style="color:white;">${d.name}</span><span style="color:var(--primary-glow);">${d.score}</span></div>`;
                     rank++;
                 });
                 return html || "<p>Kayıt yok.</p>";
@@ -281,40 +316,43 @@
     </script>
 
     <script>
-    /* ----------------------------------------------------------------
-       1. AYARLAR VE VERİLER
-    ---------------------------------------------------------------- */
-    const CONFIG = {
-        imgEasy: [10, 12, 28, 54, 76, 103, 137, 152, 164, 180, 200, 237],
-        imgMid:  [11, 15, 18, 19, 29, 40, 48, 60, 70, 77, 89, 92],
-        imgHard: [1, 17, 25, 33, 44, 50, 66, 71, 88, 96, 102, 106],
-        forbidden: ["sex", "porno", "porn", "amk", "aq", "pic", "oç", "yarak", "sik", "got", "meme", "31", "sikiş", "yarrak", "anan", "kaşar"]
-    };
+    /* 1. GENİŞ GÖRSEL HAVUZU (Variety) */
+    // 100+ Picsum ID'si (Doğa, Şehir, Teknoloji karışık)
+    const MASTER_IMAGE_POOL = [
+        10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 28, 29, 33, 40, 48, 54, 57, 58, 60, 
+        70, 76, 89, 96, 102, 103, 110, 116, 117, 119, 122, 128, 137, 146, 152, 164, 175, 180,
+        190, 191, 192, 195, 200, 201, 202, 215, 216, 217, 218, 225, 237, 238, 239, 249, 250,
+        251, 252, 257, 258, 259, 275, 280, 299, 300, 301, 302, 305, 306, 310, 311, 318, 320,
+        325, 330, 335, 340, 345, 350, 355, 360, 365, 370, 375, 380, 385, 390, 395, 400, 405
+    ];
 
-    /* ----------------------------------------------------------------
-       2. SİSTEM YÖNETİCİSİ (UI CONTROLLER)
-    ---------------------------------------------------------------- */
+    const FORBIDDEN_WORDS = ["sex", "porno", "porn", "amk", "aq", "pic", "oç", "yarak", "sik", "got", "meme", "31", "sikiş", "yarrak", "anan"];
+
+    /* 2. UI YÖNETİCİSİ */
     const ui = {
         showScreen: (screenId) => {
-            // Tüm modalları kapat
             document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
-            // İstenen ekranı aç (eğer varsa)
             if(screenId) document.getElementById(screenId).style.display = 'flex';
         },
         updateLoader: (percent) => {
             document.getElementById('loader-fill').style.width = `${percent}%`;
-            document.getElementById('loader-text').innerText = `Hazırlanıyor %${percent}`;
+            document.getElementById('loader-text').innerText = `Görseller Yükleniyor %${percent}`;
         },
         showError: (msg) => {
             const el = document.getElementById('login-error');
             el.innerText = msg; el.style.display = 'block';
             setTimeout(() => el.style.display = 'none', 2000);
+        },
+        updateStats: () => {
+            document.getElementById('score-val').innerText = gameSystem.state.score;
+            document.getElementById('moves-val').innerText = gameSystem.state.moves;
+        },
+        updateTimer: (str) => {
+            document.getElementById('time-val').innerText = str;
         }
     };
 
-    /* ----------------------------------------------------------------
-       3. GİRİŞ SİSTEMİ
-    ---------------------------------------------------------------- */
+    /* 3. GİRİŞ SİSTEMİ */
     const loginSystem = {
         init: () => {
             const savedName = localStorage.getItem('memory_username');
@@ -331,7 +369,7 @@
             const cleanName = rawName.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 
             if (cleanName.length < 3) return ui.showError("İsim çok kısa!");
-            if (CONFIG.forbidden.some(w => cleanName.includes(w))) return ui.showError("Uygunsuz isim!");
+            if (FORBIDDEN_WORDS.some(w => cleanName.includes(w))) return ui.showError("Uygunsuz isim!");
 
             localStorage.setItem('memory_username', rawName);
             document.getElementById('player-name-display').innerText = rawName;
@@ -339,14 +377,14 @@
         }
     };
 
-    /* ----------------------------------------------------------------
-       4. OYUN SİSTEMİ
-    ---------------------------------------------------------------- */
+    /* 4. OYUN SİSTEMİ */
     const gameSystem = {
         state: {
             difficulty: 'easy',
-            round: 1,
             score: 0,
+            moves: 0,
+            seconds: 0,
+            timerInterval: null,
             images: {},
             lockBoard: false,
             hasFlipped: false,
@@ -357,59 +395,65 @@
         },
 
         startPreload: (diff) => {
-            gameSystem.state.difficulty = diff;
+            // State Sıfırla
+            clearInterval(gameSystem.state.timerInterval);
+            gameSystem.state = {
+                ...gameSystem.state,
+                difficulty: diff, score: 0, moves: 0, seconds: 0, matches: 0,
+                lockBoard: false, hasFlipped: false, firstCard: null, secondCard: null, images: {}
+            };
             
-            // Butonları gizle, loader'ı göster
+            ui.updateStats();
+            ui.updateTimer("00:00");
+
+            // UI Hazırlığı
             document.getElementById('diff-buttons').style.display = 'none';
             document.getElementById('loader-container').style.display = 'block';
             
-            // UI Güncelle
             const diffNames = {easy: "KOLAY", medium: "ORTA", hard: "ZOR"};
-            const diffColors = {easy: "#10b981", medium: "#f59e0b", hard: "#ef4444"};
-            const disp = document.getElementById('diff-display');
-            disp.innerText = diffNames[diff];
-            disp.style.color = diffColors[diff];
+            document.getElementById('diff-val').innerText = diffNames[diff];
 
-            // Resim Kaynaklarını Belirle
-            let ids = diff === 'easy' ? CONFIG.imgEasy : diff === 'medium' ? CONFIG.imgMid : CONFIG.imgHard;
+            // Resim Seçimi (Havuzdan rastgele seç)
+            // Kolay: 8 resim (16 kart), Orta: 10 resim (20 kart), Zor: 12 resim (24 kart)
+            let count = diff === 'easy' ? 8 : diff === 'medium' ? 10 : 12;
             
-            // PROMISE YAPISI: Asla takılmaz
+            // Havuzu karıştır ve ilk 'count' kadarını al
+            let shuffledPool = [...MASTER_IMAGE_POOL].sort(() => 0.5 - Math.random());
+            let selectedIds = shuffledPool.slice(0, count);
+            
+            // Promise ile Yükle (Asla takılmaz)
             let loadedCount = 0;
-            const total = ids.length;
-            const promises = ids.map(id => {
+            const promises = selectedIds.map(id => {
                 return new Promise((resolve) => {
                     const img = new Image();
                     img.src = `https://picsum.photos/id/${id}/300/300`;
                     img.onload = () => {
                         gameSystem.state.images[id] = img.src;
                         loadedCount++;
-                        ui.updateLoader(Math.floor((loadedCount/total)*100));
+                        ui.updateLoader(Math.floor((loadedCount/count)*100));
                         resolve();
                     };
                     img.onerror = () => {
-                        // Hata olsa bile devam et (resolve)
-                        console.warn("Resim yüklenemedi:", id);
-                        loadedCount++;
-                        ui.updateLoader(Math.floor((loadedCount/total)*100));
-                        resolve();
+                        console.warn("Resim hatası, yedekleniyor:", id);
+                        resolve(); // Hata olsa da devam et
                     };
                 });
             });
 
-            // Hepsi bitince oyunu başlat
             Promise.all(promises).then(() => {
                 setTimeout(() => {
+                    document.getElementById('diff-buttons').style.display = 'flex'; // Eski haline getir
+                    document.getElementById('loader-container').style.display = 'none';
                     ui.showScreen(null); // Modalı kapat
-                    gameSystem.initBoard();
+                    gameSystem.initBoard(selectedIds);
                 }, 500);
             });
         },
 
-        initBoard: () => {
+        initBoard: (imageIds) => {
             const board = document.getElementById('game-board');
             board.innerHTML = '';
             
-            // Zorluk seviyesine göre Grid (Hepsi çift sayı üretir)
             let cols = 4;
             let rows = gameSystem.state.difficulty === 'easy' ? 4 : gameSystem.state.difficulty === 'medium' ? 5 : 6;
             
@@ -417,20 +461,19 @@
             
             const totalCards = rows * cols;
             gameSystem.state.requiredMatches = totalCards / 2;
-            gameSystem.state.matches = 0;
 
-            // Kartları Hazırla
-            let keys = Object.keys(gameSystem.state.images);
-            // Yetmezse başa dönüp doldur
-            let neededKeys = keys.slice(0, gameSystem.state.requiredMatches);
-            while(neededKeys.length < gameSystem.state.requiredMatches) {
-                neededKeys = neededKeys.concat(keys.slice(0, gameSystem.state.requiredMatches - neededKeys.length));
+            // Deste Oluştur
+            // Eğer imageIds yetersizse (yükleme hatası vb), eldeki resimleri tekrarla
+            let needed = Object.keys(gameSystem.state.images);
+            if (needed.length < gameSystem.state.requiredMatches) {
+                 // Acil durum: Eldekileri çoğalt
+                 while(needed.length < gameSystem.state.requiredMatches) needed = needed.concat(needed);
+                 needed = needed.slice(0, gameSystem.state.requiredMatches);
             }
             
-            let deck = [...neededKeys, ...neededKeys];
+            let deck = [...needed, ...needed];
             deck.sort(() => 0.5 - Math.random());
 
-            // DOM Oluştur
             deck.forEach(id => {
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -438,7 +481,7 @@
                 card.innerHTML = `
                     <div class="card-inner">
                         <div class="card-front"></div>
-                        <div class="card-back"><img src="${gameSystem.state.images[id]}" draggable="false"></div>
+                        <div class="card-back"><img src="${gameSystem.state.images[id] || 'https://picsum.photos/200'}" draggable="false"></div>
                     </div>
                 `;
                 card.addEventListener('click', gameSystem.flipCard);
@@ -450,7 +493,7 @@
             cards.forEach((c, i) => setTimeout(() => c.classList.add('active'), i * 30));
 
             // Ön İzleme
-            let previewTime = Math.max(1000, 3000 - (gameSystem.state.round * 300));
+            let previewTime = 2500;
             setTimeout(() => {
                 gameSystem.state.lockBoard = true;
                 cards.forEach(c => c.classList.add('flipped'));
@@ -460,12 +503,27 @@
                     cards.forEach(c => c.classList.remove('flipped'));
                     gameSystem.state.lockBoard = false;
                     sfx.play('flip');
+                    gameSystem.startTimer(); // Süreyi başlat
                 }, previewTime);
+            }, 800);
+        },
+
+        startTimer: () => {
+            gameSystem.state.timerInterval = setInterval(() => {
+                gameSystem.state.seconds++;
+                let m = Math.floor(gameSystem.state.seconds / 60).toString().padStart(2, '0');
+                let s = (gameSystem.state.seconds % 60).toString().padStart(2, '0');
+                ui.updateTimer(`${m}:${s}`);
             }, 1000);
         },
 
         flipCard: function() {
             const state = gameSystem.state;
+            
+            // --- KRİTİK DÜZELTME: EŞLEŞMİŞ KARTA TIKLANAMAZ ---
+            if (this.classList.contains('matched')) return;
+            // --------------------------------------------------
+
             if (state.lockBoard || this === state.firstCard) return;
 
             this.classList.add('flipped');
@@ -478,6 +536,8 @@
             }
 
             state.secondCard = this;
+            state.moves++;
+            ui.updateStats();
             gameSystem.checkForMatch();
         },
 
@@ -492,11 +552,9 @@
             state.lockBoard = true;
             state.matches++;
             
-            // Puan Hesapla
-            let base = 100;
-            let multi = state.difficulty === 'easy' ? 1 : state.difficulty === 'medium' ? 1.5 : 2;
-            state.score += Math.floor(base * multi * state.round);
-            document.getElementById('score-display').innerText = state.score;
+            // Puanlama: Doğru +100
+            state.score += 100;
+            ui.updateStats();
             
             sfx.play('match');
 
@@ -506,7 +564,7 @@
                 gameSystem.resetBoard();
 
                 if (state.matches === state.requiredMatches) {
-                    setTimeout(gameSystem.nextRound, 1000);
+                    gameSystem.endGame();
                 }
             }, 500);
         },
@@ -514,6 +572,11 @@
         unflipCards: () => {
             const state = gameSystem.state;
             state.lockBoard = true;
+            
+            // Puanlama: Yanlış -10 (0'ın altına düşebilir veya 0'da kalabilir)
+            state.score -= 10;
+            ui.updateStats();
+
             sfx.play('error');
 
             setTimeout(() => {
@@ -534,27 +597,30 @@
             [state.firstCard, state.secondCard] = [null, null];
         },
 
-        nextRound: () => {
-            const state = gameSystem.state;
+        endGame: () => {
+            clearInterval(gameSystem.state.timerInterval);
             sfx.play('win');
             confettiSystem.start();
             
             // Kaydet
-            if(window.saveScoreToFirebase) window.saveScoreToFirebase(state.score, state.difficulty);
+            if(window.saveScoreToFirebase) window.saveScoreToFirebase(gameSystem.state.score, gameSystem.state.difficulty);
 
-            state.round++;
-            document.getElementById('round-display').innerText = state.round;
-
+            // Modalı Hazırla
+            document.getElementById('end-desc').innerHTML = `
+                Toplam Puan: <strong style="color:#fff">${gameSystem.state.score}</strong><br>
+                Hamle: ${gameSystem.state.moves} | Süre: ${document.getElementById('time-val').innerText}
+            `;
+            
+            // Leaderboard'u varsayılan olarak şu anki zorlukta aç
+            leaderboardSystem.load(gameSystem.state.difficulty);
+            
             setTimeout(() => {
-                alert(`TEBRİKLER! ${state.round}. Tur Başlıyor...`);
-                gameSystem.initBoard();
+                ui.showScreen('modal-end');
             }, 1500);
         }
     };
 
-    /* ----------------------------------------------------------------
-       5. SES VE EFEKTLER
-    ---------------------------------------------------------------- */
+    /* 5. SES VE EFEKTLER */
     const sfx = {
         ctx: new (window.AudioContext || window.webkitAudioContext)(),
         play: (type) => {
@@ -581,9 +647,25 @@
         }
     };
 
-    /* ----------------------------------------------------------------
-       6. KONFETİ EFEKTİ
-    ---------------------------------------------------------------- */
+    /* 6. LİDERLİK TABLOSU */
+    const leaderboardSystem = {
+        load: async (diff) => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const tab = document.getElementById(`tab-${diff}`);
+            if(tab) tab.classList.add('active');
+
+            const content = document.getElementById('leaderboard-content');
+            content.innerHTML = "Yükleniyor...";
+            
+            if(window.getLeaderboard) {
+                content.innerHTML = await window.getLeaderboard(diff);
+            } else {
+                content.innerHTML = "<p>Veritabanı hazır değil.</p>";
+            }
+        }
+    };
+
+    /* 7. KONFETİ */
     const confettiSystem = {
         canvas: document.getElementById('confetti-canvas'),
         init: () => {
@@ -601,37 +683,16 @@
                 x: Math.random()*confettiSystem.canvas.width, y: Math.random()*confettiSystem.canvas.height-confettiSystem.canvas.height,
                 c: `hsl(${Math.random()*360},100%,50%)`, v: Math.random()*5+2
             });
-            
             function loop() {
                 const ctx = confettiSystem.ctx;
                 ctx.clearRect(0,0,confettiSystem.canvas.width, confettiSystem.canvas.height);
                 parts.forEach((p,i) => {
-                    p.y += p.v; ctx.fillStyle=p.c; ctx.fillRect(p.x, p.y, 8, 8);
+                    p.y += p.v; ctx.fillStyle=p.c; ctx.fillRect(p.x, p.y, 6, 6);
                     if(p.y > confettiSystem.canvas.height) parts[i].y = -10;
                 });
                 if(parts.length) requestAnimationFrame(loop);
             }
             loop();
-        }
-    };
-
-    /* ----------------------------------------------------------------
-       7. LİDERLİK TABLOSU SİSTEMİ
-    ---------------------------------------------------------------- */
-    const leaderboardSystem = {
-        load: async (diff) => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            const tab = document.getElementById(`tab-${diff}`);
-            if(tab) tab.classList.add('active');
-
-            const content = document.getElementById('leaderboard-content');
-            content.innerHTML = "Yükleniyor...";
-            
-            if(window.getLeaderboard) {
-                content.innerHTML = await window.getLeaderboard(diff);
-            } else {
-                content.innerHTML = "<p>Veritabanı hazır değil.</p>";
-            }
         }
     };
 
