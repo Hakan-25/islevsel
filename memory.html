@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HakanTools | Pro Memory Match</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap');
+
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --success: #4ade80;
+            --error: #f43f5e;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            color: white;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- UI HEADER --- */
+        #ui-header {
+            position: absolute; top: 20px;
+            display: flex; gap: 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            z-index: 10;
+            background: var(--glass);
+            padding: 15px 40px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .stat-item span { color: var(--accent); font-weight: 800; margin-left: 8px; font-size: 1.4rem; }
+
+        /* --- OYUN ALANI (GRID) --- */
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            width: 90vmin;
+            max-width: 600px;
+            aspect-ratio: 1;
+            perspective: 1000px; /* 3D Derinlik */
+            z-index: 5;
+        }
+
+        /* --- KART YAPISI --- */
+        .card {
+            position: relative;
+            width: 100%; height: 100%;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transform: scale(0); /* Başlangıçta görünmez */
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card.active { transform: scale(1); } /* Giriş animasyonu */
+        
+        .card-inner {
+            position: relative;
+            width: 100%; height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        /* KART DÖNME LOGİĞİ */
+        .card.flipped .card-inner { transform: rotateY(180deg); }
+        .card.matched .card-inner { box-shadow: 0 0 20px var(--success); border: 2px solid var(--success); }
+        .card.shake { animation: shake 0.5s; }
+
+        /* ÖN VE ARKA YÜZ */
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        /* ARKA (KAPALI) */
+        .card-front {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: rgba(255,255,255,0.1);
+            font-size: 2rem;
+            font-weight: 900;
+        }
+        .card-front::after { content: '?'; }
+
+        /* ÖN (AÇIK - RESİM) */
+        .card-back {
+            background: white;
+            transform: rotateY(180deg);
+        }
+        .card-back img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+
+        /* --- MODAL / START SCREEN --- */
+        #modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            text-align: center;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            max-width: 400px;
+        }
+        h1 { margin: 0 0 10px 0; font-size: 3rem; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; color: transparent; }
+        p { color: #94a3b8; margin-bottom: 30px; font-size: 1.1rem; }
+        
+        .btn {
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            border: none;
+            padding: 15px 40px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
+            transition: 0.2s;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(56, 189, 248, 0.4); }
+        .btn:active { transform: translateY(1px); }
+
+        /* --- PREVIEW BAR --- */
+        #preview-bar-container {
+            position: absolute; bottom: 30px;
+            width: 300px; height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        #preview-bar {
+            width: 100%; height: 100%;
+            background: var(--accent);
+            transform-origin: left;
+        }
+
+        /* --- CONFETTI CANVAS --- */
+        #confetti-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-5deg); }
+            75% { transform: translateX(5px) rotate(5deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <div id="ui-header">
+        <div class="stat-item">HAMLE: <span id="move-count">0</span></div>
+        <div class="stat-item">SÜRE: <span id="time-count">00:00</span></div>
+    </div>
+
+    <div class="game-board" id="game-board">
+        </div>
+
+    <div id="preview-bar-container">
+        <div id="preview-bar"></div>
+    </div>
+
+    <div id="modal-overlay">
+        <div class="modal-content">
+            <h1>HakanTools</h1>
+            <p>Hafıza Kartları: 3 Saniye Ön İzleme</p>
+            <button class="btn" onclick="startGame()">OYUNU BAŞLAT</button>
+        </div>
+    </div>
+
+    <script>
+    /* --- AYARLAR VE VERİLER --- */
+    // Yüksek kaliteli, 400x400 görseller. ID'ler sabitlenerek her seferinde aynı kalite garanti edilir.
+    const imageIDs = [
+        "1550745165-9bc0b252726f", // Retro Tech
+        "1535268666454-1423e6635636", // Nature Mist
+        "1518791841217-8f162f1e1131", // Cat
+        "1492144534655-ae79c964c9d7", // Car
+        "1531297461318-0f8c2d087c0f", // Bird
+        "1550751827-4bd374c3f58b", // Cyberpunk City
+        "1511920170033-f8396924c348", // Coffee
+        "1451187580459-43490279c0fa"  // Metal Texture
+    ];
+    
+    let cardsArray = [];
+    let hasFlippedCard = false;
+    let lockBoard = false;
+    let firstCard, secondCard;
+    let moves = 0;
+    let matches = 0;
+    let timerInterval;
+    let seconds = 0;
+    let isPreviewing = false;
+
+    // --- SES MOTORU (Web Audio API) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+        
+        if (type === 'flip') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.1);
+            osc.start(now); osc.stop(now + 0.1);
+        } 
+        else if (type === 'match') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.setValueAtTime(600, now + 0.1);
+            osc.frequency.setValueAtTime(1000, now + 0.2);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+            osc.start(now); osc.stop(now + 0.4);
+        }
+        else if (type === 'error') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
+            osc.start(now); osc.stop(now + 0.2);
+        }
+        else if (type === 'win') {
+            // Basit bir fanfar
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((note, i) => {
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.type = 'square';
+                osc2.frequency.value = note;
+                gain2.gain.setValueAtTime(0.1, now + i*0.1);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + i*0.1 + 0.4);
+                osc2.start(now + i*0.1);
+                osc2.stop(now + i*0.1 + 0.4);
+            });
+        }
+    }
+
+    /* --- OYUN MANTIĞI --- */
+    function startGame() {
+        // Reset
+        document.getElementById('modal-overlay').style.display = 'none';
+        const board = document.getElementById('game-board');
+        board.innerHTML = '';
+        moves = 0; matches = 0; seconds = 0;
+        document.getElementById('move-count').innerText = '0';
+        document.getElementById('time-count').innerText = '00:00';
+        
+        // Kartları Oluştur
+        // Her resimden 2 tane al
+        let deck = [...imageIDs, ...imageIDs];
+        // Karıştır
+        deck.sort(() => 0.5 - Math.random());
+
+        deck.forEach(imgId => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.dataset.name = imgId;
+
+            const inner = document.createElement('div');
+            inner.classList.add('card-inner');
+
+            const front = document.createElement('div');
+            front.classList.add('card-front');
+            // Logo yerine ? işareti var CSS'de
+
+            const back = document.createElement('div');
+            back.classList.add('card-back');
+            const img = document.createElement('img');
+            img.src = `https://images.unsplash.com/photo-${imgId}?auto=format&fit=crop&w=400&q=80`;
+            back.appendChild(img);
+
+            inner.appendChild(front);
+            inner.appendChild(back);
+            card.appendChild(inner);
+            board.appendChild(card);
+
+            card.addEventListener('click', flipCard);
+        });
+
+        // Animasyonlu Giriş
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('active');
+            }, index * 50); // Sırayla gelme efekti
+        });
+
+        // ÖN İZLEME (PREVIEW)
+        setTimeout(() => {
+            startPreview();
+        }, 1000);
+    }
+
+    function startPreview() {
+        isPreviewing = true;
+        lockBoard = true;
+        const cards = document.querySelectorAll('.card');
+        
+        // Hepsini aç
+        cards.forEach(card => card.classList.add('flipped'));
+
+        // Progress Bar
+        const barContainer = document.getElementById('preview-bar-container');
+        const bar = document.getElementById('preview-bar');
+        barContainer.style.display = 'block';
+        bar.style.transition = 'none';
+        bar.style.transform = 'scaleX(1)';
+
+        // 3 saniye geri sayım animasyonu
+        setTimeout(() => {
+            bar.style.transition = 'transform 3s linear';
+            bar.style.transform = 'scaleX(0)';
+        }, 50);
+
+        // 3 saniye sonra kapat ve oyunu başlat
+        setTimeout(() => {
+            cards.forEach(card => card.classList.remove('flipped'));
+            barContainer.style.display = 'none';
+            lockBoard = false;
+            isPreviewing = false;
+            startTimer();
+        }, 3050);
+    }
+
+    function flipCard() {
+        if (lockBoard) return;
+        if (this === firstCard) return;
+
+        this.classList.add('flipped');
+        playSound('flip');
+
+        if (!hasFlippedCard) {
+            hasFlippedCard = true;
+            firstCard = this;
+            return;
+        }
+
+        secondCard = this;
+        incrementMoves();
+        checkForMatch();
+    }
+
+    function incrementMoves() {
+        moves++;
+        document.getElementById('move-count').innerText = moves;
+    }
+
+    function checkForMatch() {
+        let isMatch = firstCard.dataset.name === secondCard.dataset.name;
+        isMatch ? disableCards() : unflipCards();
+    }
+
+    function disableCards() {
+        playSound('match');
+        firstCard.classList.add('matched');
+        secondCard.classList.add('matched');
+        
+        // Eşleşme Efekti (Hafif büyüme)
+        /* CSS animasyonu zaten var, JS ile dokunmaya gerek yok */
+
+        resetBoard();
+        matches++;
+        if (matches === 8) {
+            setTimeout(gameWin, 500);
+        }
+    }
+
+    function unflipCards() {
+        lockBoard = true;
+        playSound('error');
+        
+        // Hata efekti (Titreme)
+        firstCard.classList.add('shake');
+        secondCard.classList.add('shake');
+
+        setTimeout(() => {
+            firstCard.classList.remove('flipped', 'shake');
+            secondCard.classList.remove('flipped', 'shake');
+            resetBoard();
+        }, 1000);
+    }
+
+    function resetBoard() {
+        [hasFlippedCard, lockBoard] = [false, false];
+        [firstCard, secondCard] = [null, null];
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            seconds++;
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            document.getElementById('time-count').innerText = `${m}:${s}`;
+        }, 1000);
+    }
+
+    function gameWin() {
+        clearInterval(timerInterval);
+        playSound('win');
+        startConfetti();
+        
+        setTimeout(() => {
+            // Modalı tekrar göster ama farklı mesajla
+            const modal = document.querySelector('.modal-content');
+            modal.innerHTML = `
+                <h1 style="font-size:2.5rem">TEBRİKLER!</h1>
+                <p style="color:white; font-size:1.2rem">
+                    Süre: ${document.getElementById('time-count').innerText} <br>
+                    Hamle: ${moves}
+                </p>
+                <button class="btn" onclick="location.reload()">TEKRAR OYNA</button>
+            `;
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }, 1500);
+    }
+
+    /* --- KONFETİ MOTORU (Kütüphanesiz) --- */
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let confettiParticles = [];
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function startConfetti() {
+        for (let i = 0; i < 150; i++) {
+            confettiParticles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                w: Math.random() * 10 + 5,
+                h: Math.random() * 10 + 5,
+                color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                vy: Math.random() * 3 + 2,
+                vx: Math.random() * 2 - 1,
+                r: 0,
+                rs: Math.random() * 0.1 - 0.05
+            });
+        }
+        updateConfetti();
+    }
+
+    function updateConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        confettiParticles.forEach((p, index) => {
+            p.y += p.vy;
+            p.x += p.vx;
+            p.r += p.rs;
+            
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.r);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+            ctx.restore();
+
+            if (p.y > canvas.height) confettiParticles[index].y = -10;
+        });
+        requestAnimationFrame(updateConfetti);
+    }
+    </script>
+</body>
+</html>
