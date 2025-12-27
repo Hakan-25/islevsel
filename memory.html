@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HakanTools | Memory Saga</title>
+    <title>HakanTools | Memory Saga (Final)</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap');
@@ -91,7 +91,8 @@
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.96); z-index: 100;
-            display: flex; justify-content: center; align-items: center;
+            display: none; /* JS ile flex yapılacak */
+            justify-content: center; align-items: center;
             backdrop-filter: blur(8px); transition: opacity 0.3s;
         }
         .modal-content {
@@ -122,6 +123,7 @@
         }
         .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .btn-start { background: linear-gradient(135deg, var(--accent), #3b82f6); }
         .btn-easy { background: linear-gradient(135deg, #10b981, #059669); }   /* Yeşil */
@@ -176,7 +178,7 @@
 
     <div class="game-board" id="game-board"></div>
 
-    <div id="modal-login" class="modal-overlay" style="display:none;">
+    <div id="modal-login" class="modal-overlay">
         <div class="modal-content">
             <h1>KİMLİK</h1>
             <p>Hafıza Efsanesi olmak için takma adını gir. (Kalıcıdır)</p>
@@ -186,7 +188,7 @@
         </div>
     </div>
 
-    <div id="modal-difficulty" class="modal-overlay" style="display:none;">
+    <div id="modal-difficulty" class="modal-overlay">
         <div class="modal-content">
             <h1>GÖREV SEÇ</h1>
             <p>Hoşgeldin <span id="player-name-display" style="color:var(--accent-glow); font-weight:bold;"></span>.<br>Hangi zorlukta yarışmak istersin?</p>
@@ -202,7 +204,7 @@
         </div>
     </div>
 
-    <div id="modal-end" class="modal-overlay" style="display:none;">
+    <div id="modal-end" class="modal-overlay">
         <div class="modal-content">
             <h1 id="end-title">SONUÇ</h1>
             <p id="end-desc">...</p>
@@ -235,12 +237,12 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- SKOR KAYDETME (ZORLUĞA GÖRE AYRI TABLO) ---
+        // --- SKOR KAYDETME (ZORLUĞA GÖRE AYRI TABLO + GÜNCELLEME) ---
         window.saveScore = async function(score, difficulty) {
             const name = localStorage.getItem('memory_username');
             if(!name || score <= 0) return;
 
-            const collectionName = `memory_scores_${difficulty}`; // Ayrı koleksiyonlar
+            const collectionName = `memory_scores_${difficulty}`;
 
             try {
                 // Bu zorlukta bu ismin kaydı var mı?
@@ -249,13 +251,17 @@
 
                 if (!querySnapshot.empty) {
                     const docRef = querySnapshot.docs[0];
+                    // Eğer yeni skor daha yüksekse GÜNCELLE
                     if (score > docRef.data().score) {
                         await updateDoc(doc(db, collectionName, docRef.id), { score: score, date: new Date() });
                         console.log("Rekor güncellendi:", difficulty);
+                    } else {
+                        console.log("Skor düşük, güncellenmedi.");
                     }
                 } else {
+                    // Kayıt yoksa YENİ EKLE
                     await addDoc(collection(db, collectionName), { name: name, score: score, date: new Date() });
-                    console.log("Yeni kayıt:", difficulty);
+                    console.log("Yeni kayıt açıldı:", difficulty);
                 }
             } catch (e) { console.error("DB Hatası:", e); }
         };
@@ -264,7 +270,8 @@
         window.loadLeaderboard = async function(difficulty) {
             // Tab stillerini güncelle
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab-${difficulty}`).classList.add('active');
+            const activeTab = document.getElementById(`tab-${difficulty}`);
+            if(activeTab) activeTab.classList.add('active');
 
             const content = document.getElementById('leaderboard-content');
             content.innerHTML = "Yükleniyor...";
@@ -296,14 +303,14 @@
 
     <script>
     /* --- AYARLAR VE GÖRSELLER --- */
-    // KOLAY: Çok farklı objeler (Picsum ID)
+    // KOLAY: Çok farklı objeler
     const imgEasy = [10, 12, 28, 54, 76, 103, 137, 152, 164, 180, 200, 237, 250, 300, 310, 320];
     // ORTA: Doğa / Yeşil Temalı (Benzer tonlar)
     const imgMid = [11, 15, 18, 19, 29, 40, 48, 60, 70, 77, 89, 92, 110, 116, 122, 128];
     // ZOR: Siyah Beyaz / Soyut / Doku (Çok benzer)
     const imgHard = [1, 17, 25, 33, 44, 50, 66, 71, 88, 96, 102, 106, 107, 108, 109, 111];
 
-    // Akıllı Küfür Filtresi (Noktalama işaretlerini yoksayar)
+    // Akıllı Küfür Filtresi (Noktalama işaretlerini temizleyerek kontrol eder)
     const forbidden = ["sex", "porno", "porn", "amk", "aq", "pic", "oç", "yarak", "sik", "got", "meme", "31", "sikiş", "yarrak", "anan"];
 
     /* --- OYUN DEĞİŞKENLERİ --- */
@@ -311,9 +318,7 @@
     let selectedDiff = "";
     let currentRound = 1;
     let totalScore = 0;
-    let imagesCache = {}; // Preloaded images
-    let gameImages = [];  // Current level images
-    
+    let imagesCache = {}; 
     let lockBoard = false;
     let hasFlipped = false;
     let firstCard, secondCard;
@@ -321,25 +326,32 @@
     let requiredMatches = 0;
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    /* --- GİRİŞ KONTROLÜ --- */
-    window.onload = () => {
+    /* --- BAŞLANGIÇ KONTROLÜ (FIXED) --- */
+    function init() {
         const saved = localStorage.getItem('memory_username');
         if(saved) {
             username = saved;
             document.getElementById('player-name-display').innerText = username;
             document.getElementById('display-username').innerText = username;
+            // Direkt Zorluk Ekranını Aç
+            document.getElementById('modal-login').style.display = 'none';
             document.getElementById('modal-difficulty').style.display = 'flex';
         } else {
+            // Giriş Ekranını Aç
             document.getElementById('modal-login').style.display = 'flex';
+            document.getElementById('modal-difficulty').style.display = 'none';
         }
-    };
+    }
+    
+    // Sayfa yüklenince çalıştır
+    window.addEventListener('DOMContentLoaded', init);
 
     function handleLogin() {
         const input = document.getElementById('username-input');
         const err = document.getElementById('login-error');
         let rawName = input.value.trim();
 
-        // 1. Regex ile temizle (sadece harf rakam kalsın)
+        // 1. Regex ile temizle (sadece harf rakam) - Nokta virgül hilesini engeller
         let cleanCheck = rawName.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 
         if(cleanCheck.length < 3) {
@@ -353,13 +365,10 @@
         }
 
         // 3. Kaydet
-        username = rawName;
+        username = rawName; // Orijinal halini kaydet
         localStorage.setItem('memory_username', username);
         
-        document.getElementById('modal-login').style.display = 'none';
-        document.getElementById('player-name-display').innerText = username;
-        document.getElementById('display-username').innerText = username;
-        document.getElementById('modal-difficulty').style.display = 'flex';
+        init(); // Tekrar başlat
     }
 
     function showError(msg, el) {
@@ -392,7 +401,7 @@
     function preloadImages(ids) {
         let loaded = 0;
         let total = ids.length;
-        imagesCache = {}; // Sıfırla
+        imagesCache = {}; 
 
         ids.forEach(id => {
             const img = new Image();
@@ -405,7 +414,7 @@
             };
             img.onerror = () => {
                 console.warn("Resim hatası:", id);
-                updateLoader(++loaded, total); // Hata olsa da devam et
+                updateLoader(++loaded, total);
             };
         });
     }
@@ -428,14 +437,10 @@
         const board = document.getElementById('game-board');
         board.innerHTML = '';
         
-        // Tur başına kart sayısı (Zorluk seviyesine göre artabilir veya sabit kalabilir)
-        // Kolay: 4x4 (16), Orta: 4x5 (20), Zor: 4x6 (24)
+        // Kolay: 4x4, Orta: 4x5, Zor: 4x6 (24 Kart)
         let cols = 4;
         let rows = selectedDiff === 'easy' ? 4 : selectedDiff === 'medium' ? 5 : 6;
         
-        // Eğer sonsuz döngüde tur arttıkça kart artsın istersek buraya ekleriz.
-        // Şimdilik standart tutalım, hızlansın.
-
         board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
         
         let cardCount = rows * cols;
@@ -444,14 +449,16 @@
 
         // Kartları seç (Cache'den)
         let keys = Object.keys(imagesCache);
-        // İhtiyaç kadar al
         let needed = keys.slice(0, requiredMatches);
-        // Çiftle
+        // Eğer tur arttıysa ve resim yetmiyorsa başa dön
+        if(needed.length < requiredMatches) {
+             // Döngüsel mantık (basitçe hepsini kullan)
+             needed = keys.slice(0, Math.min(keys.length, requiredMatches));
+        }
+
         let deck = [...needed, ...needed];
-        // Karıştır
         deck.sort(() => 0.5 - Math.random());
 
-        // DOM Oluştur
         deck.forEach(id => {
             const card = document.createElement('div');
             card.classList.add('card');
@@ -467,21 +474,21 @@
             board.appendChild(card);
         });
 
-        // Animasyonlu Giriş
+        // Giriş Animasyonu
         const cards = document.querySelectorAll('.card');
         cards.forEach((c, i) => setTimeout(() => c.classList.add('active'), i * 30));
 
-        // ÖN İZLEME SÜRESİ (Zorluk arttıkça kısalır)
+        // ÖN İZLEME (Zorluk ve tura göre azalır)
         let previewTime = 3000;
-        if(currentRound > 1) previewTime = Math.max(1000, 3000 - (currentRound * 500)); // Her tur 0.5sn azalır
+        if(currentRound > 1) previewTime = Math.max(1000, 3000 - (currentRound * 300)); 
 
         setTimeout(() => {
             lockBoard = true;
-            cards.forEach(c => c.classList.add('flipped')); // Aç
+            cards.forEach(c => c.classList.add('flipped')); 
             playSound('flip');
 
             setTimeout(() => {
-                cards.forEach(c => c.classList.remove('flipped')); // Kapat
+                cards.forEach(c => c.classList.remove('flipped')); 
                 lockBoard = false;
                 playSound('flip');
             }, previewTime);
@@ -514,7 +521,7 @@
         lockBoard = true;
         matchCount++;
         
-        // Puanlama: Zorluk çarpanı + Tur çarpanı
+        // Puanlama: Zorluk + Tur
         let base = 100;
         let diffMulti = selectedDiff === 'easy' ? 1 : selectedDiff === 'medium' ? 1.5 : 2;
         let points = base * diffMulti * currentRound;
@@ -557,19 +564,20 @@
     function nextRound() {
         playSound('win');
         startConfetti();
-        currentRound++;
-        document.getElementById('round-display').innerText = currentRound;
         
-        // Skor Kaydet (Her tur sonu otomatik)
+        // Tur Sonu Kayıt
         if(window.saveScore) window.saveScore(totalScore, selectedDiff);
 
+        currentRound++;
+        document.getElementById('round-display').innerText = currentRound;
+
         setTimeout(() => {
-            alert(`TEBRİKLER! ${currentRound}. Tura Geçiliyor...\n(Daha hızlı olacak!)`);
-            startGame(); // Aynı görsellerle ama tekrar karıştırıp daha hızlı başlat
+            alert(`TEBRİKLER! ${currentRound}. Tur Başlıyor...\n(Süre Hızlanacak!)`);
+            startGame(); 
         }, 1000);
     }
 
-    /* --- SES & EFEKTLER --- */
+    /* --- SES MOTORU --- */
     function playSound(type) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const o = audioCtx.createOscillator();
@@ -600,7 +608,7 @@
         }
     }
 
-    function toggleMute() { /* Basit mute */ }
+    function toggleMute() { /* Basit mute eklenebilir */ }
     function togglePause() { alert("OYUN DURAKLATILDI"); }
 
     /* KONFETİ */
