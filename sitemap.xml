@@ -2,13 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
    <url>
       <loc>https://hakan-25.github.io/islevsel/</loc>
-      <lastmod>2025-12-26</lastmod>
+      <lastmod>2025-12-28</lastmod>
       <priority>1.0</priority>
    </url>
    <url>
       <loc>https://hakan-25.github.io/islevsel/index.html</loc>
-      <lastmod>2025-12-26</lastmod>
+      <lastmod>2025-12-28</lastmod>
       <priority>0.8</priority>
+   </url>
+   <url>
+      <loc>https://hakan-25.github.io/islevsel/memory.html</loc>
+      <lastmod>2025-12-28</lastmod>
+      <priority>0.7</priority>
    </url>
    <url>
       <loc>https://hakan-25.github.io/islevsel/internet.html</loc>
