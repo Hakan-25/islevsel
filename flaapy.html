@@ -14,30 +14,79 @@
 
         body { margin: 0; padding: 0; background-color: #4ec0ca; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; }
         
-        /* UI Katmanı */
-        #ui-container {
-            position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
-            text-align: center; color: white; z-index: 50; pointer-events: none;
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
-        }
+       /* --- YENİ EKLENEN STİLLER --- */
 
-        #current-score {
-            font-size: 80px; font-weight: 900; line-height: 1;
-            text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
-            font-variant-numeric: tabular-nums;
-        }
+/* Üst Çubuk (Sabitleyici) */
+#top-bar {
+    position: fixed;
+    top: 15px;
+    left: 0;
+    width: 100%;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between; /* Biri sağa biri sola */
+    align-items: flex-start;
+    z-index: 100; /* En üstte dursun */
+    pointer-events: none; /* Tıklamayı engellemesin */
+}
 
-        .sub-stats {
-            display: flex; gap: 20px; align-items: center;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px 25px; border-radius: 50px;
-            font-size: 20px; font-weight: 700;
-            backdrop-filter: blur(4px);
-            border: 2px solid rgba(255,255,255,0.4);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
+/* Sol Üstteki Ev Butonu */
+.home-btn {
+    pointer-events: auto; /* Tıklanabilir olsun */
+    text-decoration: none;
+    background: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    box-shadow: 0 4px 0 #2c7a81;
+    border: 2px solid #fff;
+    transition: transform 0.1s;
+}
+.home-btn:active { transform: translateY(3px); box-shadow: none; }
 
-        .stat-box { display: flex; align-items: center; gap: 8px; }
+/* Sağ Üstteki Küçük İstatistikler */
+.mini-stats {
+    display: flex;
+    flex-direction: column; /* Alt alta diz */
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.mini-box {
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 80px; /* Sabit genişlik */
+}
+
+/* Ortadaki Büyük Skor (Arkada Dursun) */
+#current-score-container {
+    position: fixed;
+    top: 15%; /* Biraz yukarıda */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10; /* Butonların altında kalsın */
+    pointer-events: none;
+}
+
+#current-score {
+    font-size: 80px;
+    font-weight: 900;
+    color: white;
+    text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+}
 
         /* Başlangıç Mesajı */
         #start-msg {
@@ -137,14 +186,18 @@
         </div>
     </div>
 
-    <div id="leaderboard-modal" class="hidden">
-        <div class="modal-content" style="width:90%; max-width:450px;">
-            <h2 style="color:white; margin:0 0 10px 0;">TOP 10 PİLOT</h2>
-            <div id="loading-text" style="color:white; margin-top:20px;">Yükleniyor...</div>
-            <ul id="leaderboard-list"></ul>
-            <button class="close-btn" onclick="closeLeaderboard()">KAPAT</button>
-        </div>
+    <div id="top-bar">
+    <a href="index.html" class="home-btn">🏠</a>
+
+    <div class="mini-stats">
+        <div class="mini-box">🏆 <span id="best-score">0</span></div>
+        <div class="mini-box">💰 <span id="total-coins">0</span></div>
     </div>
+</div>
+
+<div id="current-score-container">
+    <div id="current-score">0</div>
+</div>
 
     <a href="index.html" class="back-btn">ANA MENÜ</a>
 
@@ -410,4 +463,5 @@ function verileriGuncelle(uid) {
     </script>
 </body>
 </html>
+
 
