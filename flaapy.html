@@ -12,10 +12,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
-        /* 1. SAYFA AYARLARI (PC'de Oyunu Ortalar) */
+        /* 1. SAYFA AYARLARI */
         body { 
             margin: 0; padding: 0; 
-            background-color: #2c3e50; /* PC Arka Planı */
+            background-color: #4ec0ca; /* Klasik Gök Mavisi */
             overflow: hidden; 
             font-family: 'Inter', sans-serif; 
             touch-action: none; 
@@ -24,18 +24,18 @@
             -webkit-user-select: none; user-select: none;
         }
 
-        /* Oyunun Kendisi (Canvas) */
+        /* Oyun Canvas'ı için Gölge */
         canvas {
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 4px;
         }
 
-        /* 2. ARAYÜZ (UI) - Sadece Canvas Üzerinde Dursun */
+        /* 2. ARAYÜZ (UI) */
         #game-container {
             position: relative;
             width: 100%; height: 100%;
-            max-width: 450px; /* PC'de Mobil Boyutu */
-            max-height: 800px;
+            max-width: 480px; 
+            max-height: 850px;
             overflow: hidden;
         }
 
@@ -58,9 +58,10 @@
         }
 
         .stat-pill {
-            background: rgba(0, 0, 0, 0.6); color: white; padding: 6px 12px;
-            border-radius: 20px; font-size: 13px; font-weight: 700;
-            display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.4);
+            background: rgba(0, 0, 0, 0.5); color: white; padding: 6px 12px;
+            border-radius: 20px; font-size: 14px; font-weight: 700;
+            display: flex; align-items: center; gap: 6px; border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(4px);
         }
 
         .icon-btn {
@@ -80,8 +81,8 @@
         }
 
         #start-msg {
-            position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 22px; color: white; font-weight: 800; text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 22px; color: white; font-weight: 800; text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
             animation: pulse 1s infinite; pointer-events: none; z-index: 50; width: 100%; text-align: center;
         }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
@@ -98,34 +99,41 @@
             background: linear-gradient(135deg, #4ec0ca, #3da0a9);
             padding: 25px; border-radius: 20px; text-align: center;
             box-shadow: 0 15px 40px rgba(0,0,0,0.5); border: 4px solid white;
-            width: 85%; max-width: 320px; position: relative;
+            width: 85%; max-width: 340px; position: relative;
         }
 
         /* Market Tasarımı */
         #shop-list {
-            display: flex; overflow-x: auto; gap: 15px; padding: 10px 0;
-            scroll-behavior: smooth;
+            display: flex; overflow-x: auto; gap: 15px; padding: 10px 5px;
+            scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
         }
+        /* Scrollbar gizle */
+        #shop-list::-webkit-scrollbar { height: 6px; }
+        #shop-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+
         .shop-item {
-            background: rgba(0,0,0,0.2); border-radius: 15px; padding: 15px;
-            min-width: 140px; display: flex; flex-direction: column; align-items: center; gap: 10px;
-            border: 2px solid transparent; transition: 0.2s;
+            background: rgba(0,0,0,0.25); border-radius: 15px; padding: 15px;
+            min-width: 130px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+            border: 2px solid transparent; transition: 0.2s; position: relative;
         }
-        .shop-item.selected { border-color: #FFD700; background: rgba(255, 215, 0, 0.2); }
-        .bird-preview { width: 60px; height: 50px; background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .shop-item.selected { border-color: #FFD700; background: rgba(255, 215, 0, 0.15); }
+        
+        .bird-preview-canvas { border-radius: 50%; background: rgba(255,255,255,0.1); margin-bottom: 5px; }
         
         .buy-btn {
-            background: #27ae60; color: white; border: none; padding: 8px 15px;
+            background: #27ae60; color: white; border: none; padding: 10px 15px;
             border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 14px;
+            width: 100%; box-shadow: 0 3px 0 #1e8449;
         }
-        .buy-btn:disabled { background: #7f8c8d; cursor: not-allowed; }
-        .use-btn { background: #2980b9; }
+        .buy-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #1e8449; }
+        .buy-btn:disabled { background: #95a5a6; cursor: not-allowed; box-shadow: none; color: #ecf0f1; }
+        .use-btn { background: #2980b9; box-shadow: 0 3px 0 #1f618d; }
 
         /* Ortak Butonlar */
-        .modal-input { width: 85%; padding: 12px; border-radius: 10px; border: none; margin-bottom: 15px; text-align: center; font-weight: bold; }
-        .modal-btn { background: #fff; color: #4ec0ca; padding: 12px 30px; border-radius: 50px; font-weight: 900; border:none; cursor: pointer; box-shadow: 0 4px 0 #2c7a81; }
+        .modal-input { width: 85%; padding: 12px; border-radius: 10px; border: none; margin-bottom: 15px; text-align: center; font-weight: bold; font-size: 16px; }
+        .modal-btn { background: #fff; color: #4ec0ca; padding: 12px 30px; border-radius: 50px; font-weight: 900; border:none; cursor: pointer; box-shadow: 0 4px 0 #2c7a81; font-size: 18px; }
         .modal-btn:active { transform: translateY(3px); box-shadow: none; }
-        .close-btn { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; width: 30px; height: 30px; border-radius: 50%; border: none; font-weight: bold; cursor: pointer; }
+        .close-btn { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
 
     </style>
 </head>
@@ -134,12 +142,14 @@
 <div id="game-container">
     <div id="top-ui">
         <a href="index.html" class="home-btn">🏠</a>
+        
         <div class="stats-wrapper">
             <div class="stat-pill">🏆 <span id="best-score">0</span></div>
             <div class="stat-pill">💰 <span id="total-coins">0</span></div>
             <button class="icon-btn" onclick="openLeaderboard()">🥇</button>
             <button class="icon-btn shop-btn" onclick="openShop()">🛒</button>
         </div>
+
         <div id="current-score">0</div>
         <div id="start-msg">BAŞLAMAK İÇİN DOKUN</div>
     </div>
@@ -153,10 +163,12 @@
     </div>
 
     <div id="shop-modal" class="modal-overlay hidden">
-        <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-content" style="max-width: 400px; padding: 20px 10px;">
             <button class="close-btn" onclick="closeShop()">X</button>
-            <h2 style="color:white; margin:0 0 10px 0;">KUŞ MARKETİ</h2>
-            <div style="color:white; font-size:14px; margin-bottom:15px;">Paran: <span id="shop-coins" style="color:#FFD700; font-weight:bold;">0</span></div>
+            <h2 style="color:white; margin:5px 0 15px 0;">MARKET</h2>
+            <div style="color:white; font-size:16px; margin-bottom:15px; background:rgba(0,0,0,0.2); padding:5px; border-radius:10px; display:inline-block;">
+                Bakiye: <span id="shop-coins" style="color:#FFD700; font-weight:bold;">0</span> 💰
+            </div>
             <div id="shop-list">
                 </div>
         </div>
@@ -167,13 +179,13 @@
             <button class="close-btn" onclick="closeLeaderboard()">X</button>
             <h2 style="color:white; margin:0 0 10px 0;">EN İYİLER</h2>
             <div id="loading-text" style="color:white;">Yükleniyor...</div>
-            <ul id="leaderboard-list" style="list-style:none; padding:0; text-align:left; color:white; max-height:200px; overflow-y:auto;"></ul>
+            <ul id="leaderboard-list" style="list-style:none; padding:0; text-align:left; color:white; max-height:250px; overflow-y:auto;"></ul>
         </div>
     </div>
 </div>
 
 <script>
-// --- FIREBASE ---
+// --- FIREBASE AYARLARI ---
 const firebaseConfig = {
     apiKey: "AIzaSyBW8xNsDjp3duXyuPukuBKNlOYw-uv6W1c",
     authDomain: "hakantools-a44c0.firebaseapp.com",
@@ -186,20 +198,54 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// --- DEĞİŞKENLER ---
+// --- OYUN DEĞİŞKENLERİ ---
 let bird, pipes, coins, score=0, gameHasStarted=false, gameOverFlag=false;
 let bestScore = parseInt(localStorage.getItem('flappy_best')) || 0;
 let totalCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
-let currentBird = localStorage.getItem('flappy_skin') || 'bird_default';
-let ownedBirds = JSON.parse(localStorage.getItem('flappy_owned')) || ['bird_default'];
+let currentBird = localStorage.getItem('flappy_skin') || 'bird_yellow';
+let ownedBirds = JSON.parse(localStorage.getItem('flappy_owned')) || ['bird_yellow'];
 
-// --- KARAKTER VERİLERİ ---
+// --- KUŞ TANIMLAMALARI ---
 const SKINS = [
-    { id: 'bird_default', name: 'Normal Kuş', price: 0, color: 0xFF69B4 },
-    { id: 'bird_elyo', name: 'Elyo (Gözlüklü)', price: 350, color: 0x3498db },
-    { id: 'bird_hakan', name: 'Derbeder Hakan', price: 350, color: 0xe74c3c },
-    { id: 'bird_goth', name: '...', price: 350, color: 0x2c3e50 }
+    { id: 'bird_yellow', name: 'Sarı Kuş', price: 0, type: 'normal' },
+    { id: 'bird_elyo', name: 'Elyo', price: 350, type: 'elyo' },
+    { id: 'bird_hakan', name: 'Derbeder Hakan', price: 350, type: 'derbeder' },
+    { id: 'bird_goth', name: '...', price: 350, type: 'goth' }
 ];
+
+// --- SES SİSTEMİ (Eski Mekanik) ---
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
+
+function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.connect(g); g.connect(audioCtx.destination);
+    
+    if (type === 'jump') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(350, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(500, audioCtx.currentTime + 0.1);
+        g.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    } else if (type === 'coin') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(1600, audioCtx.currentTime + 0.1);
+        g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+    } else if (type === 'dead') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+        g.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    }
+}
 
 // --- UI GÜNCELLEME ---
 function updateUI() {
@@ -219,6 +265,7 @@ function closeShop() { document.getElementById('shop-modal').classList.add('hidd
 function renderShop() {
     const list = document.getElementById('shop-list');
     list.innerHTML = "";
+    
     SKINS.forEach(skin => {
         const isOwned = ownedBirds.includes(skin.id);
         const isSelected = currentBird === skin.id;
@@ -230,15 +277,19 @@ function renderShop() {
 
         const item = document.createElement('div');
         item.className = `shop-item ${isSelected ? 'selected' : ''}`;
+        
+        // Canvas ID
+        const canvasId = `bird-canvas-${skin.id}`;
+        
         item.innerHTML = `
-            <div style="font-weight:bold; color:white; font-size:14px;">${skin.name}</div>
-            <div id="preview-${skin.id}" class="bird-preview"></div>
+            <canvas id="${canvasId}" width="60" height="50" class="bird-preview-canvas"></canvas>
+            <div style="font-weight:bold; color:white; font-size:13px; text-align:center;">${skin.name}</div>
             ${btnHTML}
         `;
         list.appendChild(item);
         
-        // Önizleme Çizimi (Canvas içinde küçük bir kuş çiz)
-        setTimeout(() => drawPreview(skin.id, skin.color), 50);
+        // Canvas'a kuşu çiz (DOM üzerinde)
+        setTimeout(() => drawBirdOnCanvas(canvasId, skin.type), 50);
     });
 }
 
@@ -248,11 +299,11 @@ function buySkin(id, price) {
         ownedBirds.push(id);
         localStorage.setItem('flappy_coins', totalCoins);
         localStorage.setItem('flappy_owned', JSON.stringify(ownedBirds));
-        selectSkin(id); // Satın alınca otomatik seç
+        selectSkin(id);
         updateUI();
         renderShop();
     } else {
-        alert("Yetersiz Bakiye!");
+        alert("Paran yetmiyor şampiyon!");
     }
 }
 
@@ -260,13 +311,98 @@ function selectSkin(id) {
     currentBird = id;
     localStorage.setItem('flappy_skin', currentBird);
     renderShop();
-    // Oyundaki kuşu güncelle (eğer oyun başlamadıysa)
     if (!gameHasStarted && !gameOverFlag) {
         game.scene.scenes[0].scene.restart();
     }
 }
 
-// --- KULLANICI & LİDERLİK ---
+// --- HTML CANVAS İÇİN KUŞ ÇİZİMİ (MARKET İÇİN) ---
+function drawBirdOnCanvas(canvasId, type) {
+    const canvas = document.getElementById(canvasId);
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    const cx = 30, cy = 25, r = 18; // Merkez ve yarıçap
+
+    // Temizle
+    ctx.clearRect(0,0,60,50);
+
+    // Vücut Rengi
+    let color = '#F4D03F'; // Sarı (Default)
+    if(type === 'elyo') color = '#3498DB'; // Mavi
+    if(type === 'derbeder') color = '#922B21'; // Bordo
+    if(type === 'goth') color = '#212121'; // Siyah
+
+    // Vücut
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    // Gotik Dikenleri
+    if(type === 'goth') {
+        ctx.fillStyle = '#000';
+        for(let i=-2; i<=2; i++) {
+            ctx.beginPath();
+            ctx.moveTo(cx + i*6, cy - r + 5);
+            ctx.lineTo(cx + i*6 - 3, cy - r - 8);
+            ctx.lineTo(cx + i*6 + 3, cy - r - 8);
+            ctx.fill();
+        }
+    }
+
+    // Göz Beyazı
+    ctx.beginPath();
+    ctx.arc(cx + 8, cy - 6, 7, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFF';
+    ctx.fill();
+
+    // Göz Bebeği
+    ctx.beginPath();
+    ctx.arc(cx + 10, cy - 6, 3, 0, Math.PI * 2);
+    ctx.fillStyle = (type === 'goth') ? '#E74C3C' : '#000'; // Gotikse Kırmızı
+    ctx.fill();
+
+    // Elyo Gözlük
+    if(type === 'elyo') {
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cx + 2, cy - 10, 14, 8); // Çerçeve
+        ctx.beginPath(); ctx.moveTo(cx+2, cy-6); ctx.lineTo(cx-5, cy-4); ctx.stroke(); // Sap
+    }
+
+    // Gaga
+    ctx.beginPath();
+    ctx.moveTo(cx + 12, cy + 2);
+    ctx.lineTo(cx + 24, cy + 6);
+    ctx.lineTo(cx + 10, cy + 10);
+    ctx.fillStyle = '#F39C12';
+    ctx.fill();
+
+    // Kanat
+    ctx.beginPath();
+    ctx.arc(cx - 5, cy + 5, 8, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFF';
+    ctx.fill();
+
+    // Derbeder Detayları
+    if(type === 'derbeder') {
+        // Yara izi
+        ctx.strokeStyle = '#5B2C6F'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(cx+6, cy+2); ctx.lineTo(cx+12, cy+8); ctx.stroke();
+        
+        // Sigara
+        ctx.fillStyle = '#FFF'; ctx.fillRect(cx+15, cy+10, 10, 3);
+        ctx.fillStyle = '#E74C3C'; ctx.fillRect(cx+25, cy+10, 2, 3); // Ateş
+        
+        // Duman
+        ctx.fillStyle = '#BDC3C7';
+        ctx.beginPath(); ctx.arc(cx+28, cy+8, 2, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx+30, cy+5, 3, 0, Math.PI*2); ctx.fill();
+    }
+}
+
+// --- KULLANICI & DB ---
 window.addEventListener('load', () => {
     const uid = localStorage.getItem('hakan_flappy_uid');
     if (uid) {
@@ -323,24 +459,25 @@ function closeLeaderboard() { document.getElementById('leaderboard-modal').class
 // --- PHASER OYUN ---
 const config = {
     type: Phaser.AUTO,
-    parent: 'game-container', // Oyunu bu div'in içine göm
+    parent: 'game-container',
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 450, height: 800 },
     transparent: true,
-    physics: { default: 'arcade', arcade: { gravity: { y: 1200 }, debug: false } },
+    physics: { default: 'arcade', arcade: { gravity: { y: 1200 }, debug: false } }, // Gravity geri geldi
     scene: { create: create, update: update }
 };
 
 const game = new Phaser.Game(config);
-let lastPipeY = 400; // Akıllı boru algoritması için
+let lastPipeY = 400; 
 
 function create() {
-    drawAssets(this); // Grafikleri çiz
+    // Assets (Phaser İçinde Çizim)
+    drawPhaserAssets(this);
 
     pipes = this.physics.add.group(); coins = this.physics.add.group();
     
-    // Seçili Karakteri Yarat
+    // Seçili Karakteri Başlat
     bird = this.physics.add.sprite(100, 400, currentBird); 
-    bird.setDepth(10); bird.body.setCircle(13,9,7);
+    bird.setDepth(10); bird.body.setCircle(16, 9, 7);
 
     let ground = this.add.tileSprite(225, 800, 450, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
     this.physics.add.existing(ground, true);
@@ -364,35 +501,35 @@ function update(time, delta) {
     if(bird.angle < 30) bird.angle += 2.5;
     if(bird.y < -50 || bird.y > 800) gameOver();
 
-    // Temizlik
     pipes.children.iterate(p => { if(p && p.x < -60) p.destroy(); });
     coins.children.iterate(c => { if(c && c.x < -60) c.destroy(); });
 }
 
 function jump() {
-    if(!document.getElementById('shop-modal').classList.contains('hidden')) return; // Market açıkken zıplama
+    if(!document.getElementById('shop-modal').classList.contains('hidden')) return;
     if(!document.getElementById('leaderboard-modal').classList.contains('hidden')) return;
     
     if(gameOverFlag) { restartGame.call(this.scene); return; }
     if(!gameHasStarted) { 
         gameHasStarted=true; bird.body.allowGravity=true; 
         document.getElementById('start-msg').style.display='none'; 
+        if(audioCtx.state==='suspended') audioCtx.resume();
     }
-    bird.setVelocityY(-400); 
+    bird.setVelocityY(-400); // Zıplama gücü
     this.tweens.add({ targets: bird, angle: -25, duration: 100 });
+    playSound('jump');
 }
 
 function addPipe() {
     if(!gameHasStarted || gameOverFlag) return;
 
     // --- AKILLI BORU ALGORİTMASI ---
-    // Bir önceki borudan en fazla 150 piksel yukarı veya aşağı gidebilir
-    let minY = Math.max(200, lastPipeY - 150);
-    let maxY = Math.min(600, lastPipeY + 150);
+    let minY = Math.max(200, lastPipeY - 180); // Farkı biraz açtım
+    let maxY = Math.min(600, lastPipeY + 180);
     let y = Phaser.Math.Between(minY, maxY);
-    lastPipeY = y; // Kaydet
+    lastPipeY = y; 
     
-    let gap = Math.max(95, 140 - (score*0.2)); // Zorluk yavaşça artar
+    let gap = Math.max(100, 150 - (score*0.2)); 
 
     let top = pipes.create(500, y - gap/2, 'pipe').setOrigin(0.5, 1).setFlipY(true);
     let bot = pipes.create(500, y + gap/2, 'pipe').setOrigin(0.5, 0);
@@ -406,17 +543,19 @@ function addPipe() {
     }
 
     // Puan
-    setTimeout(() => { if(!gameOverFlag) { score++; document.getElementById('current-score').innerText=score; } }, 1500);
+    setTimeout(() => { if(!gameOverFlag && gameHasStarted) { score++; document.getElementById('current-score').innerText=score; } }, 1500);
 }
 
 function collectCoin(b, c) {
     c.destroy();
     totalCoins++; updateUI();
+    playSound('coin');
 }
 
 function gameOver() {
     if(gameOverFlag) return; gameOverFlag=true;
     this.physics.pause(); bird.setTint(0xff0000);
+    playSound('dead');
     
     if(score > bestScore) { bestScore=score; localStorage.setItem('flappy_best', bestScore); }
     localStorage.setItem('flappy_coins', totalCoins);
@@ -424,8 +563,6 @@ function gameOver() {
 
     document.getElementById('start-msg').innerText = "TEKRAR DENE";
     document.getElementById('start-msg').style.display = 'block';
-    
-    // Ölünce market butonunu göster (Eğer oyun içinde gizlediysek)
 }
 
 function restartGame() {
@@ -434,8 +571,8 @@ function restartGame() {
     game.scene.scenes[0].scene.restart();
 }
 
-// --- GRAFİK ÇİZİMLERİ (ASSETS) ---
-function drawAssets(scene) {
+// --- PHASER ASSET ÇİZİMİ ---
+function drawPhaserAssets(scene) {
     // Boru
     let pipeG = scene.make.graphics();
     pipeG.fillStyle(0x73BF2E); pipeG.fillRect(2,0,56,800);
@@ -456,51 +593,54 @@ function drawAssets(scene) {
     coinG.fillStyle(0xF1C40F); coinG.fillCircle(15,15,10);
     coinG.generateTexture('coin', 30, 30);
 
-    // 1. NORMAL KUŞ (Pembe)
-    drawBird(scene, 'bird_default', 0xFF69B4);
-
-    // 2. ELYO (Mavi, Gözlüklü)
-    drawBird(scene, 'bird_elyo', 0x3498db, true);
-
-    // 3. DERBEDER HAKAN (Kırmızı, Sigaralı)
-    drawBird(scene, 'bird_hakan', 0xe74c3c, false, true);
-
-    // 4. GOTİK ... (Siyah)
-    drawBird(scene, 'bird_goth', 0x2c3e50);
+    // KUŞLAR (Phaser Versiyonları)
+    drawPhaserBird(scene, 'bird_yellow', 0xF4D03F);
+    drawPhaserBird(scene, 'bird_elyo', 0x3498DB, true);
+    drawPhaserBird(scene, 'bird_hakan', 0x922B21, false, true);
+    drawPhaserBird(scene, 'bird_goth', 0x212121, false, false, true);
 }
 
-function drawBird(scene, key, color, glasses=false, cig=false) {
+function drawPhaserBird(scene, key, color, glasses=false, cig=false, goth=false) {
     let g = scene.make.graphics();
-    g.fillStyle(color); g.fillCircle(22,20,18); // Vücut
-    g.fillStyle(0xFFFFFF); g.fillCircle(28,16,6); // Göz Beyazı
-    g.fillStyle(0x000000); g.fillCircle(30,16,2); // Göz Bebeği
-    g.fillStyle(0xF39C12); g.fillTriangle(32,20, 48,23, 32,26); // Gaga
-    g.fillStyle(0xFFFFFF); g.fillCircle(12,20,5); // Kanat
-
-    if(glasses) { // Gözlük
-        g.lineStyle(2, 0x000000); g.strokeRect(22, 12, 14, 8); g.lineStyle(1, 0x000000); g.beginPath(); g.moveTo(22,16); g.lineTo(10,18); g.strokePath();
-    }
-    if(cig) { // Sigara
-        g.fillStyle(0xFFFFFF); g.fillRect(35, 24, 12, 3);
-        g.fillStyle(0xE74C3C); g.fillCircle(47, 25.5, 1.5); // Ateş
-        // Duman
-        g.fillStyle(0xBDC3C7); g.fillCircle(50, 22, 2); g.fillCircle(53, 19, 3);
+    
+    // Vücut
+    g.fillStyle(color); g.fillCircle(25,20,18);
+    
+    // Gotik Dikenler
+    if(goth) {
+        g.fillStyle(0x000000);
+        g.fillTriangle(25, 0, 20, 10, 30, 10);
+        g.fillTriangle(15, 2, 10, 12, 20, 12);
+        g.fillTriangle(35, 2, 30, 12, 40, 12);
     }
 
-    g.generateTexture(key, 50, 40);
-}
+    // Göz
+    g.fillStyle(0xFFFFFF); g.fillCircle(33,14,7);
+    g.fillStyle(goth ? 0xE74C3C : 0x000000); g.fillCircle(35,14,3); // Gotik kırmızı göz
 
-// Market Önizlemesi İçin (DOM Canvas)
-function drawPreview(id, color) {
-    // Bu kısım sadece markette ikon olarak göstermek için basit CSS background veya küçük canvas kullanır
-    // Basitlik için sadece renkli kutu yapıyoruz, Phaser texture'ını DOM'a aktarmak karmaşıktır.
-    const el = document.getElementById(`preview-${id}`);
-    if(el) {
-        el.style.backgroundColor = '#' + color.toString(16);
-        el.style.borderRadius = "50%";
-        el.style.border = "3px solid white";
-        el.style.boxShadow = "0 4px 0 rgba(0,0,0,0.2)";
+    // Gözlük
+    if(glasses) {
+        g.lineStyle(2, 0x333333);
+        g.strokeRect(26, 8, 14, 10);
+        g.beginPath(); g.moveTo(26,12); g.lineTo(15,16); g.stroke();
     }
+
+    // Gaga
+    g.fillStyle(0xF39C12); g.fillTriangle(38,20, 52,24, 38,28);
+
+    // Kanat
+    g.fillStyle(0xFFFFFF); g.fillCircle(15,20,6);
+
+    // Sigara (Hakan)
+    if(cig) {
+        // İz
+        g.lineStyle(2, 0x5B2C6F); g.beginPath(); g.moveTo(33,22); g.lineTo(38,28); g.stroke();
+        // Sigara
+        g.fillStyle(0xFFFFFF); g.fillRect(40, 26, 10, 3);
+        g.fillStyle(0xE74C3C); g.fillCircle(50, 27.5, 2); // Ateş
+    }
+
+    g.generateTexture(key, 55, 45);
 }
 </script>
 </body>
