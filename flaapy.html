@@ -12,10 +12,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
-        /* 1. SAYFA VE KONUMLANDIRMA AYARLARI */
+        /* 1. SAYFA AYARLARI (PC'de Oyunu Ortalar) */
         body { 
             margin: 0; padding: 0; 
-            background-color: #4ec0ca; 
+            background-color: #2c3e50; /* PC Arka Planı */
             overflow: hidden; 
             font-family: 'Inter', sans-serif; 
             touch-action: none; 
@@ -24,463 +24,484 @@
             -webkit-user-select: none; user-select: none;
         }
 
-        /* 2. ÜST BAR (UI) */
-        #top-ui {
-            position: absolute;
-            top: 0; left: 0; width: 100%;
-            height: 100%; 
-            pointer-events: none; 
-            z-index: 100;
+        /* Oyunun Kendisi (Canvas) */
+        canvas {
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border-radius: 15px;
         }
 
-        /* Sol Üst: Ev Butonu */
+        /* 2. ARAYÜZ (UI) - Sadece Canvas Üzerinde Dursun */
+        #game-container {
+            position: relative;
+            width: 100%; height: 100%;
+            max-width: 450px; /* PC'de Mobil Boyutu */
+            max-height: 800px;
+            overflow: hidden;
+        }
+
+        /* Üst Bar */
+        #top-ui {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100;
+        }
+
         .home-btn {
-            position: absolute; top: 15px; left: 15px;
-            pointer-events: auto;
-            text-decoration: none;
-            background: white;
-            width: 42px; height: 42px;
-            border-radius: 12px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 22px;
-            box-shadow: 0 4px 0 #2c7a81;
-            border: 2px solid #fff;
+            position: absolute; top: 20px; left: 20px; pointer-events: auto;
+            text-decoration: none; background: white; width: 45px; height: 45px;
+            border-radius: 12px; display: flex; justify-content: center; align-items: center;
+            font-size: 24px; box-shadow: 0 4px 0 #2c7a81; border: 2px solid #fff;
         }
         .home-btn:active { transform: translateY(3px); box-shadow: none; }
 
-        /* Sağ Üst: İstatistikler */
         .stats-wrapper {
-            position: absolute; top: 15px; right: 15px;
-            display: flex; flex-direction: column; 
-            align-items: flex-end; 
-            gap: 8px; 
-            pointer-events: auto;
+            position: absolute; top: 20px; right: 20px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: auto;
         }
 
         .stat-pill {
-            background: rgba(0, 0, 0, 0.6); 
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px; font-weight: 700;
-            display: flex; align-items: center; gap: 6px;
-            border: 1px solid rgba(255,255,255,0.4);
-            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.6); color: white; padding: 6px 12px;
+            border-radius: 20px; font-size: 13px; font-weight: 700;
+            display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.4);
         }
 
-        .leaderboard-icon-btn {
-            background: #FFD700;
-            width: 42px; height: 42px;
-            border-radius: 50%;
+        .icon-btn {
+            background: #FFD700; width: 45px; height: 45px; border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            font-size: 20px; cursor: pointer;
-            border: 2px solid #fff;
-            box-shadow: 0 3px 0 #B8860B;
-            margin-top: 5px; 
+            font-size: 20px; cursor: pointer; border: 2px solid #fff;
+            box-shadow: 0 4px 0 #B8860B; margin-top: 5px;
         }
-        .leaderboard-icon-btn:active { transform: translateY(3px); box-shadow: none; }
+        .icon-btn:active { transform: translateY(3px); box-shadow: none; }
+        .shop-btn { background: #9b59b6; box-shadow: 0 4px 0 #8e44ad; color: white; }
 
-        /* 3. ORTA BÜYÜK SKOR */
-        #game-score-container {
-            position: absolute;
-            top: 15%; left: 50%;
-            transform: translateX(-50%);
-            z-index: 10; 
-            pointer-events: none;
-            text-align: center;
-            width: 100%;
-        }
+        /* Skor ve Mesajlar */
         #current-score {
-            font-size: 70px; font-weight: 900; color: white;
-            text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
-            margin: 0; line-height: 1;
+            position: absolute; top: 15%; left: 50%; transform: translateX(-50%);
+            font-size: 80px; font-weight: 900; color: white;
+            text-shadow: 4px 4px 0 rgba(0,0,0,0.2); pointer-events: none; z-index: 10;
         }
 
-        /* 4. BAŞLANGIÇ MESAJI */
         #start-msg {
-            position: absolute; top: 55%; left: 50%; 
-            transform: translate(-50%, -50%);
-            font-size: 20px; color: white; font-weight: 800;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
-            animation: pulse 1s infinite;
-            pointer-events: none; z-index: 50; 
-            width: 100%; text-align: center;
+            position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 22px; color: white; font-weight: 800; text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+            animation: pulse 1s infinite; pointer-events: none; z-index: 50; width: 100%; text-align: center;
         }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        /* 5. MODALLAR */
-        #login-modal, #leaderboard-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        /* MODALLAR */
+        .modal-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 200;
             display: flex; justify-content: center; align-items: center;
         }
-        
+        .hidden { display: none !important; }
+
         .modal-content {
             background: linear-gradient(135deg, #4ec0ca, #3da0a9);
             padding: 25px; border-radius: 20px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 4px solid white;
-            width: 85%; max-width: 320px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5); border: 4px solid white;
+            width: 85%; max-width: 320px; position: relative;
         }
+
+        /* Market Tasarımı */
+        #shop-list {
+            display: flex; overflow-x: auto; gap: 15px; padding: 10px 0;
+            scroll-behavior: smooth;
+        }
+        .shop-item {
+            background: rgba(0,0,0,0.2); border-radius: 15px; padding: 15px;
+            min-width: 140px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+            border: 2px solid transparent; transition: 0.2s;
+        }
+        .shop-item.selected { border-color: #FFD700; background: rgba(255, 215, 0, 0.2); }
+        .bird-preview { width: 60px; height: 50px; background-size: contain; background-repeat: no-repeat; background-position: center; }
         
-        .modal-input {
-            width: 85%; padding: 12px; font-size: 16px; border-radius: 10px; border: none;
-            margin-bottom: 20px; font-family: 'Inter', sans-serif; text-align: center;
-            font-weight: bold; color: #333; outline: none;
+        .buy-btn {
+            background: #27ae60; color: white; border: none; padding: 8px 15px;
+            border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 14px;
         }
-        
-        .modal-btn, .close-btn {
-            background: #fff; color: #4ec0ca; padding: 12px 30px; border: none;
-            border-radius: 50px; font-size: 16px; font-weight: 900; cursor: pointer;
-            box-shadow: 0 5px 0 #2c7a81; transition: 0.1s; text-transform: uppercase;
-        }
-        .modal-btn:active, .close-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #2c7a81; }
+        .buy-btn:disabled { background: #7f8c8d; cursor: not-allowed; }
+        .use-btn { background: #2980b9; }
 
-        .hidden { display: none !important; }
-
-        /* LİDERLİK LİSTESİ */
-        #leaderboard-list {
-            list-style: none; padding: 0; margin: 15px 0; 
-            max-height: 250px; overflow-y: auto; text-align: left;
-        }
-        .leaderboard-item {
-            background: rgba(255,255,255,0.2); margin-bottom: 6px; padding: 8px 12px;
-            border-radius: 8px; color: white; display: flex; justify-content: space-between;
-            font-weight: bold; font-size: 14px;
-        }
-        .rank-1 { background: linear-gradient(90deg, #FFD700, #FDB931); border: 2px solid #fff; color: #333; }
-        .rank-2 { background: linear-gradient(90deg, #E0E0E0, #BDBDBD); border: 1px solid #fff; color: #333; }
-        .rank-3 { background: linear-gradient(90deg, #CD7F32, #A0522D); border: 1px solid #fff; color: #fff; }
-
-        .close-btn { background: #e74c3c; color: white; box-shadow: 0 4px 0 #c0392b; }
-        .close-btn:active { box-shadow: 0 1px 0 #c0392b; }
+        /* Ortak Butonlar */
+        .modal-input { width: 85%; padding: 12px; border-radius: 10px; border: none; margin-bottom: 15px; text-align: center; font-weight: bold; }
+        .modal-btn { background: #fff; color: #4ec0ca; padding: 12px 30px; border-radius: 50px; font-weight: 900; border:none; cursor: pointer; box-shadow: 0 4px 0 #2c7a81; }
+        .modal-btn:active { transform: translateY(3px); box-shadow: none; }
+        .close-btn { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; width: 30px; height: 30px; border-radius: 50%; border: none; font-weight: bold; cursor: pointer; }
 
     </style>
 </head>
 <body>
 
+<div id="game-container">
     <div id="top-ui">
         <a href="index.html" class="home-btn">🏠</a>
         <div class="stats-wrapper">
             <div class="stat-pill">🏆 <span id="best-score">0</span></div>
             <div class="stat-pill">💰 <span id="total-coins">0</span></div>
-            <button class="leaderboard-icon-btn" onclick="openLeaderboard()">🥇</button>
+            <button class="icon-btn" onclick="openLeaderboard()">🥇</button>
+            <button class="icon-btn shop-btn" onclick="openShop()">🛒</button>
         </div>
-        <div id="game-score-container"><div id="current-score">0</div></div>
+        <div id="current-score">0</div>
         <div id="start-msg">BAŞLAMAK İÇİN DOKUN</div>
     </div>
 
-    <div id="login-modal">
+    <div id="login-modal" class="modal-overlay">
         <div class="modal-content">
             <h2 style="color:white; margin:0 0 15px 0;">HOŞ GELDİN PİLOT!</h2>
-            <input type="text" id="nickname-input" class="modal-input" placeholder="Rumuzun (Max 10 krk)" maxlength="10">
-            <button class="modal-btn" onclick="kullaniciKaydet()">KAYDET VE BAŞLA</button>
+            <input type="text" id="nickname-input" class="modal-input" placeholder="İsmin (Max 10)" maxlength="10">
+            <button class="modal-btn" onclick="kullaniciKaydet()">BAŞLA</button>
         </div>
     </div>
 
-    <div id="leaderboard-modal" class="hidden">
+    <div id="shop-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-btn" onclick="closeShop()">X</button>
+            <h2 style="color:white; margin:0 0 10px 0;">KUŞ MARKETİ</h2>
+            <div style="color:white; font-size:14px; margin-bottom:15px;">Paran: <span id="shop-coins" style="color:#FFD700; font-weight:bold;">0</span></div>
+            <div id="shop-list">
+                </div>
+        </div>
+    </div>
+
+    <div id="leaderboard-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h2 style="color:white; margin:0 0 10px 0;">EN İYİ PİLOTLAR</h2>
-            <div id="loading-text" style="color:white; margin-top:20px;">Yükleniyor...</div>
-            <ul id="leaderboard-list"></ul>
-            <button class="close-btn" onclick="closeLeaderboard()">KAPAT</button>
+            <button class="close-btn" onclick="closeLeaderboard()">X</button>
+            <h2 style="color:white; margin:0 0 10px 0;">EN İYİLER</h2>
+            <div id="loading-text" style="color:white;">Yükleniyor...</div>
+            <ul id="leaderboard-list" style="list-style:none; padding:0; text-align:left; color:white; max-height:200px; overflow-y:auto;"></ul>
         </div>
     </div>
+</div>
 
-    <script>
-    // --- FIREBASE ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyBW8xNsDjp3duXyuPukuBKNlOYw-uv6W1c",
-        authDomain: "hakantools-a44c0.firebaseapp.com",
-        projectId: "hakantools-a44c0",
-        storageBucket: "hakantools-a44c0.firebasestorage.app",
-        messagingSenderId: "216753237718",
-        appId: "1:216753237718:web:ea012c7dc4fdb7e7d72377",
-        measurementId: "G-4GWK9BS40T"
-    };
+<script>
+// --- FIREBASE ---
+const firebaseConfig = {
+    apiKey: "AIzaSyBW8xNsDjp3duXyuPukuBKNlOYw-uv6W1c",
+    authDomain: "hakantools-a44c0.firebaseapp.com",
+    projectId: "hakantools-a44c0",
+    storageBucket: "hakantools-a44c0.firebasestorage.app",
+    messagingSenderId: "216753237718",
+    appId: "1:216753237718:web:ea012c7dc4fdb7e7d72377",
+    measurementId: "G-4GWK9BS40T"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+// --- DEĞİŞKENLER ---
+let bird, pipes, coins, score=0, gameHasStarted=false, gameOverFlag=false;
+let bestScore = parseInt(localStorage.getItem('flappy_best')) || 0;
+let totalCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
+let currentBird = localStorage.getItem('flappy_skin') || 'bird_default';
+let ownedBirds = JSON.parse(localStorage.getItem('flappy_owned')) || ['bird_default'];
 
-    // --- DEĞİŞKENLER ---
-    let bird, pipes, coins, score=0, gameHasStarted=false, gameOverFlag=false;
-    let bestScore = parseInt(localStorage.getItem('flappy_best')) || 0;
-    let totalCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
+// --- KARAKTER VERİLERİ ---
+const SKINS = [
+    { id: 'bird_default', name: 'Normal Kuş', price: 0, color: 0xFF69B4 },
+    { id: 'bird_elyo', name: 'Elyo (Gözlüklü)', price: 350, color: 0x3498db },
+    { id: 'bird_hakan', name: 'Derbeder Hakan', price: 350, color: 0xe74c3c },
+    { id: 'bird_goth', name: '...', price: 350, color: 0x2c3e50 }
+];
 
+// --- UI GÜNCELLEME ---
+function updateUI() {
     if(document.getElementById('best-score')) document.getElementById('best-score').innerText = bestScore;
     if(document.getElementById('total-coins')) document.getElementById('total-coins').innerText = totalCoins;
+    if(document.getElementById('shop-coins')) document.getElementById('shop-coins').innerText = totalCoins;
+}
+updateUI();
 
-    // --- KULLANICI YÖNETİMİ ---
-    window.addEventListener('load', () => {
-        const kayitliID = localStorage.getItem('hakan_flappy_uid');
-        if (kayitliID) {
-            document.getElementById('login-modal').classList.add('hidden');
-            verileriGuncelle(kayitliID);
+// --- MARKET SİSTEMİ ---
+function openShop() {
+    document.getElementById('shop-modal').classList.remove('hidden');
+    renderShop();
+}
+function closeShop() { document.getElementById('shop-modal').classList.add('hidden'); }
+
+function renderShop() {
+    const list = document.getElementById('shop-list');
+    list.innerHTML = "";
+    SKINS.forEach(skin => {
+        const isOwned = ownedBirds.includes(skin.id);
+        const isSelected = currentBird === skin.id;
+        
+        let btnHTML = "";
+        if (isSelected) btnHTML = `<button class="buy-btn" disabled>SEÇİLİ</button>`;
+        else if (isOwned) btnHTML = `<button class="buy-btn use-btn" onclick="selectSkin('${skin.id}')">SEÇ</button>`;
+        else btnHTML = `<button class="buy-btn" onclick="buySkin('${skin.id}', ${skin.price})">${skin.price} 💰</button>`;
+
+        const item = document.createElement('div');
+        item.className = `shop-item ${isSelected ? 'selected' : ''}`;
+        item.innerHTML = `
+            <div style="font-weight:bold; color:white; font-size:14px;">${skin.name}</div>
+            <div id="preview-${skin.id}" class="bird-preview"></div>
+            ${btnHTML}
+        `;
+        list.appendChild(item);
+        
+        // Önizleme Çizimi (Canvas içinde küçük bir kuş çiz)
+        setTimeout(() => drawPreview(skin.id, skin.color), 50);
+    });
+}
+
+function buySkin(id, price) {
+    if (totalCoins >= price) {
+        totalCoins -= price;
+        ownedBirds.push(id);
+        localStorage.setItem('flappy_coins', totalCoins);
+        localStorage.setItem('flappy_owned', JSON.stringify(ownedBirds));
+        selectSkin(id); // Satın alınca otomatik seç
+        updateUI();
+        renderShop();
+    } else {
+        alert("Yetersiz Bakiye!");
+    }
+}
+
+function selectSkin(id) {
+    currentBird = id;
+    localStorage.setItem('flappy_skin', currentBird);
+    renderShop();
+    // Oyundaki kuşu güncelle (eğer oyun başlamadıysa)
+    if (!gameHasStarted && !gameOverFlag) {
+        game.scene.scenes[0].scene.restart();
+    }
+}
+
+// --- KULLANICI & LİDERLİK ---
+window.addEventListener('load', () => {
+    const uid = localStorage.getItem('hakan_flappy_uid');
+    if (uid) {
+        document.getElementById('login-modal').classList.add('hidden');
+        verileriGuncelle(uid);
+    }
+});
+
+function kullaniciKaydet() {
+    const isim = document.getElementById('nickname-input').value.trim();
+    if (!isim) { alert("İsim yaz!"); return; }
+    db.collection("leaderboard").add({ name: isim, score: bestScore, coins: totalCoins }).then(doc => {
+        localStorage.setItem('hakan_flappy_uid', doc.id);
+        document.getElementById('login-modal').classList.add('hidden');
+    });
+}
+
+function verileriGuncelle(uid) {
+    db.collection("leaderboard").doc(uid).onSnapshot(doc => {
+        if (doc.exists) {
+            const d = doc.data();
+            localStorage.setItem('flappy_best', d.score);
+            localStorage.setItem('flappy_coins', d.coins || 0);
+            bestScore = d.score; totalCoins = d.coins || 0;
+            updateUI();
         }
     });
+}
 
-    function kullaniciKaydet() {
-        const isim = document.getElementById('nickname-input').value.trim();
-        if (isim === "") { alert("Lütfen bir isim yaz!"); return; }
-        
-        db.collection("leaderboard").add({
-            name: isim, score: bestScore, coins: totalCoins, date: new Date().toLocaleString('tr-TR')
-        }).then((docRef) => {
-            localStorage.setItem('hakan_flappy_uid', docRef.id);
-            document.getElementById('login-modal').classList.add('hidden');
-        }).catch((err) => alert("Hata: " + err.message));
-    }
+function saveToDB() {
+    const uid = localStorage.getItem('hakan_flappy_uid');
+    if (!uid) return;
+    const ref = db.collection("leaderboard").doc(uid);
+    db.runTransaction(t => t.get(ref).then(doc => {
+        const old = doc.data().score || 0;
+        t.update(ref, { score: Math.max(score, old), coins: totalCoins });
+    }));
+}
 
-    function verileriGuncelle(uid) {
-        db.collection("leaderboard").doc(uid).onSnapshot((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                localStorage.setItem('flappy_best', data.score);
-                localStorage.setItem('flappy_coins', data.coins || 0);
-                bestScore = data.score;
-                totalCoins = data.coins || 0;
-                document.getElementById('best-score').innerText = bestScore;
-                document.getElementById('total-coins').innerText = totalCoins;
-            }
+function openLeaderboard() {
+    document.getElementById('leaderboard-modal').classList.remove('hidden');
+    const list = document.getElementById('leaderboard-list');
+    list.innerHTML = "";
+    db.collection("leaderboard").orderBy("score", "desc").limit(10).get().then(snap => {
+        document.getElementById('loading-text').style.display="none";
+        snap.forEach((doc, i) => {
+            const d = doc.data();
+            list.innerHTML += `<li style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.2)">${i+1}. ${d.name} - <b>${d.score}</b></li>`;
         });
+    });
+}
+function closeLeaderboard() { document.getElementById('leaderboard-modal').classList.add('hidden'); }
+
+// --- PHASER OYUN ---
+const config = {
+    type: Phaser.AUTO,
+    parent: 'game-container', // Oyunu bu div'in içine göm
+    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 450, height: 800 },
+    transparent: true,
+    physics: { default: 'arcade', arcade: { gravity: { y: 1200 }, debug: false } },
+    scene: { create: create, update: update }
+};
+
+const game = new Phaser.Game(config);
+let lastPipeY = 400; // Akıllı boru algoritması için
+
+function create() {
+    drawAssets(this); // Grafikleri çiz
+
+    pipes = this.physics.add.group(); coins = this.physics.add.group();
+    
+    // Seçili Karakteri Yarat
+    bird = this.physics.add.sprite(100, 400, currentBird); 
+    bird.setDepth(10); bird.body.setCircle(13,9,7);
+
+    let ground = this.add.tileSprite(225, 800, 450, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
+    this.physics.add.existing(ground, true);
+    this.ground = ground;
+
+    this.input.on('pointerdown', jump, this); 
+    this.input.keyboard.on('keydown-SPACE', jump, this);
+    
+    this.physics.add.collider(bird, pipes, gameOver, null, this);
+    this.physics.add.collider(bird, ground, gameOver, null, this);
+    this.physics.add.overlap(bird, coins, collectCoin, null, this);
+
+    this.time.addEvent({ delay: 1500, callback: addPipe, callbackScope: this, loop: true });
+}
+
+function update(time, delta) {
+    if(!gameHasStarted) { bird.body.allowGravity=false; bird.y = 400 + Math.sin(time/300)*10; return; }
+    if(gameOverFlag) return;
+    
+    this.ground.tilePositionX += 2.5 * (delta/16);
+    if(bird.angle < 30) bird.angle += 2.5;
+    if(bird.y < -50 || bird.y > 800) gameOver();
+
+    // Temizlik
+    pipes.children.iterate(p => { if(p && p.x < -60) p.destroy(); });
+    coins.children.iterate(c => { if(c && c.x < -60) c.destroy(); });
+}
+
+function jump() {
+    if(!document.getElementById('shop-modal').classList.contains('hidden')) return; // Market açıkken zıplama
+    if(!document.getElementById('leaderboard-modal').classList.contains('hidden')) return;
+    
+    if(gameOverFlag) { restartGame.call(this.scene); return; }
+    if(!gameHasStarted) { 
+        gameHasStarted=true; bird.body.allowGravity=true; 
+        document.getElementById('start-msg').style.display='none'; 
+    }
+    bird.setVelocityY(-400); 
+    this.tweens.add({ targets: bird, angle: -25, duration: 100 });
+}
+
+function addPipe() {
+    if(!gameHasStarted || gameOverFlag) return;
+
+    // --- AKILLI BORU ALGORİTMASI ---
+    // Bir önceki borudan en fazla 150 piksel yukarı veya aşağı gidebilir
+    let minY = Math.max(200, lastPipeY - 150);
+    let maxY = Math.min(600, lastPipeY + 150);
+    let y = Phaser.Math.Between(minY, maxY);
+    lastPipeY = y; // Kaydet
+    
+    let gap = Math.max(95, 140 - (score*0.2)); // Zorluk yavaşça artar
+
+    let top = pipes.create(500, y - gap/2, 'pipe').setOrigin(0.5, 1).setFlipY(true);
+    let bot = pipes.create(500, y + gap/2, 'pipe').setOrigin(0.5, 0);
+    
+    [top, bot].forEach(p => { p.body.allowGravity=false; p.setVelocityX(-200); });
+
+    if(Math.random() > 0.6) {
+        let c = coins.create(500, y, 'coin');
+        c.setVelocityX(-200); c.body.allowGravity=false;
+        this.tweens.add({ targets: c, scaleX: 0, duration: 500, yoyo: true, repeat: -1 });
     }
 
-    function skoruDatabaseYaz(yeniSkor, toplamPara) {
-        const uid = localStorage.getItem('hakan_flappy_uid');
-        if (!uid) return;
-        const docRef = db.collection("leaderboard").doc(uid);
-        db.runTransaction((t) => {
-            return t.get(docRef).then((doc) => {
-                if (!doc.exists) throw "Hata";
-                const eski = doc.data().score || 0;
-                let kaydet = yeniSkor > eski ? yeniSkor : eski;
-                t.update(docRef, { score: kaydet, coins: toplamPara, date: new Date().toLocaleString('tr-TR') });
-                return kaydet;
-            });
-        }).then((yeniRekor) => {
-            document.getElementById('best-score').innerText = yeniRekor;
-        });
+    // Puan
+    setTimeout(() => { if(!gameOverFlag) { score++; document.getElementById('current-score').innerText=score; } }, 1500);
+}
+
+function collectCoin(b, c) {
+    c.destroy();
+    totalCoins++; updateUI();
+}
+
+function gameOver() {
+    if(gameOverFlag) return; gameOverFlag=true;
+    this.physics.pause(); bird.setTint(0xff0000);
+    
+    if(score > bestScore) { bestScore=score; localStorage.setItem('flappy_best', bestScore); }
+    localStorage.setItem('flappy_coins', totalCoins);
+    saveToDB();
+
+    document.getElementById('start-msg').innerText = "TEKRAR DENE";
+    document.getElementById('start-msg').style.display = 'block';
+    
+    // Ölünce market butonunu göster (Eğer oyun içinde gizlediysek)
+}
+
+function restartGame() {
+    gameOverFlag=false; gameHasStarted=false; score=0;
+    document.getElementById('current-score').innerText="0";
+    game.scene.scenes[0].scene.restart();
+}
+
+// --- GRAFİK ÇİZİMLERİ (ASSETS) ---
+function drawAssets(scene) {
+    // Boru
+    let pipeG = scene.make.graphics();
+    pipeG.fillStyle(0x73BF2E); pipeG.fillRect(2,0,56,800);
+    pipeG.lineStyle(4, 0x558C22); pipeG.strokeRect(0,0,60,800);
+    pipeG.fillStyle(0x73BF2E); pipeG.fillRect(0,0,60,30);
+    pipeG.strokeRect(0,0,60,30);
+    pipeG.generateTexture('pipe', 60, 800);
+
+    // Zemin
+    let groundG = scene.make.graphics();
+    groundG.fillStyle(0xDED895); groundG.fillRect(0,10,450,100);
+    groundG.fillStyle(0x73BF2E); groundG.fillRect(0,0,450,10);
+    groundG.generateTexture('ground', 450, 110);
+
+    // Altın
+    let coinG = scene.make.graphics();
+    coinG.fillStyle(0xFFD700); coinG.fillCircle(15,15,15);
+    coinG.fillStyle(0xF1C40F); coinG.fillCircle(15,15,10);
+    coinG.generateTexture('coin', 30, 30);
+
+    // 1. NORMAL KUŞ (Pembe)
+    drawBird(scene, 'bird_default', 0xFF69B4);
+
+    // 2. ELYO (Mavi, Gözlüklü)
+    drawBird(scene, 'bird_elyo', 0x3498db, true);
+
+    // 3. DERBEDER HAKAN (Kırmızı, Sigaralı)
+    drawBird(scene, 'bird_hakan', 0xe74c3c, false, true);
+
+    // 4. GOTİK ... (Siyah)
+    drawBird(scene, 'bird_goth', 0x2c3e50);
+}
+
+function drawBird(scene, key, color, glasses=false, cig=false) {
+    let g = scene.make.graphics();
+    g.fillStyle(color); g.fillCircle(22,20,18); // Vücut
+    g.fillStyle(0xFFFFFF); g.fillCircle(28,16,6); // Göz Beyazı
+    g.fillStyle(0x000000); g.fillCircle(30,16,2); // Göz Bebeği
+    g.fillStyle(0xF39C12); g.fillTriangle(32,20, 48,23, 32,26); // Gaga
+    g.fillStyle(0xFFFFFF); g.fillCircle(12,20,5); // Kanat
+
+    if(glasses) { // Gözlük
+        g.lineStyle(2, 0x000000); g.strokeRect(22, 12, 14, 8); g.lineStyle(1, 0x000000); g.beginPath(); g.moveTo(22,16); g.lineTo(10,18); g.strokePath();
+    }
+    if(cig) { // Sigara
+        g.fillStyle(0xFFFFFF); g.fillRect(35, 24, 12, 3);
+        g.fillStyle(0xE74C3C); g.fillCircle(47, 25.5, 1.5); // Ateş
+        // Duman
+        g.fillStyle(0xBDC3C7); g.fillCircle(50, 22, 2); g.fillCircle(53, 19, 3);
     }
 
-    function openLeaderboard() {
-        document.getElementById('leaderboard-modal').classList.remove('hidden');
-        document.getElementById('leaderboard-list').innerHTML = "";
-        document.getElementById('loading-text').style.display = "block";
+    g.generateTexture(key, 50, 40);
+}
 
-        db.collection("leaderboard").orderBy("score", "desc").limit(10).get()
-          .then((querySnapshot) => {
-              document.getElementById('loading-text').style.display = "none";
-              let rank = 1;
-              const list = document.getElementById('leaderboard-list');
-              querySnapshot.forEach((doc) => {
-                  const data = doc.data();
-                  let rankClass = rank === 1 ? "rank-1" : rank === 2 ? "rank-2" : rank === 3 ? "rank-3" : "";
-                  const item = document.createElement('li');
-                  item.className = `leaderboard-item ${rankClass}`;
-                  item.innerHTML = `<span>${rank}. ${data.name}</span><span>${data.score}</span>`;
-                  list.appendChild(item);
-                  rank++;
-              });
-          }).catch((error) => { document.getElementById('loading-text').innerText = "Hata: " + error.message; });
+// Market Önizlemesi İçin (DOM Canvas)
+function drawPreview(id, color) {
+    // Bu kısım sadece markette ikon olarak göstermek için basit CSS background veya küçük canvas kullanır
+    // Basitlik için sadece renkli kutu yapıyoruz, Phaser texture'ını DOM'a aktarmak karmaşıktır.
+    const el = document.getElementById(`preview-${id}`);
+    if(el) {
+        el.style.backgroundColor = '#' + color.toString(16);
+        el.style.borderRadius = "50%";
+        el.style.border = "3px solid white";
+        el.style.boxShadow = "0 4px 0 rgba(0,0,0,0.2)";
     }
-
-    function closeLeaderboard() {
-        document.getElementById('leaderboard-modal').classList.add('hidden');
-    }
-
-    // --- SES SİSTEMİ ---
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const audioCtx = new AudioContext();
-
-    function playSound(type) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        osc.connect(g); g.connect(audioCtx.destination);
-        if (type === 'jump') {
-            osc.frequency.setValueAtTime(350, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(500, audioCtx.currentTime + 0.1);
-            g.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        } else if (type === 'coin') {
-            osc.type='square'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1800, audioCtx.currentTime+0.1);
-            g.gain.setValueAtTime(0.1, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.15);
-            osc.start(); osc.stop(audioCtx.currentTime+0.15);
-        } else if (type === 'dead') {
-            osc.type='sawtooth'; osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime+0.3);
-            g.gain.setValueAtTime(0.2, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.3);
-            osc.start(); osc.stop(audioCtx.currentTime+0.3);
-        }
-    }
-
-    // --- OYUN KONFIGURASYONU (OPTİMİZE EDİLDİ) ---
-    const config = {
-        type: Phaser.AUTO,
-        scale: {
-            mode: Phaser.Scale.FIT,
-            autoCenter: Phaser.Scale.CENTER_BOTH,
-            width: 400,
-            height: 600
-        },
-        transparent: true,
-        physics: { default: 'arcade', arcade: { gravity: { y: 1200 }, debug: false } },
-        scene: { create: create, update: update }
-    };
-
-    const game = new Phaser.Game(config);
-
-    function create() {
-        let cloudG = this.make.graphics();
-        cloudG.fillStyle(0xFFFFFF, 1); cloudG.fillCircle(20, 20, 20); cloudG.fillCircle(45, 20, 25); cloudG.fillCircle(75, 20, 20);
-        cloudG.generateTexture('cloud', 100, 50);
-        this.add.image(100, 100, 'cloud').setAlpha(0.6);
-        this.add.image(300, 150, 'cloud').setAlpha(0.5).setScale(0.8);
-
-        let groundG = this.make.graphics();
-        groundG.fillStyle(0xDED895, 1); groundG.fillRect(0, 15, 400, 100);
-        groundG.fillStyle(0x73BF2E, 1); groundG.fillRect(0, 0, 400, 15);
-        groundG.lineStyle(3, 0x558C22, 1); groundG.strokeRect(0, 0, 400, 15);
-        groundG.generateTexture('ground', 400, 110);
-
-        let coinG = this.make.graphics();
-        coinG.fillStyle(0xFFD700, 1); coinG.fillCircle(16, 16, 16); coinG.fillStyle(0xB8860B, 1); coinG.fillRect(14, 9, 4, 14);
-        coinG.generateTexture('coin', 32, 32);
-
-        let pipeG = this.make.graphics();
-        pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(2, 2, 54, 600); pipeG.lineStyle(4, 0x558C22, 1); pipeG.strokeRect(0, 0, 58, 600);
-        pipeG.fillStyle(0x73BF2E, 1); pipeG.fillRect(0, 0, 58, 28); pipeG.strokeRect(0, 0, 58, 28);
-        pipeG.generateTexture('pipe', 60, 600);
-
-        let birdG = this.make.graphics();
-        birdG.fillStyle(0xFF69B4, 1); birdG.fillTriangle(10,8,14,0,18,8); birdG.fillTriangle(18,8,22,-2,26,8); birdG.fillTriangle(26,8,30,0,34,8);
-        birdG.fillStyle(0xF4CE42, 1); birdG.fillCircle(22,20,14); birdG.fillStyle(0xFFFFFF, 1); birdG.fillCircle(28,16,6);
-        birdG.fillStyle(0x000000, 1); birdG.fillCircle(30,16,2); birdG.fillStyle(0xF39C12, 1); birdG.fillTriangle(32,20,44,23,32,26);
-        birdG.generateTexture('bird', 45, 40);
-
-        pipes = this.physics.add.group(); 
-        coins = this.physics.add.group();
-        bird = this.physics.add.sprite(100, 300, 'bird'); bird.setDepth(10); bird.body.setCircle(13,9,7);
-        
-        this.ground = this.add.tileSprite(200, 600, 400, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
-        this.physics.add.existing(this.ground, true);
-
-        // --- GİRİŞ KONTROLÜ (Input) ---
-        // 'pointerdown' ile hem mouse hem dokunmatik algılanır
-        this.input.on('pointerdown', jump, this); 
-        this.input.keyboard.on('keydown-SPACE', jump, this);
-        
-        this.physics.add.collider(bird, pipes, gameOver, null, this);
-        this.physics.add.collider(bird, this.ground, gameOver, null, this);
-        this.physics.add.overlap(bird, coins, collectCoin, null, this);
-
-        this.pipeTimer = this.time.addEvent({ delay: 1500, callback: addPipe, callbackScope: this, loop: true, paused: true });
-    }
-
-    // --- OPTİMİZE EDİLMİŞ UPDATE (Delta Time Kullanımı) ---
-    function update(time, delta) {
-        if(!gameHasStarted) { 
-            bird.body.allowGravity=false; 
-            // Delta time kullanarak süzülme hızı her ekranda aynı olur
-            bird.y = 300 + Math.sin(time/300)*10; 
-            return; 
-        }
-        if(gameOverFlag) return;
-        
-        // Zemin hızı FPS'ten bağımsız hale getirildi
-        // 60 FPS'te yaklaşık 16.6ms geçer. delta/16.6 ile normalize ediyoruz.
-        let deltaFactor = delta / 16.6;
-        
-        this.ground.tilePositionX += 2.5 * deltaFactor;
-        
-        if(bird.angle < 30) bird.angle += 2.5 * deltaFactor;
-        if(bird.y < -50 || bird.y > 600) gameOver.call(this);
-
-        // --- GARBAGE COLLECTION (Kasma Çözümü) ---
-        // Ekrandan çıkan boruları bellekten sil
-        pipes.children.iterate(function (pipe) {
-            if (pipe && pipe.x < -60) {
-                pipe.destroy();
-            }
-        });
-        coins.children.iterate(function (coin) {
-            if (coin && coin.x < -60) {
-                coin.destroy();
-            }
-        });
-    }
-
-    function jump() {
-        if(!document.getElementById('login-modal').classList.contains('hidden')) return;
-        if(!document.getElementById('leaderboard-modal').classList.contains('hidden')) return;
-        
-        if(gameOverFlag) { restartGame.call(this); return; }
-        
-        if(!gameHasStarted) { 
-            gameHasStarted=true; 
-            bird.body.allowGravity=true; 
-            this.pipeTimer.paused=false; 
-            document.getElementById('start-msg').style.display='none'; 
-            if(audioCtx.state==='suspended') audioCtx.resume();
-        }
-        
-        bird.setVelocityY(-400); 
-        this.tweens.add({ targets: bird, angle: -25, duration: 100 }); 
-        playSound('jump');
-    }
-
-    function addPipe() {
-        if(gameOverFlag) return;
-        let gap = Math.max(90, 140-(score*0.5));
-        let minPipe=80, maxPos=600-110-gap-minPipe;
-        let y = Phaser.Math.Between(minPipe, maxPos);
-        
-        let top = pipes.create(450, y, 'pipe').setOrigin(0.5,1).setFlipY(true);
-        let bot = pipes.create(450, y+gap, 'pipe').setOrigin(0.5,0);
-        
-        [top,bot].forEach(p=>{ 
-            p.body.allowGravity=false; 
-            p.setVelocityX(-200); // Fizik motoru hızı zaten saniye bazlıdır, delta time gerekmez
-        });
-        
-        if(Math.random() > 0.7) {
-            let c = coins.create(450, y+(gap/2), 'coin'); 
-            c.setVelocityX(-200); c.body.allowGravity=false;
-            this.tweens.add({ targets: c, scaleX: 0, duration: 600, yoyo: true, repeat: -1 });
-        }
-        
-        this.time.delayedCall(1500, ()=>{ 
-            if(!gameOverFlag && gameHasStarted) { 
-                score++; document.getElementById('current-score').innerText=score; 
-            }
-        });
-    }
-
-    function collectCoin(b,c) { 
-        c.destroy(); // disableBody yerine destroy kullanıyoruz (daha temiz)
-        totalCoins++; 
-        document.getElementById('total-coins').innerText=totalCoins; 
-        playSound('coin'); 
-    }
-
-    function gameOver() {
-        if(gameOverFlag) return; gameOverFlag=true;
-        this.physics.pause(); bird.setTint(0xff0000); playSound('dead');
-        
-        if(score>bestScore) { bestScore=score; localStorage.setItem('flappy_best', bestScore); }
-        localStorage.setItem('flappy_coins', totalCoins);
-        skoruDatabaseYaz(score, totalCoins);
-        
-        document.getElementById('start-msg').innerText = "TEKRAR DENE"; 
-        document.getElementById('start-msg').style.display = 'block';
-    }
-
-    function restartGame() {
-        gameOverFlag=false; gameHasStarted=false; score=0; 
-        document.getElementById('current-score').innerText="0"; 
-        this.scene.restart();
-    }
-    </script>
+}
+</script>
 </body>
 </html>
