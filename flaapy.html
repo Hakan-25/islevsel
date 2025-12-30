@@ -12,34 +12,38 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
-        body { margin: 0; padding: 0; background-color: #4ec0ca; overflow: hidden; font-family: 'Inter', sans-serif; touch-action: none; }
-
-        /* --- ÜST ÇUBUK (Fixed & Safe Area) --- */
-        #top-bar {
-            position: fixed;
-            top: 20px; /* Çentikli ekranlar için biraz boşluk */
-            left: 0;
-            width: 100%;
-            padding: 0 20px;
-            box-sizing: border-box;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            z-index: 100;
-            pointer-events: none; /* Arkadaki oyuna tıklanabilsin */
+        /* Sayfa Ayarları (Kaydırmayı Engeller) */
+        body { 
+            margin: 0; padding: 0; 
+            background-color: #4ec0ca; 
+            overflow: hidden; 
+            font-family: 'Inter', sans-serif; 
+            touch-action: none; /* Mobilde kaydırmayı kilitler */
+            -webkit-user-select: none; /* Metin seçimini engeller */
+            user-select: none;
         }
 
-        /* Sol Üst: Ev Butonu */
+        /* --- 1. ÜST ARAYÜZ (TOP BAR) --- */
+        #top-ui {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between; /* Sağa ve Sola yasla */
+            align-items: flex-start;
+            z-index: 100; /* En üstte */
+            pointer-events: none; /* Tıklamayı engelleme (oyun için) */
+        }
+
+        /* Sol: Ev Butonu */
         .home-btn {
             pointer-events: auto;
             text-decoration: none;
             background: white;
-            width: 45px;
-            height: 45px;
+            width: 45px; height: 45px;
             border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             font-size: 24px;
             box-shadow: 0 4px 0 #2c7a81;
             border: 2px solid #fff;
@@ -47,76 +51,64 @@
         }
         .home-btn:active { transform: translateY(3px); box-shadow: none; }
 
-        /* Sağ Üst: İstatistikler */
-        .stats-container {
+        /* Sağ: İstatistikler ve Kupa Butonu */
+        .stats-wrapper {
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* Alt alta diz */
+            align-items: flex-end; /* Sağa yasla */
             gap: 8px;
-            align-items: flex-end;
+            pointer-events: auto;
         }
 
-        .stat-badge {
+        .stat-pill {
             background: rgba(0, 0, 0, 0.5);
             color: white;
             padding: 6px 12px;
             border-radius: 20px;
-            font-size: 14px;
-            font-weight: 700;
-            backdrop-filter: blur(4px);
+            font-size: 14px; font-weight: 700;
+            display: flex; align-items: center; gap: 6px;
             border: 1px solid rgba(255,255,255,0.3);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            min-width: 80px;
-            justify-content: center;
+            backdrop-filter: blur(4px);
+            min-width: 80px; justify-content: center;
         }
 
-        /* Liderlik Tablosu Butonu (Stats altına ekledim) */
-        .leaderboard-btn {
-            pointer-events: auto;
-            background: #FFD700; /* Altın rengi */
-            width: 45px;
-            height: 45px;
+        .leaderboard-icon-btn {
+            background: #FFD700;
+            width: 45px; height: 45px;
             border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 22px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 22px; cursor: pointer;
             border: 2px solid #fff;
-            cursor: pointer;
             box-shadow: 0 4px 0 #B8860B;
-            margin-top: 5px;
         }
-        .leaderboard-btn:active { transform: translateY(3px); box-shadow: none; }
+        .leaderboard-icon-btn:active { transform: translateY(3px); box-shadow: none; }
 
-        /* Büyük Skor (Ortada) */
-        #current-score-container {
+        /* --- 2. BÜYÜK SKOR (ORTADA) --- */
+        #game-score-container {
             position: fixed;
-            top: 15%;
-            left: 50%;
+            top: 15%; left: 50%;
             transform: translateX(-50%);
-            z-index: 10;
+            z-index: 10; /* Arayüzün altında kalsın */
             pointer-events: none;
             text-align: center;
         }
         #current-score {
-            font-size: 80px;
-            font-weight: 900;
-            color: white;
+            font-size: 80px; font-weight: 900; color: white;
             text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
             line-height: 1;
         }
 
-        /* Başlangıç Mesajı */
+        /* --- 3. MODALLAR VE MESAJLAR --- */
         #start-msg {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 24px; color: white; font-weight: bold; text-shadow: 2px 2px 0 #000;
-            animation: pulse 1s infinite; pointer-events: none; z-index: 40;
-            display: none; width: 100%; text-align: center;
+            position: fixed; top: 60%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 20px; color: white; font-weight: 800;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+            animation: pulse 1s infinite;
+            pointer-events: none; z-index: 50; width: 100%; text-align: center;
+            letter-spacing: 1px;
         }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @keyframes pulse { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.7; transform: translate(-50%, -50%) scale(0.95); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 
-        /* Modallar */
         #login-modal, #leaderboard-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 200;
@@ -125,13 +117,13 @@
         
         .modal-content {
             background: linear-gradient(135deg, #4ec0ca, #3da0a9);
-            padding: 30px; border-radius: 20px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 4px solid white;
+            padding: 30px; border-radius: 25px; text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5); border: 4px solid white;
             width: 85%; max-width: 350px;
         }
         
         .modal-input {
-            width: 80%; padding: 12px; font-size: 16px; border-radius: 10px; border: none;
+            width: 80%; padding: 12px; font-size: 16px; border-radius: 12px; border: none;
             margin-bottom: 20px; font-family: 'Inter', sans-serif; text-align: center;
             font-weight: bold; color: #333; outline: none;
         }
@@ -145,7 +137,6 @@
 
         .hidden { display: none !important; }
 
-        /* Liste Tasarımı */
         #leaderboard-list {
             list-style: none; padding: 0; margin: 20px 0; max-height: 250px; overflow-y: auto; text-align: left;
         }
@@ -158,24 +149,24 @@
         .rank-2 { background: linear-gradient(90deg, #E0E0E0, #BDBDBD); border: 1px solid #fff; color: #333; }
         .rank-3 { background: linear-gradient(90deg, #CD7F32, #A0522D); border: 1px solid #fff; color: #fff; }
 
-        .close-btn { font-size: 14px; padding: 8px 20px; background: #e74c3c; color: white; box-shadow: 0 4px 0 #c0392b; }
+        .close-btn { background: #e74c3c; color: white; box-shadow: 0 4px 0 #c0392b; font-size: 14px; padding: 10px 20px; }
         .close-btn:active { box-shadow: 0 1px 0 #c0392b; }
 
     </style>
 </head>
 <body>
 
-    <div id="top-bar">
+    <div id="top-ui">
         <a href="index.html" class="home-btn">🏠</a>
 
-        <div class="stats-container">
-            <div class="stat-badge">🏆 <span id="best-score">0</span></div>
-            <div class="stat-badge">💰 <span id="total-coins">0</span></div>
-            <button class="leaderboard-btn" onclick="openLeaderboard()">🥇</button>
+        <div class="stats-wrapper">
+            <div class="stat-pill">🏆 <span id="best-score">0</span></div>
+            <div class="stat-pill">💰 <span id="total-coins">0</span></div>
+            <button class="leaderboard-icon-btn" onclick="openLeaderboard()">🥇</button>
         </div>
     </div>
 
-    <div id="current-score-container">
+    <div id="game-score-container">
         <div id="current-score">0</div>
     </div>
 
@@ -185,13 +176,13 @@
         <div class="modal-content">
             <h2 style="color:white; margin:0 0 20px 0;">HOŞ GELDİN PİLOT!</h2>
             <input type="text" id="nickname-input" class="modal-input" placeholder="Rumuzun (Max 10 krk)" maxlength="10">
-            <button class="modal-btn" onclick="kullaniciKaydet()">BAŞLA</button>
+            <button class="modal-btn" onclick="kullaniciKaydet()">KAYDET VE BAŞLA</button>
         </div>
     </div>
 
     <div id="leaderboard-modal" class="hidden">
         <div class="modal-content">
-            <h2 style="color:white; margin:0 0 10px 0;">TOP 10 PİLOT</h2>
+            <h2 style="color:white; margin:0 0 10px 0;">EN İYİ PİLOTLAR</h2>
             <div id="loading-text" style="color:white; margin-top:20px;">Yükleniyor...</div>
             <ul id="leaderboard-list"></ul>
             <button class="close-btn" onclick="closeLeaderboard()">KAPAT</button>
@@ -199,7 +190,7 @@
     </div>
 
     <script>
-    // --- FIREBASE ---
+    // --- FIREBASE AYARLARI ---
     const firebaseConfig = {
         apiKey: "AIzaSyBW8xNsDjp3duXyuPukuBKNlOYw-uv6W1c",
         authDomain: "hakantools-a44c0.firebaseapp.com",
@@ -213,11 +204,11 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // --- KULLANICI YÖNETİMİ ---
     window.addEventListener('load', () => {
         const kayitliID = localStorage.getItem('hakan_flappy_uid');
         if (kayitliID) {
             document.getElementById('login-modal').classList.add('hidden');
-            document.getElementById('start-msg').style.display = 'block';
             verileriGuncelle(kayitliID);
         }
     });
@@ -233,7 +224,6 @@
         }).then((docRef) => {
             localStorage.setItem('hakan_flappy_uid', docRef.id);
             document.getElementById('login-modal').classList.add('hidden');
-            document.getElementById('start-msg').style.display = 'block';
         }).catch((err) => alert("Hata: " + err.message));
     }
 
@@ -296,7 +286,7 @@
         document.getElementById('leaderboard-modal').classList.add('hidden');
     }
 
-    // --- OYUN AYARLARI (FPS SABİTLEME) ---
+    // --- SES SİSTEMİ ---
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const audioCtx = new AudioContext();
 
@@ -308,7 +298,7 @@
         if (type === 'jump') {
             osc.frequency.setValueAtTime(350, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(500, audioCtx.currentTime + 0.1);
-            g.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.2, audioCtx.currentTime);
             g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
             osc.start(); osc.stop(audioCtx.currentTime + 0.1);
         } else if (type === 'coin') {
@@ -319,23 +309,23 @@
         } else if (type === 'dead') {
             osc.type='sawtooth'; osc.frequency.setValueAtTime(200, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime+0.3);
-            g.gain.setValueAtTime(0.3, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.3);
+            g.gain.setValueAtTime(0.2, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.3);
             osc.start(); osc.stop(audioCtx.currentTime+0.3);
         }
     }
 
-    // --- KRİTİK: FPS SABİTLEME ---
+    // --- OYUN KONFIGURASYONU (MOBİL DÜZELTMESİ) ---
     const config = {
         type: Phaser.AUTO,
-        width: window.innerWidth < 768 ? window.innerWidth : 400,
-        height: window.innerWidth < 768 ? window.innerHeight : 600,
-        transparent: true,
-        // Bu ayar oyunun her cihazda 60 kare hızında (aynı hızda) çalışmasını sağlar
-        fps: {
-            target: 60,
-            forceSetTimeOut: true
+        // Bu ayar (Scale.FIT) oyunu her ekrana tam oturtur!
+        scale: {
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
+            width: 400, // Oyunun iç çözünürlüğü
+            height: 600
         },
-        physics: { default: 'arcade', arcade: { gravity: { y: 1100 }, debug: false } },
+        transparent: true,
+        physics: { default: 'arcade', arcade: { gravity: { y: 1200 }, debug: false } },
         scene: { create: create, update: update }
     };
 
@@ -343,17 +333,19 @@
     let bestScore = parseInt(localStorage.getItem('flappy_best')) || 0;
     let totalCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
 
+    // Başlangıçta değerleri yaz
     if(document.getElementById('best-score')) document.getElementById('best-score').innerText = bestScore;
     if(document.getElementById('total-coins')) document.getElementById('total-coins').innerText = totalCoins;
 
     const game = new Phaser.Game(config);
 
     function create() {
+        // Grafikler (Bulut, Zemin vs.)
         let cloudG = this.make.graphics();
         cloudG.fillStyle(0xFFFFFF, 1); cloudG.fillCircle(20, 20, 20); cloudG.fillCircle(45, 20, 25); cloudG.fillCircle(75, 20, 20);
         cloudG.generateTexture('cloud', 100, 50);
-        this.add.image(config.width*0.2, config.height*0.2, 'cloud').setAlpha(0.6);
-        this.add.image(config.width*0.8, config.height*0.3, 'cloud').setAlpha(0.5).setScale(0.8);
+        this.add.image(100, 100, 'cloud').setAlpha(0.6);
+        this.add.image(300, 150, 'cloud').setAlpha(0.5).setScale(0.8);
 
         let groundG = this.make.graphics();
         groundG.fillStyle(0xDED895, 1); groundG.fillRect(0, 15, 400, 100);
@@ -377,11 +369,16 @@
         birdG.generateTexture('bird', 45, 40);
 
         pipes = this.physics.add.group(); coins = this.physics.add.group();
-        bird = this.physics.add.sprite(config.width/4, config.height/2, 'bird'); bird.setDepth(10); bird.body.setCircle(13,9,7);
-        this.ground = this.add.tileSprite(config.width/2, config.height, config.width, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
+        bird = this.physics.add.sprite(100, 300, 'bird'); bird.setDepth(10); bird.body.setCircle(13,9,7);
+        
+        // Zemini ekranın altına sabitle
+        this.ground = this.add.tileSprite(200, 600, 400, 110, 'ground').setOrigin(0.5, 1).setDepth(20);
         this.physics.add.existing(this.ground, true);
 
-        this.input.on('pointerdown', jump, this); this.input.keyboard.on('keydown-SPACE', jump, this);
+        // Input hem dokunmatik hem klavye
+        this.input.on('pointerdown', jump, this); 
+        this.input.keyboard.on('keydown-SPACE', jump, this);
+        
         this.physics.add.collider(bird, pipes, gameOver, null, this);
         this.physics.add.collider(bird, this.ground, gameOver, null, this);
         this.physics.add.overlap(bird, coins, collectCoin, null, this);
@@ -390,48 +387,89 @@
     }
 
     function update() {
-        if(!gameHasStarted) { bird.body.allowGravity=false; bird.y=(config.height/2)+Math.sin(this.time.now/300)*8; return; }
+        if(!gameHasStarted) { 
+            bird.body.allowGravity=false; 
+            bird.y = 300 + Math.sin(this.time.now/300)*10; // Süzülme efekti
+            return; 
+        }
         if(gameOverFlag) return;
+        
         this.ground.tilePositionX += 2.5;
         if(bird.angle < 30) bird.angle += 2.5;
-        if(bird.y < -50 || bird.y > config.height) gameOver.call(this);
+        if(bird.y < -50 || bird.y > 600) gameOver.call(this); // Ekrandan çıkarsa öl
     }
 
     function jump() {
+        // Modal açıkken zıplama
         if(!document.getElementById('login-modal').classList.contains('hidden')) return;
         if(!document.getElementById('leaderboard-modal').classList.contains('hidden')) return;
+        
         if(gameOverFlag) { restartGame.call(this); return; }
-        if(!gameHasStarted) { gameHasStarted=true; bird.body.allowGravity=true; this.pipeTimer.paused=false; document.getElementById('start-msg').style.display='none'; if(audioCtx.state==='suspended') audioCtx.resume(); }
-        bird.setVelocityY(-350); this.tweens.add({ targets: bird, angle: -25, duration: 100 }); playSound('jump');
+        
+        if(!gameHasStarted) { 
+            gameHasStarted=true; 
+            bird.body.allowGravity=true; 
+            this.pipeTimer.paused=false; 
+            document.getElementById('start-msg').style.display='none'; 
+            if(audioCtx.state==='suspended') audioCtx.resume(); // Mobilde ses için kritik
+        }
+        
+        bird.setVelocityY(-400); 
+        this.tweens.add({ targets: bird, angle: -25, duration: 100 }); 
+        playSound('jump');
     }
 
     function addPipe() {
         if(gameOverFlag) return;
-        let gap = Math.max(85, 140-(score*0.5));
-        let minPipe=80, maxPos=config.height-110-gap-minPipe;
-        let y = (Math.random()<0.5) ? ((Math.random()<0.5)?minPipe:maxPos) : Phaser.Math.Between(minPipe, maxPos);
-        let top = pipes.create(config.width+80, y, 'pipe').setOrigin(0.5,1).setFlipY(true);
-        let bot = pipes.create(config.width+80, y+gap, 'pipe').setOrigin(0.5,0);
+        let gap = Math.max(90, 140-(score*0.5)); // Zorluk artışı
+        let minPipe=80, maxPos=600-110-gap-minPipe;
+        let y = Phaser.Math.Between(minPipe, maxPos);
+        
+        let top = pipes.create(450, y, 'pipe').setOrigin(0.5,1).setFlipY(true);
+        let bot = pipes.create(450, y+gap, 'pipe').setOrigin(0.5,0);
+        
         [top,bot].forEach(p=>{ p.body.allowGravity=false; p.setVelocityX(-200); });
         
-        let c = coins.create(config.width+80, y+(gap/2), 'coin'); c.setVelocityX(-200); c.body.allowGravity=false;
-        this.tweens.add({ targets: c, scaleX: 0, duration: 600, yoyo: true, repeat: -1 });
-        this.time.delayedCall(1500, ()=>{ if(!gameOverFlag && gameHasStarted) { score++; document.getElementById('current-score').innerText=score; }});
+        // %30 şansla altın ekle
+        if(Math.random() > 0.7) {
+            let c = coins.create(450, y+(gap/2), 'coin'); 
+            c.setVelocityX(-200); c.body.allowGravity=false;
+            this.tweens.add({ targets: c, scaleX: 0, duration: 600, yoyo: true, repeat: -1 });
+        }
+        
+        // Puan sayacı (boru geçince)
+        this.time.delayedCall(1500, ()=>{ 
+            if(!gameOverFlag && gameHasStarted) { 
+                score++; document.getElementById('current-score').innerText=score; 
+            }
+        });
     }
 
-    function collectCoin(b,c) { c.disableBody(true,true); totalCoins++; document.getElementById('total-coins').innerText=totalCoins; playSound('coin'); }
+    function collectCoin(b,c) { 
+        c.disableBody(true,true); 
+        totalCoins++; 
+        document.getElementById('total-coins').innerText=totalCoins; 
+        playSound('coin'); 
+    }
 
     function gameOver() {
         if(gameOverFlag) return; gameOverFlag=true;
-        this.physics.pause(); bird.setTint(0xff0000); playSound('dead');
+        this.physics.pause(); 
+        bird.setTint(0xff0000); 
+        playSound('dead');
+        
         if(score>bestScore) { bestScore=score; localStorage.setItem('flappy_best', bestScore); }
         localStorage.setItem('flappy_coins', totalCoins);
         skoruDatabaseYaz(score, totalCoins);
-        document.getElementById('start-msg').innerText = "TEKRAR DENE"; document.getElementById('start-msg').style.display = 'block';
+        
+        document.getElementById('start-msg').innerText = "TEKRAR DENE"; 
+        document.getElementById('start-msg').style.display = 'block';
     }
 
     function restartGame() {
-        gameOverFlag=false; gameHasStarted=false; score=0; document.getElementById('current-score').innerText="0"; this.scene.restart();
+        gameOverFlag=false; gameHasStarted=false; score=0; 
+        document.getElementById('current-score').innerText="0"; 
+        this.scene.restart();
     }
     </script>
 </body>
