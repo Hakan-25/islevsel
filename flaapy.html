@@ -12,92 +12,111 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
-        body { margin: 0; padding: 0; background-color: #4ec0ca; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Inter', sans-serif; }
-        
-       /* --- YENİ EKLENEN STİLLER --- */
+        body { margin: 0; padding: 0; background-color: #4ec0ca; overflow: hidden; font-family: 'Inter', sans-serif; touch-action: none; }
 
-/* Üst Çubuk (Sabitleyici) */
-#top-bar {
-    position: fixed;
-    top: 15px;
-    left: 0;
-    width: 100%;
-    padding: 0 20px;
-    display: flex;
-    justify-content: space-between; /* Biri sağa biri sola */
-    align-items: flex-start;
-    z-index: 100; /* En üstte dursun */
-    pointer-events: none; /* Tıklamayı engellemesin */
-}
+        /* --- ÜST ÇUBUK (Fixed & Safe Area) --- */
+        #top-bar {
+            position: fixed;
+            top: 20px; /* Çentikli ekranlar için biraz boşluk */
+            left: 0;
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 100;
+            pointer-events: none; /* Arkadaki oyuna tıklanabilsin */
+        }
 
-/* Sol Üstteki Ev Butonu */
-.home-btn {
-    pointer-events: auto; /* Tıklanabilir olsun */
-    text-decoration: none;
-    background: white;
-    width: 45px;
-    height: 45px;
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    box-shadow: 0 4px 0 #2c7a81;
-    border: 2px solid #fff;
-    transition: transform 0.1s;
-}
-.home-btn:active { transform: translateY(3px); box-shadow: none; }
+        /* Sol Üst: Ev Butonu */
+        .home-btn {
+            pointer-events: auto;
+            text-decoration: none;
+            background: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 4px 0 #2c7a81;
+            border: 2px solid #fff;
+            transition: transform 0.1s;
+        }
+        .home-btn:active { transform: translateY(3px); box-shadow: none; }
 
-/* Sağ Üstteki Küçük İstatistikler */
-.mini-stats {
-    display: flex;
-    flex-direction: column; /* Alt alta diz */
-    gap: 8px;
-    align-items: flex-end;
-}
+        /* Sağ Üst: İstatistikler */
+        .stats-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
 
-.mini-box {
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 700;
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255,255,255,0.3);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 80px; /* Sabit genişlik */
-}
+        .stat-badge {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 80px;
+            justify-content: center;
+        }
 
-/* Ortadaki Büyük Skor (Arkada Dursun) */
-#current-score-container {
-    position: fixed;
-    top: 15%; /* Biraz yukarıda */
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10; /* Butonların altında kalsın */
-    pointer-events: none;
-}
+        /* Liderlik Tablosu Butonu (Stats altına ekledim) */
+        .leaderboard-btn {
+            pointer-events: auto;
+            background: #FFD700; /* Altın rengi */
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            border: 2px solid #fff;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #B8860B;
+            margin-top: 5px;
+        }
+        .leaderboard-btn:active { transform: translateY(3px); box-shadow: none; }
 
-#current-score {
-    font-size: 80px;
-    font-weight: 900;
-    color: white;
-    text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
-}
+        /* Büyük Skor (Ortada) */
+        #current-score-container {
+            position: fixed;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            pointer-events: none;
+            text-align: center;
+        }
+        #current-score {
+            font-size: 80px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+            line-height: 1;
+        }
 
         /* Başlangıç Mesajı */
         #start-msg {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 24px; color: white; font-weight: bold; text-shadow: 2px 2px 0 #000;
             animation: pulse 1s infinite; pointer-events: none; z-index: 40;
-            display: none; 
+            display: none; width: 100%; text-align: center;
         }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        /* Giriş Modalı */
+        /* Modallar */
         #login-modal, #leaderboard-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 200;
@@ -106,75 +125,59 @@
         
         .modal-content {
             background: linear-gradient(135deg, #4ec0ca, #3da0a9);
-            padding: 40px; border-radius: 20px; text-align: center;
+            padding: 30px; border-radius: 20px; text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 4px solid white;
-            width: 80%; max-width: 400px; position: relative;
+            width: 85%; max-width: 350px;
         }
         
         .modal-input {
-            width: 80%; padding: 15px; font-size: 18px; border-radius: 10px; border: none;
+            width: 80%; padding: 12px; font-size: 16px; border-radius: 10px; border: none;
             margin-bottom: 20px; font-family: 'Inter', sans-serif; text-align: center;
             font-weight: bold; color: #333; outline: none;
         }
         
         .modal-btn, .close-btn {
-            background: #fff; color: #4ec0ca; padding: 15px 40px; border: none;
-            border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer;
-            box-shadow: 0 6px 0 #2c7a81; transition: 0.1s; text-transform: uppercase;
+            background: #fff; color: #4ec0ca; padding: 12px 30px; border: none;
+            border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer;
+            box-shadow: 0 5px 0 #2c7a81; transition: 0.1s; text-transform: uppercase;
         }
         .modal-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #2c7a81; }
 
         .hidden { display: none !important; }
 
-        /* --- YENİ EKLENENLER: LİDERLİK TABLOSU --- */
-        /* Liderlik Butonu */
-        .leaderboard-btn {
-            position: fixed; top: 20px; right: 20px; 
-            background: #fff; width: 50px; height: 50px; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 24px; cursor: pointer; z-index: 100;
-            box-shadow: 0 4px 0 #3da0a9; transition: 0.1s; border: none;
-        }
-        .leaderboard-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #3da0a9; }
-
-        /* Tablo Tasarımı */
+        /* Liste Tasarımı */
         #leaderboard-list {
-            list-style: none; padding: 0; margin: 20px 0; max-height: 300px; overflow-y: auto;
-            text-align: left;
+            list-style: none; padding: 0; margin: 20px 0; max-height: 250px; overflow-y: auto; text-align: left;
         }
         .leaderboard-item {
-            background: rgba(255,255,255,0.2); margin-bottom: 8px; padding: 10px 15px;
-            border-radius: 10px; color: white; display: flex; justify-content: space-between;
-            font-weight: bold; font-size: 16px;
+            background: rgba(255,255,255,0.2); margin-bottom: 6px; padding: 8px 12px;
+            border-radius: 8px; color: white; display: flex; justify-content: space-between;
+            font-weight: bold; font-size: 14px;
         }
-        .rank-1 { background: linear-gradient(90deg, #FFD700, #FDB931); border: 2px solid #fff; color: #333; text-shadow: none; }
-        .rank-2 { background: linear-gradient(90deg, #E0E0E0, #BDBDBD); border: 1px solid #fff; color: #333; text-shadow: none; }
+        .rank-1 { background: linear-gradient(90deg, #FFD700, #FDB931); border: 2px solid #fff; color: #333; }
+        .rank-2 { background: linear-gradient(90deg, #E0E0E0, #BDBDBD); border: 1px solid #fff; color: #333; }
         .rank-3 { background: linear-gradient(90deg, #CD7F32, #A0522D); border: 1px solid #fff; color: #fff; }
 
-        .close-btn { font-size: 14px; padding: 10px 20px; background: #e74c3c; color: white; box-shadow: 0 4px 0 #c0392b; }
+        .close-btn { font-size: 14px; padding: 8px 20px; background: #e74c3c; color: white; box-shadow: 0 4px 0 #c0392b; }
         .close-btn:active { box-shadow: 0 1px 0 #c0392b; }
 
-        .back-btn { 
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
-            padding: 15px 40px; background: #ffffff; color: #4ec0ca; 
-            text-decoration: none; border-radius: 50px; font-weight: 900; font-size: 16px;
-            box-shadow: 0 6px 0 #3da0a9; transition: 0.1s; z-index: 100; 
-            pointer-events: auto; text-transform: uppercase; letter-spacing: 1px;
-        }
     </style>
 </head>
 <body>
 
-    <div id="ui-container">
-        <div id="current-score">0</div>
-        <div class="sub-stats">
-            <div class="stat-box"><span>🏆</span> <span id="best-score">0</span></div>
-            <div style="width: 2px; background: rgba(255,255,255,0.4); height: 20px;"></div>
-            <div class="stat-box"><span>💰</span> <span id="total-coins">0</span></div>
+    <div id="top-bar">
+        <a href="index.html" class="home-btn">🏠</a>
+
+        <div class="stats-container">
+            <div class="stat-badge">🏆 <span id="best-score">0</span></div>
+            <div class="stat-badge">💰 <span id="total-coins">0</span></div>
+            <button class="leaderboard-btn" onclick="openLeaderboard()">🥇</button>
         </div>
     </div>
 
-    <button class="leaderboard-btn" onclick="openLeaderboard()">🏆</button>
+    <div id="current-score-container">
+        <div id="current-score">0</div>
+    </div>
 
     <div id="start-msg">BAŞLAMAK İÇİN DOKUN</div>
 
@@ -186,23 +189,17 @@
         </div>
     </div>
 
-    <div id="top-bar">
-    <a href="index.html" class="home-btn">🏠</a>
-
-    <div class="mini-stats">
-        <div class="mini-box">🏆 <span id="best-score">0</span></div>
-        <div class="mini-box">💰 <span id="total-coins">0</span></div>
+    <div id="leaderboard-modal" class="hidden">
+        <div class="modal-content">
+            <h2 style="color:white; margin:0 0 10px 0;">TOP 10 PİLOT</h2>
+            <div id="loading-text" style="color:white; margin-top:20px;">Yükleniyor...</div>
+            <ul id="leaderboard-list"></ul>
+            <button class="close-btn" onclick="closeLeaderboard()">KAPAT</button>
+        </div>
     </div>
-</div>
-
-<div id="current-score-container">
-    <div id="current-score">0</div>
-</div>
-
-    <a href="index.html" class="back-btn">ANA MENÜ</a>
 
     <script>
-    // --- FIREBASE AYARLARI ---
+    // --- FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyBW8xNsDjp3duXyuPukuBKNlOYw-uv6W1c",
         authDomain: "hakantools-a44c0.firebaseapp.com",
@@ -216,7 +213,6 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // --- KULLANICI İŞLEMLERİ ---
     window.addEventListener('load', () => {
         const kayitliID = localStorage.getItem('hakan_flappy_uid');
         if (kayitliID) {
@@ -229,7 +225,6 @@
     function kullaniciKaydet() {
         const isim = document.getElementById('nickname-input').value.trim();
         if (isim === "") { alert("Lütfen bir isim yaz!"); return; }
-
         const eskiBest = parseInt(localStorage.getItem('flappy_best')) || 0;
         const eskiCoins = parseInt(localStorage.getItem('flappy_coins')) || 0;
 
@@ -242,31 +237,19 @@
         }).catch((err) => alert("Hata: " + err.message));
     }
 
-    // Eski verileriGuncelle fonksiyonunu sil, bunu yapıştır:
-function verileriGuncelle(uid) {
-    // .get() yerine .onSnapshot() kullanıyoruz
-    db.collection("leaderboard").doc(uid).onSnapshot((doc) => {
-        if (doc.exists) {
-            const data = doc.data();
-            
-            // Yeni verileri hafızaya al
-            localStorage.setItem('flappy_best', data.score);
-            localStorage.setItem('flappy_coins', data.coins || 0);
-            
-            // Değişkenleri güncelle (Oyun içi değişkenler)
-            bestScore = data.score;
-            totalCoins = data.coins || 0;
-            
-            // Ekrana anında yansıt
-            if(document.getElementById('best-score')) 
-                document.getElementById('best-score').innerText = data.score;
-            if(document.getElementById('total-coins')) 
-                document.getElementById('total-coins').innerText = data.coins || 0;
-                
-            console.log("Veritabanından canlı güncelleme geldi!");
-        }
-    });
-}
+    function verileriGuncelle(uid) {
+        db.collection("leaderboard").doc(uid).onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                localStorage.setItem('flappy_best', data.score);
+                localStorage.setItem('flappy_coins', data.coins || 0);
+                bestScore = data.score;
+                totalCoins = data.coins || 0;
+                if(document.getElementById('best-score')) document.getElementById('best-score').innerText = data.score;
+                if(document.getElementById('total-coins')) document.getElementById('total-coins').innerText = data.coins || 0;
+            }
+        });
+    }
 
     function skoruDatabaseYaz(yeniSkor, toplamPara) {
         const uid = localStorage.getItem('hakan_flappy_uid');
@@ -285,51 +268,35 @@ function verileriGuncelle(uid) {
         });
     }
 
-    // --- LİDERLİK TABLOSU FONKSİYONLARI (YENİ) ---
     function openLeaderboard() {
         const modal = document.getElementById('leaderboard-modal');
         const list = document.getElementById('leaderboard-list');
         const loading = document.getElementById('loading-text');
-        
         modal.classList.remove('hidden');
         list.innerHTML = "";
         loading.style.display = "block";
 
-        // Veritabanından en yüksek 10 skoru çek
-        db.collection("leaderboard")
-          .orderBy("score", "desc")
-          .limit(10)
-          .get()
+        db.collection("leaderboard").orderBy("score", "desc").limit(10).get()
           .then((querySnapshot) => {
               loading.style.display = "none";
               let rank = 1;
               querySnapshot.forEach((doc) => {
                   const data = doc.data();
-                  let rankClass = "";
-                  if (rank === 1) rankClass = "rank-1";
-                  else if (rank === 2) rankClass = "rank-2";
-                  else if (rank === 3) rankClass = "rank-3";
-
+                  let rankClass = rank === 1 ? "rank-1" : rank === 2 ? "rank-2" : rank === 3 ? "rank-3" : "";
                   const item = document.createElement('li');
                   item.className = `leaderboard-item ${rankClass}`;
-                  item.innerHTML = `
-                      <span>${rank}. ${data.name}</span>
-                      <span>${data.score}</span>
-                  `;
+                  item.innerHTML = `<span>${rank}. ${data.name}</span><span>${data.score}</span>`;
                   list.appendChild(item);
                   rank++;
               });
-          })
-          .catch((error) => {
-              loading.innerText = "Hata oluştu: " + error.message;
-          });
+          }).catch((error) => { loading.innerText = "Hata: " + error.message; });
     }
 
     function closeLeaderboard() {
         document.getElementById('leaderboard-modal').classList.add('hidden');
     }
 
-    // --- OYUN MOTORU (PHASER) ---
+    // --- OYUN AYARLARI (FPS SABİTLEME) ---
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const audioCtx = new AudioContext();
 
@@ -357,11 +324,17 @@ function verileriGuncelle(uid) {
         }
     }
 
+    // --- KRİTİK: FPS SABİTLEME ---
     const config = {
         type: Phaser.AUTO,
         width: window.innerWidth < 768 ? window.innerWidth : 400,
         height: window.innerWidth < 768 ? window.innerHeight : 600,
         transparent: true,
+        // Bu ayar oyunun her cihazda 60 kare hızında (aynı hızda) çalışmasını sağlar
+        fps: {
+            target: 60,
+            forceSetTimeOut: true
+        },
         physics: { default: 'arcade', arcade: { gravity: { y: 1100 }, debug: false } },
         scene: { create: create, update: update }
     };
@@ -426,7 +399,7 @@ function verileriGuncelle(uid) {
 
     function jump() {
         if(!document.getElementById('login-modal').classList.contains('hidden')) return;
-        if(!document.getElementById('leaderboard-modal').classList.contains('hidden')) return; 
+        if(!document.getElementById('leaderboard-modal').classList.contains('hidden')) return;
         if(gameOverFlag) { restartGame.call(this); return; }
         if(!gameHasStarted) { gameHasStarted=true; bird.body.allowGravity=true; this.pipeTimer.paused=false; document.getElementById('start-msg').style.display='none'; if(audioCtx.state==='suspended') audioCtx.resume(); }
         bird.setVelocityY(-350); this.tweens.add({ targets: bird, angle: -25, duration: 100 }); playSound('jump');
@@ -463,5 +436,3 @@ function verileriGuncelle(uid) {
     </script>
 </body>
 </html>
-
-
